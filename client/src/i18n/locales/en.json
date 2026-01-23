@@ -1,0 +1,248 @@
+{
+  "nav": {
+    "findLoads": "Find Loads",
+    "postLoad": "Post Load",
+    "findTrucks": "Find Trucks",
+    "routes": "Routes",
+    "trackShipment": "Track Shipment",
+    "myAccount": "My Account",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "hero": {
+      "title": "Connect Cargo with Capacity",
+      "subtitle": "Across China-Pakistan Corridors",
+      "description": "Post loads, find trucks, track shipments from Kashgar to Islamabad. The premier loadboard for Karakoram Highway freight.",
+      "postLoad": "Post a Load",
+      "findTrucks": "Find Available Trucks",
+      "browseLoads": "Browse Loads"
+    },
+    "stats": {
+      "verifiedCarriers": "Verified Carriers",
+      "loadsMoved": "Loads Moved",
+      "activeRoutes": "Active Routes",
+      "inTransit": "In Transit",
+      "activeLoads": "Active Loads",
+      "availableTrucks": "Available Trucks",
+      "completed": "Completed",
+      "today": "today",
+      "thisWeek": "this week",
+      "thisMonth": "This month",
+      "liveTracking": "Live tracking"
+    },
+    "features": {
+      "title": "Why Choose LoadPak?",
+      "subtitle": "Built specifically for China-Pakistan freight corridors with advanced features for shippers and carriers",
+      "verifiedCarriers": "Access 500+ Verified Carriers",
+      "verifiedCarriersDesc": "Your load will be visible to our network of verified trucking companies.",
+      "quickResponses": "Quick Responses",
+      "quickResponsesDesc": "Receive quotes from carriers within hours of posting.",
+      "secureTransactions": "Secure Transactions",
+      "secureTransactionsDesc": "All carriers are verified and insured for your peace of mind.",
+      "trackEverything": "Track Everything",
+      "trackEverythingDesc": "Real-time tracking from pickup to delivery with GPS updates.",
+      "routeOptimization": "Route Optimization",
+      "routeOptimizationDesc": "Specialized routes via Khunjerab Pass with border crossing expertise.",
+      "fastMatching": "Fast Matching",
+      "fastMatchingDesc": "Smart algorithm connects your cargo with available capacity instantly."
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Join hundreds of shippers and carriers moving freight across CPEC routes",
+      "signUp": "Sign Up Free"
+    }
+  },
+  "loads": {
+    "title": "Find Loads",
+    "subtitle": "Browse available cargo looking for transport",
+    "search": "Search loads...",
+    "filters": {
+      "truckType": "Truck Type",
+      "cargoType": "Cargo Type",
+      "route": "Route",
+      "urgent": "Urgent",
+      "verifiedOnly": "Verified Carriers Only",
+      "moreFilters": "More Filters",
+      "clearFilters": "Clear Filters",
+      "filter": "Filter"
+    },
+    "sort": {
+      "newestFirst": "Newest First",
+      "highestRate": "Highest Rate",
+      "closestPickup": "Closest Pickup"
+    },
+    "card": {
+      "pickup": "Pickup:",
+      "delivery": "Delivery:",
+      "cargo": "Cargo:",
+      "customs": "Customs:",
+      "postedBy": "Posted by",
+      "viewDetails": "View Details",
+      "sendQuote": "Send Quote",
+      "urgent": "Urgent",
+      "specialPermit": "Special Permit",
+      "negotiable": "Negotiable"
+    },
+    "stats": {
+      "availableLoads": "Available Loads",
+      "urgentLoads": "Urgent Loads",
+      "avgRate": "Avg. Rate",
+      "newToday": "New Today"
+    }
+  },
+  "trucks": {
+    "title": "Find Available Trucks",
+    "subtitle": "Browse verified carriers and available trucks with per-km rates",
+    "search": "Search carriers...",
+    "filters": {
+      "truckType": "Truck Type",
+      "currentLocation": "Current Location",
+      "allTypes": "All Types",
+      "allLocations": "All Locations",
+      "searchTrucks": "Search Trucks"
+    },
+    "sort": {
+      "highestRated": "Highest Rated"
+    },
+    "stats": {
+      "availableTrucks": "Available Trucks",
+      "inChina": "In China",
+      "inPakistan": "In Pakistan",
+      "verifiedCarriers": "Verified Carriers"
+    },
+    "card": {
+      "currentLocation": "Current Location:",
+      "availableFrom": "Available From:",
+      "preferredRoute": "Preferred Route:",
+      "verified": "Verified",
+      "insured": "Insured",
+      "gpsTracking": "GPS Tracking",
+      "viewCarrier": "View Carrier",
+      "requestQuote": "Request Quote",
+      "borderCrossing": "Border crossing experience:",
+      "onTime": "on-time",
+      "diesel": "Diesel"
+    }
+  },
+  "postLoad": {
+    "title": "Post a Load",
+    "subtitle": "Fill in the details below to find carriers for your cargo",
+    "steps": {
+      "route": "Route",
+      "cargo": "Cargo",
+      "schedule": "Schedule",
+      "pricing": "Pricing",
+      "requirements": "Requirements",
+      "photos": "Photos"
+    },
+    "route": {
+      "title": "Route Information",
+      "origin": "Origin",
+      "destination": "Destination",
+      "selectCity": "Select destination city"
+    },
+    "cargo": {
+      "title": "Cargo Details",
+      "cargoType": "Cargo Type",
+      "selectType": "Select cargo type",
+      "weight": "Weight (kg)",
+      "length": "Length (cm)",
+      "width": "Width (cm)",
+      "height": "Height (cm)",
+      "volume": "Volume (CBM)",
+      "description": "Description (Optional)",
+      "descriptionPlaceholder": "Additional details about the cargo..."
+    },
+    "schedule": {
+      "title": "Schedule",
+      "pickupDate": "Pickup Date",
+      "deliveryDeadline": "Delivery Deadline"
+    },
+    "buttons": {
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Post Load"
+    },
+    "help": {
+      "title": "Need Help?",
+      "description": "Our support team is available 24/7 to help you with your shipment needs.",
+      "phone": "Phone: +92 51 123 4567",
+      "email": "Email: support@loadpak.com"
+    },
+    "benefits": {
+      "title": "Why Post on LoadPak?",
+      "carriers": "Access 500+ Verified Carriers",
+      "carriersDesc": "Your load will be visible to our network of verified trucking companies.",
+      "responses": "Quick Responses",
+      "responsesDesc": "Receive quotes from carriers within hours of posting.",
+      "transactions": "Secure Transactions",
+      "transactionsDesc": "All carriers are verified and insured for your peace of mind.",
+      "tracking": "Track Everything",
+      "trackingDesc": "Real-time tracking from pickup to delivery."
+    }
+  },
+  "routes": {
+    "title": "Freight Routes",
+    "subtitle": "China-Pakistan freight corridors via Karakoram Highway",
+    "alerts": {
+      "khunjerab": "Khunjerab Pass",
+      "khunjerabDesc": "The world's highest paved international border crossing at 4,693m elevation.",
+      "seasonal": "Seasonal Timing",
+      "seasonalDesc": "The pass is typically open from April to November, weather permitting.",
+      "weather": "Weather Alerts",
+      "weatherDesc": "Check current conditions before planning shipments during winter months."
+    },
+    "map": {
+      "title": "Interactive Route Map",
+      "description": "Visual map showing all active routes, current shipments, and available trucks coming soon."
+    },
+    "allRoutes": "All Routes",
+    "distance": "Distance",
+    "estTransitTime": "Est. Transit Time",
+    "borderCrossing": "Border Crossing",
+    "routePopularity": "Route Popularity",
+    "viewLoads": "View Loads",
+    "findTrucks": "Find Trucks",
+    "activeTrucks": "Active Trucks",
+    "activeLoads": "Active Loads",
+    "days": "days"
+  },
+  "tracking": {
+    "title": "Track Shipment",
+    "trackingNumber": "Tracking Number",
+    "from": "From",
+    "to": "To",
+    "cargo": "Cargo",
+    "estArrival": "Est. Arrival",
+    "documents": "Documents",
+    "contactDriver": "Contact Driver",
+    "progress": "Shipment Progress",
+    "inTransit": "In Transit",
+    "borderCrossing": "Border Crossing",
+    "milestones": {
+      "loadPickup": "Load Pickup",
+      "borderCrossing": "Border Crossing",
+      "customsClearance": "Customs Clearance",
+      "inTransit": "In Transit",
+      "finalDelivery": "Final Delivery"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "showing": "Showing",
+    "results": "results",
+    "noResults": "No results found",
+    "tryAgain": "Try again"
+  }
+}

@@ -1,0 +1,416 @@
+import { useState } from 'react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield } from 'lucide-react';
+
+interface Load {
+  id: number;
+  origin: string;
+  destination: string;
+  cargo: string;
+  weight: number;
+  volume?: number;
+  vehicle: string;
+  rateUsd: number;
+  ratePkr: number;
+  ratePerKm: number;
+  distance: number;
+  pickupDate: string;
+  deliveryDate: string;
+  urgent: boolean;
+  postedBy: string;
+  postedDate: string;
+  contactPhone: string;
+  contactEmail: string;
+  rating: number;
+  verified: boolean;
+  insurance: boolean;
+  description?: string;
+  specialRequirements?: string[];
+  loadingType: 'FTL' | 'LTL';
+  views: number;
+}
+
+export default function FindLoads() {
+  const [showFilters, setShowFilters] = useState(true);
+  const [sortBy, setSortBy] = useState<'date' | 'rate' | 'distance'>('date');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [savedLoads, setSavedLoads] = useState<number[]>([]);
+  const [expandedLoad, setExpandedLoad] = useState<number | null>(null);
+  const [filters, setFilters] = useState({
+    originCity: '',
+    destinationCity: '',
+    cargoType: '',
+    minWeight: '',
+    maxWeight: '',
+    vehicleType: '',
+    minRate: '',
+    maxRate: '',
+    pickupDateFrom: '',
+    pickupDateTo: '',
+    urgentOnly: false,
+  });
+
+  const allLoads = [
+    {
+      id: 1,
+      origin: 'Kashgar, China',
+      destination: 'Islamabad, Pakistan',
+      cargo: 'Electronics',
+      weight: 16000,
+      vehicle: '40ft Container',
+      rateUsd: 4500,
+      ratePkr: 1251000,
+      pickupDate: '2024-01-25',
+      deliveryDate: '2024-02-02',
+      urgent: true,
+      postedBy: 'TechCorp Ltd',
+    },
+    {
+      id: 2,
+      origin: 'Urumqi, China',
+      destination: 'Lahore, Pakistan',
+      cargo: 'Textiles',
+      weight: 23000,
+      vehicle: '40ft Container',
+      rateUsd: 5200,
+      ratePkr: 1446000,
+      pickupDate: '2024-01-28',
+      deliveryDate: '2024-02-05',
+      urgent: false,
+      postedBy: 'Silk Road Traders',
+    },
+    {
+      id: 3,
+      origin: 'Kashgar, China',
+      destination: 'Karachi, Pakistan',
+      cargo: 'Machinery',
+      weight: 15000,
+      vehicle: '20ft Container',
+      rateUsd: 6800,
+      ratePkr: 1890000,
+      pickupDate: '2024-02-01',
+      deliveryDate: '2024-02-10',
+      urgent: false,
+      postedBy: 'Industrial Solutions',
+    },
+  ];
+
+  const filteredLoads = allLoads.filter(load => {
+    if (filters.originCity && !load.origin.toLowerCase().includes(filters.originCity.toLowerCase())) return false;
+    if (filters.destinationCity && !load.destination.toLowerCase().includes(filters.destinationCity.toLowerCase())) return false;
+    if (filters.cargoType && !load.cargo.toLowerCase().includes(filters.cargoType.toLowerCase())) return false;
+    if (filters.minWeight && load.weight < parseInt(filters.minWeight)) return false;
+    if (filters.maxWeight && load.weight > parseInt(filters.maxWeight)) return false;
+    if (filters.vehicleType && !load.vehicle.toLowerCase().includes(filters.vehicleType.toLowerCase())) return false;
+    if (filters.minRate && load.rateUsd < parseInt(filters.minRate)) return false;
+    if (filters.maxRate && load.rateUsd > parseInt(filters.maxRate)) return false;
+    if (filters.pickupDateFrom && load.pickupDate < filters.pickupDateFrom) return false;
+    if (filters.pickupDateTo && load.pickupDate > filters.pickupDateTo) return false;
+    if (filters.urgentOnly && !load.urgent) return false;
+    return true;
+  });
+
+  const clearFilters = () => {
+    setFilters({
+      originCity: '',
+      destinationCity: '',
+      cargoType: '',
+      minWeight: '',
+      maxWeight: '',
+      vehicleType: '',
+      minRate: '',
+      maxRate: '',
+      pickupDateFrom: '',
+      pickupDateTo: '',
+      urgentOnly: false,
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('loads.title')}</h1>
+          <p className="text-slate-600">{t('loads.subtitle')}</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white p-4 rounded-lg border border-slate-200">
+            <div className="text-2xl font-bold text-slate-900">7</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.availableLoads')}</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-slate-200">
+            <div className="text-2xl font-bold text-slate-900">2</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.urgentLoads')}</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-slate-200">
+            <div className="text-2xl font-bold text-slate-900">$3.60/km</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.avgRate')}</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-slate-200">
+            <div className="text-2xl font-bold text-slate-900">18</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.newToday')}</div>
+          </div>
+        </div>
+
+        {/* Quick Search */}
+        <div className="bg-white p-4 rounded-lg border border-slate-200 mb-6">
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by city, cargo type..."
+                value={filters.originCity}
+                onChange={(e) => setFilters({...filters, originCity: e.target.value})}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Filter className="w-5 h-5" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+          </div>
+        </div>
+
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Advanced Filters</h2>
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-900"
+              >
+                <X size={16} />
+                Clear All
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <MapPin className="inline w-4 h-4 mr-1" />
+                  Origin City
+                </label>
+                <input
+                  type="text"
+                  value={filters.originCity}
+                  onChange={(e) => setFilters({...filters, originCity: e.target.value})}
+                  placeholder="e.g., Kashgar"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <MapPin className="inline w-4 h-4 mr-1" />
+                  Destination City
+                </label>
+                <input
+                  type="text"
+                  value={filters.destinationCity}
+                  onChange={(e) => setFilters({...filters, destinationCity: e.target.value})}
+                  placeholder="e.g., Islamabad"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <Package className="inline w-4 h-4 mr-1" />
+                  Cargo Type
+                </label>
+                <select
+                  value={filters.cargoType}
+                  onChange={(e) => setFilters({...filters, cargoType: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">All Types</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="textiles">Textiles</option>
+                  <option value="machinery">Machinery</option>
+                  <option value="food">Food & Beverages</option>
+                  <option value="chemicals">Chemicals</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Min Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  value={filters.minWeight}
+                  onChange={(e) => setFilters({...filters, minWeight: e.target.value})}
+                  placeholder="1000"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Max Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  value={filters.maxWeight}
+                  onChange={(e) => setFilters({...filters, maxWeight: e.target.value})}
+                  placeholder="25000"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <Truck className="inline w-4 h-4 mr-1" />
+                  Vehicle Type
+                </label>
+                <select
+                  value={filters.vehicleType}
+                  onChange={(e) => setFilters({...filters, vehicleType: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">All Vehicles</option>
+                  <option value="20ft">20ft Container</option>
+                  <option value="40ft">40ft Container</option>
+                  <option value="flatbed">Flatbed Truck</option>
+                  <option value="refrigerated">Refrigerated</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Min Rate (USD)
+                </label>
+                <input
+                  type="number"
+                  value={filters.minRate}
+                  onChange={(e) => setFilters({...filters, minRate: e.target.value})}
+                  placeholder="1000"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Max Rate (USD)
+                </label>
+                <input
+                  type="number"
+                  value={filters.maxRate}
+                  onChange={(e) => setFilters({...filters, maxRate: e.target.value})}
+                  placeholder="10000"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <Calendar className="inline w-4 h-4 mr-1" />
+                  Pickup From
+                </label>
+                <input
+                  type="date"
+                  value={filters.pickupDateFrom}
+                  onChange={(e) => setFilters({...filters, pickupDateFrom: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <Calendar className="inline w-4 h-4 mr-1" />
+                  Pickup To
+                </label>
+                <input
+                  type="date"
+                  value={filters.pickupDateTo}
+                  onChange={(e) => setFilters({...filters, pickupDateTo: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div className="flex items-center pt-6">
+                <input
+                  type="checkbox"
+                  id="urgentOnly"
+                  checked={filters.urgentOnly}
+                  onChange={(e) => setFilters({...filters, urgentOnly: e.target.checked})}
+                  className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="urgentOnly" className="ml-2 text-sm font-medium text-slate-700">
+                  Urgent Loads Only
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-4 text-sm text-slate-600">
+              Showing {filteredLoads.length} of {allLoads.length} loads
+            </div>
+          </div>
+        )}
+
+        {/* Load Cards */}
+        <div className="space-y-4">
+          {filteredLoads.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
+              <Package size={64} className="mx-auto text-slate-400 mb-4" />
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">No loads found</h3>
+              <p className="text-slate-500">Try adjusting your filters</p>
+            </div>
+          ) : (
+            filteredLoads.map((load) => (
+              <div key={load.id} className="bg-white p-6 rounded-lg border border-slate-200 hover:border-green-200 hover:shadow-lg transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg font-semibold">{load.origin} → {load.destination}</span>
+                      {load.urgent && (
+                        <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
+                          URGENT
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600 mb-4">
+                      <div>
+                        <span className="font-medium">Pickup:</span> {load.pickupDate}
+                      </div>
+                      <div>
+                        <span className="font-medium">Delivery:</span> {load.deliveryDate}
+                      </div>
+                      <div>
+                        <span className="font-medium">Cargo:</span> {load.cargo}
+                      </div>
+                      <div>{load.weight.toLocaleString()} kg • {load.vehicle}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">${load.rateUsd.toLocaleString()} USD</div>
+                    <div className="text-sm text-slate-500">PKR {load.ratePkr.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">
+                    Posted by {load.postedBy}
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
+                      View Details
+                    </button>
+                    <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                      Place Bid
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

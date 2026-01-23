@@ -1,0 +1,19 @@
+# Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+# Your public IP address in CIDR format
+# Get your IP: curl https://api.ipify.org
+my_ip = "YOUR_IP_ADDRESS/32"  # Example: "203.0.113.45/32"
+
+# PostgreSQL database password (use a strong password!)
+db_password = "YOUR_STRONG_PASSWORD_HERE"
+
+# AWS EC2 Key Pair name (must exist in your AWS account)
+# Create one in AWS Console: EC2 → Key Pairs → Create key pair
+key_name = "YOUR_KEY_PAIR_NAME"  # Example: "pakload-key"
+
+# Optional: Override defaults
+# aws_region = "eu-north-1"
+# instance_type = "t3.micro"
+# vpc_id = "vpc-03b308cb0f7b1bb02"
+# subnet_id = "subnet-05d537777105b33ecc"

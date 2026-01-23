@@ -1,0 +1,37 @@
+# ============================================================================
+# PakLoad - Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+# ============================================================================
+
+# AWS Configuration
+aws_region   = "eu-north-1"
+project_name = "pakload"
+
+# Your IP for SSH access (get from https://whatismyip.com)
+# Format: "YOUR_IP/32"
+my_ip = "YOUR_IP_ADDRESS/32"
+
+# EC2 Key Pair name (create in AWS Console > EC2 > Key Pairs)
+key_name = "your-key-pair-name"
+
+# Instance type (t3.micro for free tier)
+instance_type = "t3.micro"
+
+# Auto Scaling Configuration
+asg_min     = 1
+asg_max     = 3
+asg_desired = 1
+
+# Database Configuration (Your existing database)
+db_host     = "13.63.16.242"
+db_port     = "5432"
+db_name     = "pakload"
+db_user     = "pakload"
+db_password = "YOUR_DB_PASSWORD"
+
+# Application Configuration
+jwt_secret  = "your-super-secret-jwt-key-change-this"
+node_env    = "production"
+
+# GitHub Repository (optional - for auto-deployment)
+github_repo = "https://github.com/yourusername/pakload.git"

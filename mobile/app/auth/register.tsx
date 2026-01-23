@@ -1,0 +1,335 @@
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+export default function RegisterScreen() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    role: 'shipper',
+    companyName: '',
+  });
+
+  const handleRegister = () => {
+    console.log('Register:', formData);
+    // TODO: Call API
+    router.replace('/(tabs)');
+  };
+
+  const handleSocialRegister = (provider: string) => {
+    console.log('Social register:', provider);
+    // TODO: Implement social auth
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Join PakLoad today</Text>
+        </View>
+
+        {/* Social Register */}
+        <View style={styles.socialContainer}>
+          <TouchableOpacity
+            style={styles.socialButton}
+            onPress={() => handleSocialRegister('google')}
+          >
+            <Ionicons name="logo-google" size={24} color="#DB4437" />
+            <Text style={styles.socialButtonText}>Continue with Google</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.socialButton}
+            onPress={() => handleSocialRegister('facebook')}
+          >
+            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+            <Text style={styles.socialButtonText}>Continue with Facebook</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Divider */}
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>Or sign up with email</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Role Selection */}
+        <View style={styles.roleContainer}>
+          <Text style={styles.label}>I am a</Text>
+          <View style={styles.roleButtons}>
+            <TouchableOpacity
+              style={[styles.roleButton, formData.role === 'shipper' && styles.roleButtonActive]}
+              onPress={() => setFormData({...formData, role: 'shipper'})}
+            >
+              <Ionicons name="business-outline" size={24} color={formData.role === 'shipper' ? '#2563eb' : '#6b7280'} />
+              <Text style={[styles.roleButtonText, formData.role === 'shipper' && styles.roleButtonTextActive]}>
+                Shipper
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleButton, formData.role === 'carrier' && styles.roleButtonActive]}
+              onPress={() => setFormData({...formData, role: 'carrier'})}
+            >
+              <Ionicons name="car-outline" size={24} color={formData.role === 'carrier' ? '#2563eb' : '#6b7280'} />
+              <Text style={[styles.roleButtonText, formData.role === 'carrier' && styles.roleButtonTextActive]}>
+                Carrier
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Register Form */}
+        <View style={styles.form}>
+          <View style={styles.row}>
+            <View style={[styles.inputContainer, styles.halfWidth]}>
+              <Ionicons name="person-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="First Name"
+                value={formData.firstName}
+                onChangeText={(text) => setFormData({...formData, firstName: text})}
+              />
+            </View>
+
+            <View style={[styles.inputContainer, styles.halfWidth]}>
+              <Ionicons name="person-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChangeText={(text) => setFormData({...formData, lastName: text})}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email address"
+              value={formData.email}
+              onChangeText={(text) => setFormData({...formData, email: text})}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="call-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone number"
+              value={formData.phone}
+              onChangeText={(text) => setFormData({...formData, phone: text})}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="business-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Company name (optional)"
+              value={formData.companyName}
+              onChangeText={(text) => setFormData({...formData, companyName: text})}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              value={formData.password}
+              onChangeText={(text) => setFormData({...formData, password: text})}
+              secureTextEntry
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#6b7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm password"
+              value={formData.confirmPassword}
+              onChangeText={(text) => setFormData({...formData, confirmPassword: text})}
+              secureTextEntry
+            />
+          </View>
+
+          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+            <Text style={styles.registerButtonText}>Create Account</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Sign In Link */}
+        <View style={styles.signinContainer}>
+          <Text style={styles.signinText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/auth/login')}>
+            <Text style={styles.signinLink}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  content: {
+    padding: 24,
+  },
+  header: {
+    marginTop: 40,
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  roleContainer: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 12,
+  },
+  roleButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  roleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  roleButtonActive: {
+    borderColor: '#2563eb',
+    backgroundColor: '#eff6ff',
+  },
+  roleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  roleButtonTextActive: {
+    color: '#2563eb',
+  },
+  form: {
+    gap: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  halfWidth: {
+    flex: 1,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 16,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 16,
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  registerButton: {
+    backgroundColor: '#2563eb',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  registerButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  signinContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+    marginBottom: 40,
+  },
+  signinText: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  signinLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2563eb',
+  },
+});

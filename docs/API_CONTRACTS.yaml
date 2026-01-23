@@ -1,0 +1,1331 @@
+openapi: 3.0.3
+info:
+  title: PakLoad API
+  description: |
+    Enterprise-grade logistics load-board platform API for China-Pakistan freight corridor.
+    
+    ## Authentication
+    All endpoints (except auth) require Bearer token authentication.
+    
+    ## Rate Limiting
+    - 100 requests per minute per user
+    - 1000 requests per hour per user
+    
+    ## Versioning
+    API version is specified in the URL path: `/api/v1/...`
+  version: 1.0.0
+  contact:
+    name: PakLoad API Support
+    email: api@pakload.com
+    url: https://docs.pakload.com
+  license:
+    name: Proprietary
+    url: https://pakload.com/terms
+
+servers:
+  - url: https://api.pakload.com/v1
+    description: Production
+  - url: https://staging-api.pakload.com/v1
+    description: Staging
+  - url: http://localhost:5000/api/v1
+    description: Development
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User profile and account management
+  - name: Loads
+    description: Load posting, search, and management
+  - name: Vehicles
+    description: Vehicle fleet management
+  - name: Bids
+    description: Bidding on loads
+  - name: Bookings
+    description: Booking and shipment management
+  - name: Tracking
+    description: Real-time shipment tracking
+  - name: Payments
+    description: Payment processing
+  - name: Ratings
+    description: User ratings and reviews
+  - name: Notifications
+    description: Push notifications and alerts
+  - name: Admin
+    description: Administrative operations
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ==================== AUTHENTICATION ====================
+  /auth/otp/request:
+    post:
+      tags: [Authentication]
+      summary: Request OTP for phone verification
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone_number]
+              properties:
+                phone_number:
+                  type: string
+                  pattern: '^\+92[0-9]{10}$'
+                  example: "+923001234567"
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  expires_in:
+                    type: integer
+                    example: 300
+                  message:
+                    type: string
+                    example: "OTP sent to +923001234567"
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /auth/otp/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify OTP and login/register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone_number, otp]
+              properties:
+                phone_number:
+                  type: string
+                  example: "+923001234567"
+                otp:
+                  type: string
+                  pattern: '^[0-9]{6}$'
+                  example: "123456"
+                device_info:
+                  $ref: '#/components/schemas/DeviceInfo'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user with email/password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "Verification email sent"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login with email/password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                device_info:
+                  $ref: '#/components/schemas/DeviceInfo'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_in:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout and revoke tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                logout_all_devices:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+  # ==================== USERS ====================
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/me/kyc:
+    post:
+      tags: [Users]
+      summary: Submit KYC documents
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                id_card_front:
+                  type: string
+                  format: binary
+                id_card_back:
+                  type: string
+                  format: binary
+                company_registration:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: KYC submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kyc_status:
+                    type: string
+                    enum: [submitted, verified, rejected]
+
+  # ==================== LOADS ====================
+  /loads:
+    get:
+      tags: [Loads]
+      summary: Search and filter loads
+      parameters:
+        - name: origin_city
+          in: query
+          schema:
+            type: string
+        - name: destination_city
+          in: query
+          schema:
+            type: string
+        - name: vehicle_type
+          in: query
+          schema:
+            type: string
+        - name: min_weight
+          in: query
+          schema:
+            type: integer
+        - name: max_weight
+          in: query
+          schema:
+            type: integer
+        - name: pickup_date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: pickup_date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: is_urgent
+          in: query
+          schema:
+            type: boolean
+        - name: radius_km
+          in: query
+          description: Search radius from origin/destination
+          schema:
+            type: integer
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [best_match, nearest, highest_paying, newest]
+            default: best_match
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of loads
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Load'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  filters_applied:
+                    type: object
+
+    post:
+      tags: [Loads]
+      summary: Create new load
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLoadRequest'
+      responses:
+        '201':
+          description: Load created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Load'
+
+  /loads/{id}:
+    get:
+      tags: [Loads]
+      summary: Get load details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Load details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Load'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Loads]
+      summary: Update load
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLoadRequest'
+      responses:
+        '200':
+          description: Load updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Load'
+
+    delete:
+      tags: [Loads]
+      summary: Delete load
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Load deleted
+
+  /loads/{id}/bids:
+    get:
+      tags: [Bids]
+      summary: Get bids for a load
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bid'
+
+  # ==================== BIDS ====================
+  /bids:
+    post:
+      tags: [Bids]
+      summary: Place a bid on a load
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBidRequest'
+      responses:
+        '201':
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bid'
+
+  /bids/{id}/accept:
+    post:
+      tags: [Bids]
+      summary: Accept a bid (shipper only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Bid accepted, booking created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  # ==================== BOOKINGS ====================
+  /bookings:
+    get:
+      tags: [Bookings]
+      summary: Get user's bookings
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, in_transit, delivered, cancelled]
+        - name: role
+          in: query
+          description: Filter by user role in booking
+          schema:
+            type: string
+            enum: [shipper, carrier]
+      responses:
+        '200':
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
+  /bookings/{id}:
+    get:
+      tags: [Bookings]
+      summary: Get booking details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  /bookings/{id}/status:
+    patch:
+      tags: [Bookings]
+      summary: Update booking status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [confirmed, in_transit, delivered, cancelled]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  # ==================== TRACKING ====================
+  /tracking/{tracking_number}:
+    get:
+      tags: [Tracking]
+      summary: Track shipment by tracking number
+      security: []
+      parameters:
+        - name: tracking_number
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tracking information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingInfo'
+
+  /bookings/{id}/location:
+    post:
+      tags: [Tracking]
+      summary: Update current location (carrier only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [latitude, longitude]
+              properties:
+                latitude:
+                  type: number
+                  format: double
+                longitude:
+                  type: number
+                  format: double
+                address:
+                  type: string
+                milestone:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Location updated
+
+  # ==================== VEHICLES ====================
+  /vehicles:
+    get:
+      tags: [Vehicles]
+      summary: Get user's vehicles
+      responses:
+        '200':
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+
+    post:
+      tags: [Vehicles]
+      summary: Add new vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVehicleRequest'
+      responses:
+        '201':
+          description: Vehicle added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+
+  /vehicles/{id}:
+    get:
+      tags: [Vehicles]
+      summary: Get vehicle details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+
+  # ==================== RATINGS ====================
+  /ratings:
+    post:
+      tags: [Ratings]
+      summary: Submit rating for completed booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRatingRequest'
+      responses:
+        '201':
+          description: Rating submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+
+  /users/{id}/ratings:
+    get:
+      tags: [Ratings]
+      summary: Get user's ratings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User ratings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  average_rating:
+                    type: number
+                    format: double
+                  total_ratings:
+                    type: integer
+                  ratings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rating'
+
+  # ==================== NOTIFICATIONS ====================
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Get user notifications
+      parameters:
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+  /notifications/{id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      responses:
+        '200':
+          description: All notifications marked as read
+
+# ==================== COMPONENTS ====================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Auth Schemas
+    DeviceInfo:
+      type: object
+      properties:
+        device_id:
+          type: string
+        device_type:
+          type: string
+          enum: [ios, android, web]
+        device_name:
+          type: string
+        app_version:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          example: "Bearer"
+        expires_in:
+          type: integer
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+
+    RegisterRequest:
+      type: object
+      required: [email, password, first_name, last_name, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone_number:
+          type: string
+        role:
+          type: string
+          enum: [shipper, carrier, broker]
+        company_name:
+          type: string
+
+    # User Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        phone_number:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        profile_image_url:
+          type: string
+        role:
+          type: string
+          enum: [shipper, carrier, broker, admin]
+        account_status:
+          type: string
+          enum: [pending, active, suspended, banned]
+        kyc_status:
+          type: string
+          enum: [pending, submitted, verified, rejected]
+        company_name:
+          type: string
+        trust_score:
+          type: number
+          format: double
+        total_ratings:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        company_name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+
+    # Load Schemas
+    Load:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        origin_address:
+          type: string
+        origin_city:
+          type: string
+        origin_lat:
+          type: number
+        origin_lng:
+          type: number
+        destination_address:
+          type: string
+        destination_city:
+          type: string
+        destination_lat:
+          type: number
+        destination_lng:
+          type: number
+        distance_km:
+          type: number
+        cargo_type:
+          type: string
+        cargo_description:
+          type: string
+        weight_kg:
+          type: integer
+        required_vehicle_type:
+          type: string
+        pickup_date:
+          type: string
+          format: date
+        delivery_date:
+          type: string
+          format: date
+        rate_amount_usd:
+          type: number
+        rate_amount_pkr:
+          type: number
+        status:
+          type: string
+          enum: [draft, posted, bidding, booked, in_transit, delivered, cancelled]
+        is_urgent:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    CreateLoadRequest:
+      type: object
+      required: [origin_address, origin_city, destination_address, destination_city, cargo_type, weight_kg, required_vehicle_type, pickup_date, delivery_date]
+      properties:
+        origin_address:
+          type: string
+        origin_city:
+          type: string
+        origin_lat:
+          type: number
+        origin_lng:
+          type: number
+        destination_address:
+          type: string
+        destination_city:
+          type: string
+        destination_lat:
+          type: number
+        destination_lng:
+          type: number
+        cargo_type:
+          type: string
+        cargo_description:
+          type: string
+        weight_kg:
+          type: integer
+        length_cm:
+          type: integer
+        width_cm:
+          type: integer
+        height_cm:
+          type: integer
+        required_vehicle_type:
+          type: string
+        requires_refrigeration:
+          type: boolean
+        is_hazardous:
+          type: boolean
+        pickup_date:
+          type: string
+          format: date
+        delivery_date:
+          type: string
+          format: date
+        rate_type:
+          type: string
+          enum: [flat, per_km, negotiable]
+        rate_amount_usd:
+          type: number
+        insured_value_usd:
+          type: number
+        is_urgent:
+          type: boolean
+
+    UpdateLoadRequest:
+      type: object
+      properties:
+        cargo_description:
+          type: string
+        pickup_date:
+          type: string
+          format: date
+        delivery_date:
+          type: string
+          format: date
+        rate_amount_usd:
+          type: number
+        status:
+          type: string
+
+    # Bid Schemas
+    Bid:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        load_id:
+          type: string
+          format: uuid
+        carrier_id:
+          type: string
+          format: uuid
+        vehicle_id:
+          type: string
+          format: uuid
+        bid_amount_usd:
+          type: number
+        bid_amount_pkr:
+          type: number
+        estimated_pickup_date:
+          type: string
+          format: date
+        estimated_delivery_date:
+          type: string
+          format: date
+        message:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, rejected, withdrawn, expired]
+        created_at:
+          type: string
+          format: date-time
+
+    CreateBidRequest:
+      type: object
+      required: [load_id, bid_amount_usd]
+      properties:
+        load_id:
+          type: string
+          format: uuid
+        vehicle_id:
+          type: string
+          format: uuid
+        bid_amount_usd:
+          type: number
+        estimated_pickup_date:
+          type: string
+          format: date
+        estimated_delivery_date:
+          type: string
+          format: date
+        message:
+          type: string
+
+    # Booking Schemas
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        load_id:
+          type: string
+          format: uuid
+        shipper_id:
+          type: string
+          format: uuid
+        carrier_id:
+          type: string
+          format: uuid
+        tracking_number:
+          type: string
+        agreed_amount_usd:
+          type: number
+        status:
+          type: string
+          enum: [pending, confirmed, in_transit, delivered, cancelled, disputed]
+        progress_percentage:
+          type: integer
+        current_location_lat:
+          type: number
+        current_location_lng:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    # Vehicle Schemas
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        vehicle_type:
+          type: string
+        registration_number:
+          type: string
+        max_weight_kg:
+          type: integer
+        has_gps:
+          type: boolean
+        has_refrigeration:
+          type: boolean
+        status:
+          type: string
+        availability_status:
+          type: string
+
+    CreateVehicleRequest:
+      type: object
+      required: [vehicle_type, registration_number, max_weight_kg]
+      properties:
+        vehicle_type:
+          type: string
+        registration_number:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        max_weight_kg:
+          type: integer
+        has_gps:
+          type: boolean
+        has_refrigeration:
+          type: boolean
+
+    # Rating Schemas
+    Rating:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        booking_id:
+          type: string
+          format: uuid
+        reviewer_id:
+          type: string
+          format: uuid
+        reviewee_id:
+          type: string
+          format: uuid
+        overall_rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        review_text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateRatingRequest:
+      type: object
+      required: [booking_id, overall_rating]
+      properties:
+        booking_id:
+          type: string
+          format: uuid
+        overall_rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: number
+        professionalism_rating:
+          type: number
+        timeliness_rating:
+          type: number
+        review_text:
+          type: string
+
+    # Tracking Schemas
+    TrackingInfo:
+      type: object
+      properties:
+        tracking_number:
+          type: string
+        booking:
+          $ref: '#/components/schemas/Booking'
+        load:
+          $ref: '#/components/schemas/Load'
+        milestones:
+          type: array
+          items:
+            type: object
+            properties:
+              milestone:
+                type: string
+              location:
+                type: string
+              completed:
+                type: boolean
+              completed_at:
+                type: string
+                format: date-time
+
+    # Notification Schemas
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        is_read:
+          type: boolean
+        action_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Common Schemas
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    RateLimitError:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Too many requests"
+              retry_after:
+                type: integer
+                example: 60

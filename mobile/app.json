@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "PakLoad",
+    "slug": "pakload",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2563eb"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pakload.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "PakLoad needs your location to track shipments and show nearby loads.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "PakLoad needs your location to provide real-time tracking updates."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2563eb"
+      },
+      "package": "com.pakload.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location",
+      "expo-secure-store",
+      "expo-asset",
+      "expo-font"
+    ],
+    "scheme": "pakload",
+    "extra": {
+      "apiUrl": "http://localhost:5000/api/v1"
+    }
+  }
+}

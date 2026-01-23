@@ -1,0 +1,248 @@
+{
+  "nav": {
+    "findLoads": "查找货源",
+    "postLoad": "发布货源",
+    "findTrucks": "查找车辆",
+    "routes": "路线",
+    "trackShipment": "追踪货物",
+    "myAccount": "我的账户",
+    "login": "登录",
+    "logout": "退出"
+  },
+  "home": {
+    "hero": {
+      "title": "连接货物与运力",
+      "subtitle": "跨越中巴走廊",
+      "description": "从喀什到伊斯兰堡发布货源、查找车辆、追踪货物。喀喇昆仑公路货运的首选平台。",
+      "postLoad": "发布货源",
+      "findTrucks": "查找可用车辆",
+      "browseLoads": "浏览货源"
+    },
+    "stats": {
+      "verifiedCarriers": "认证承运商",
+      "loadsMoved": "已运输货物",
+      "activeRoutes": "活跃路线",
+      "inTransit": "运输中",
+      "activeLoads": "活跃货源",
+      "availableTrucks": "可用车辆",
+      "completed": "已完成",
+      "today": "今天",
+      "thisWeek": "本周",
+      "thisMonth": "本月",
+      "liveTracking": "实时追踪"
+    },
+    "features": {
+      "title": "为什么选择LoadPak？",
+      "subtitle": "专为中巴货运走廊打造，为货主和承运商提供先进功能",
+      "verifiedCarriers": "访问500+认证承运商",
+      "verifiedCarriersDesc": "您的货源将对我们的认证运输公司网络可见。",
+      "quickResponses": "快速响应",
+      "quickResponsesDesc": "发布后几小时内收到承运商报价。",
+      "secureTransactions": "安全交易",
+      "secureTransactionsDesc": "所有承运商均已认证和投保，让您安心。",
+      "trackEverything": "全程追踪",
+      "trackEverythingDesc": "从取货到交付的实时GPS追踪。",
+      "routeOptimization": "路线优化",
+      "routeOptimizationDesc": "通过红其拉甫口岸的专业路线，具备边境通关专业知识。",
+      "fastMatching": "快速匹配",
+      "fastMatchingDesc": "智能算法即时将您的货物与可用运力匹配。"
+    },
+    "cta": {
+      "title": "准备开始了吗？",
+      "subtitle": "加入数百家在中巴经济走廊运输货物的货主和承运商",
+      "signUp": "免费注册"
+    }
+  },
+  "loads": {
+    "title": "查找货源",
+    "subtitle": "浏览寻找运输的可用货物",
+    "search": "搜索货源...",
+    "filters": {
+      "truckType": "车辆类型",
+      "cargoType": "货物类型",
+      "route": "路线",
+      "urgent": "紧急",
+      "verifiedOnly": "仅认证承运商",
+      "moreFilters": "更多筛选",
+      "clearFilters": "清除筛选",
+      "filter": "筛选"
+    },
+    "sort": {
+      "newestFirst": "最新优先",
+      "highestRate": "最高费率",
+      "closestPickup": "最近取货"
+    },
+    "card": {
+      "pickup": "取货：",
+      "delivery": "交付：",
+      "cargo": "货物：",
+      "customs": "海关：",
+      "postedBy": "发布者",
+      "viewDetails": "查看详情",
+      "sendQuote": "发送报价",
+      "urgent": "紧急",
+      "specialPermit": "特殊许可",
+      "negotiable": "可协商"
+    },
+    "stats": {
+      "availableLoads": "可用货源",
+      "urgentLoads": "紧急货源",
+      "avgRate": "平均费率",
+      "newToday": "今日新增"
+    }
+  },
+  "trucks": {
+    "title": "查找可用车辆",
+    "subtitle": "浏览认证承运商和按公里计费的可用车辆",
+    "search": "搜索承运商...",
+    "filters": {
+      "truckType": "车辆类型",
+      "currentLocation": "当前位置",
+      "allTypes": "所有类型",
+      "allLocations": "所有位置",
+      "searchTrucks": "搜索车辆"
+    },
+    "sort": {
+      "highestRated": "最高评分"
+    },
+    "stats": {
+      "availableTrucks": "可用车辆",
+      "inChina": "在中国",
+      "inPakistan": "在巴基斯坦",
+      "verifiedCarriers": "认证承运商"
+    },
+    "card": {
+      "currentLocation": "当前位置：",
+      "availableFrom": "可用时间：",
+      "preferredRoute": "首选路线：",
+      "verified": "已认证",
+      "insured": "已投保",
+      "gpsTracking": "GPS追踪",
+      "viewCarrier": "查看承运商",
+      "requestQuote": "请求报价",
+      "borderCrossing": "边境通关经验：",
+      "onTime": "准时",
+      "diesel": "柴油"
+    }
+  },
+  "postLoad": {
+    "title": "发布货源",
+    "subtitle": "填写以下详细信息以查找您货物的承运商",
+    "steps": {
+      "route": "路线",
+      "cargo": "货物",
+      "schedule": "时间表",
+      "pricing": "定价",
+      "requirements": "要求",
+      "photos": "照片"
+    },
+    "route": {
+      "title": "路线信息",
+      "origin": "起点",
+      "destination": "目的地",
+      "selectCity": "选择目的地城市"
+    },
+    "cargo": {
+      "title": "货物详情",
+      "cargoType": "货物类型",
+      "selectType": "选择货物类型",
+      "weight": "重量（公斤）",
+      "length": "长度（厘米）",
+      "width": "宽度（厘米）",
+      "height": "高度（厘米）",
+      "volume": "体积（立方米）",
+      "description": "描述（可选）",
+      "descriptionPlaceholder": "有关货物的其他详细信息..."
+    },
+    "schedule": {
+      "title": "时间表",
+      "pickupDate": "取货日期",
+      "deliveryDeadline": "交付截止日期"
+    },
+    "buttons": {
+      "previous": "上一步",
+      "next": "下一步",
+      "submit": "发布货源"
+    },
+    "help": {
+      "title": "需要帮助？",
+      "description": "我们的支持团队全天候为您提供货运需求帮助。",
+      "phone": "电话：+92 51 123 4567",
+      "email": "邮箱：support@loadpak.com"
+    },
+    "benefits": {
+      "title": "为什么在LoadPak上发布？",
+      "carriers": "访问500+认证承运商",
+      "carriersDesc": "您的货源将对我们的认证运输公司网络可见。",
+      "responses": "快速响应",
+      "responsesDesc": "发布后几小时内收到承运商报价。",
+      "transactions": "安全交易",
+      "transactionsDesc": "所有承运商均已认证和投保。",
+      "tracking": "全程追踪",
+      "trackingDesc": "从取货到交付的实时追踪。"
+    }
+  },
+  "routes": {
+    "title": "货运路线",
+    "subtitle": "通过喀喇昆仑公路的中巴货运走廊",
+    "alerts": {
+      "khunjerab": "红其拉甫口岸",
+      "khunjerabDesc": "世界上海拔最高的铺装国际边境口岸，海拔4,693米。",
+      "seasonal": "季节性时间",
+      "seasonalDesc": "口岸通常在4月至11月开放，视天气情况而定。",
+      "weather": "天气预警",
+      "weatherDesc": "冬季规划货运前请检查当前状况。"
+    },
+    "map": {
+      "title": "交互式路线地图",
+      "description": "显示所有活跃路线、当前货运和可用车辆的可视化地图即将推出。"
+    },
+    "allRoutes": "所有路线",
+    "distance": "距离",
+    "estTransitTime": "预计运输时间",
+    "borderCrossing": "边境口岸",
+    "routePopularity": "路线热度",
+    "viewLoads": "查看货源",
+    "findTrucks": "查找车辆",
+    "activeTrucks": "活跃车辆",
+    "activeLoads": "活跃货源",
+    "days": "天"
+  },
+  "tracking": {
+    "title": "追踪货物",
+    "trackingNumber": "追踪号码",
+    "from": "从",
+    "to": "到",
+    "cargo": "货物",
+    "estArrival": "预计到达",
+    "documents": "文件",
+    "contactDriver": "联系司机",
+    "progress": "货运进度",
+    "inTransit": "运输中",
+    "borderCrossing": "边境通关",
+    "milestones": {
+      "loadPickup": "货物取货",
+      "borderCrossing": "边境通关",
+      "customsClearance": "海关清关",
+      "inTransit": "运输中",
+      "finalDelivery": "最终交付"
+    }
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "showing": "显示",
+    "results": "结果",
+    "noResults": "未找到结果",
+    "tryAgain": "重试"
+  }
+}

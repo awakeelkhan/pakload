@@ -1,0 +1,245 @@
+import { useState } from 'react';
+import { X, DollarSign, Calendar, Truck, MessageSquare, AlertCircle } from 'lucide-react';
+
+interface BidModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  load: {
+    id: number;
+    origin: string;
+    destination: string;
+    cargo: string;
+    weight: number;
+    distance: number;
+    rateUsd: number;
+    pickupDate: string;
+  };
+}
+
+export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
+  const [bidAmount, setBidAmount] = useState('');
+  const [pickupDate, setPickupDate] = useState(load.pickupDate);
+  const [deliveryDays, setDeliveryDays] = useState('');
+  const [message, setMessage] = useState('');
+  const [equipmentType, setEquipmentType] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowSuccess(true);
+      
+      // Reset form and close after 2 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+        setBidAmount('');
+        setMessage('');
+        setDeliveryDays('');
+        setEquipmentType('');
+        onClose();
+      }, 2000);
+    }, 1000);
+  };
+
+  const suggestedBid = load.rateUsd * 0.95; // 5% below asking price
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Place Bid</h2>
+            <p className="text-sm text-slate-600 mt-1">Submit your competitive bid for this load</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <X className="w-6 h-6 text-slate-600" />
+          </button>
+        </div>
+
+        {showSuccess ? (
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Bid Submitted Successfully!</h3>
+            <p className="text-slate-600">The shipper will review your bid and contact you soon.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="p-6">
+            {/* Load Summary */}
+            <div className="bg-slate-50 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-slate-900 mb-3">Load Details</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-slate-600">Route:</span>
+                  <p className="font-medium text-slate-900">{load.origin} → {load.destination}</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Distance:</span>
+                  <p className="font-medium text-slate-900">{load.distance} km</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Cargo:</span>
+                  <p className="font-medium text-slate-900">{load.cargo}</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Weight:</span>
+                  <p className="font-medium text-slate-900">{load.weight.toLocaleString()} kg</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Asking Rate:</span>
+                  <p className="font-medium text-green-600">${load.rateUsd.toLocaleString()}</p>
+                </div>
+                <div>
+                  <span className="text-slate-600">Pickup Date:</span>
+                  <p className="font-medium text-slate-900">{load.pickupDate}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bid Amount */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <DollarSign className="inline w-4 h-4 mr-1" />
+                Your Bid Amount (USD) *
+              </label>
+              <input
+                type="number"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                placeholder="Enter your bid amount"
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <div className="mt-2 flex items-center gap-2 text-sm">
+                <AlertCircle className="w-4 h-4 text-blue-500" />
+                <span className="text-slate-600">
+                  Suggested competitive bid: <span className="font-semibold text-green-600">${suggestedBid.toFixed(0)}</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Equipment Type */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <Truck className="inline w-4 h-4 mr-1" />
+                Equipment Type *
+              </label>
+              <select
+                value={equipmentType}
+                onChange={(e) => setEquipmentType(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="">Select equipment type</option>
+                <option value="20ft">20ft Container</option>
+                <option value="40ft">40ft Container</option>
+                <option value="40ft-hc">40ft High Cube</option>
+                <option value="flatbed">Flatbed</option>
+                <option value="refrigerated">Refrigerated</option>
+                <option value="lowboy">Lowboy Trailer</option>
+              </select>
+            </div>
+
+            {/* Pickup Date */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <Calendar className="inline w-4 h-4 mr-1" />
+                Pickup Date *
+              </label>
+              <input
+                type="date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Delivery Time */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <Calendar className="inline w-4 h-4 mr-1" />
+                Estimated Delivery Time (days) *
+              </label>
+              <input
+                type="number"
+                value={deliveryDays}
+                onChange={(e) => setDeliveryDays(e.target.value)}
+                placeholder="e.g., 7"
+                required
+                min="1"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Additional Message */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                <MessageSquare className="inline w-4 h-4 mr-1" />
+                Additional Message (Optional)
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Add any special notes, certifications, or value propositions..."
+                rows={4}
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Tip: Mention your insurance coverage, GPS tracking, or any special certifications
+              </p>
+            </div>
+
+            {/* Terms */}
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-900">
+                  <p className="font-semibold mb-1">Bid Terms & Conditions</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-800">
+                    <li>Your bid is binding once accepted by the shipper</li>
+                    <li>Payment terms will be negotiated directly with shipper</li>
+                    <li>Cancellation may result in penalties</li>
+                    <li>All bids are subject to verification</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-slate-400 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Bid'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}

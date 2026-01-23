@@ -1,0 +1,25 @@
+# ============================================================================
+# PakLoad - Simple Deployment Variables
+# Copy to terraform.tfvars and fill in your values
+# ============================================================================
+
+# AWS Configuration
+aws_region   = "eu-north-1"
+project_name = "pakload"
+
+# EC2 Key Pair name (create in AWS Console > EC2 > Key Pairs)
+key_name = "your-key-pair-name"
+
+# Instance type (t3.micro for free tier)
+instance_type = "t3.micro"
+
+# Database Configuration (your existing database)
+db_host     = "13.63.16.242"
+db_port     = "5432"
+db_name     = "pakload"
+db_user     = "pakload"
+db_password = "YOUR_DB_PASSWORD"
+
+# Application Configuration
+jwt_secret = "pakload-jwt-secret-change-in-production-2024"
+node_env   = "production"

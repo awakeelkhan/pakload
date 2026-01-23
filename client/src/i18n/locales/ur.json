@@ -1,0 +1,248 @@
+{
+  "nav": {
+    "findLoads": "لوڈز تلاش کریں",
+    "postLoad": "لوڈ پوسٹ کریں",
+    "findTrucks": "ٹرک تلاش کریں",
+    "routes": "راستے",
+    "trackShipment": "شپمنٹ ٹریک کریں",
+    "myAccount": "میرا اکاؤنٹ",
+    "login": "لاگ ان",
+    "logout": "لاگ آؤٹ"
+  },
+  "home": {
+    "hero": {
+      "title": "کارگو کو صلاحیت سے جوڑیں",
+      "subtitle": "چین-پاکستان راہداریوں میں",
+      "description": "کاشغر سے اسلام آباد تک لوڈز پوسٹ کریں، ٹرک تلاش کریں، شپمنٹس ٹریک کریں۔ قراقرم ہائی وے فریٹ کے لیے اہم لوڈ بورڈ۔",
+      "postLoad": "لوڈ پوسٹ کریں",
+      "findTrucks": "دستیاب ٹرک تلاش کریں",
+      "browseLoads": "لوڈز براؤز کریں"
+    },
+    "stats": {
+      "verifiedCarriers": "تصدیق شدہ کیریئرز",
+      "loadsMoved": "منتقل شدہ لوڈز",
+      "activeRoutes": "فعال راستے",
+      "inTransit": "راستے میں",
+      "activeLoads": "فعال لوڈز",
+      "availableTrucks": "دستیاب ٹرک",
+      "completed": "مکمل شدہ",
+      "today": "آج",
+      "thisWeek": "اس ہفتے",
+      "thisMonth": "اس مہینے",
+      "liveTracking": "لائیو ٹریکنگ"
+    },
+    "features": {
+      "title": "لوڈ پاک کیوں منتخب کریں؟",
+      "subtitle": "خاص طور پر چین-پاکستان فریٹ راہداریوں کے لیے شپرز اور کیریئرز کے لیے جدید خصوصیات کے ساتھ بنایا گیا",
+      "verifiedCarriers": "500+ تصدیق شدہ کیریئرز تک رسائی",
+      "verifiedCarriersDesc": "آپ کا لوڈ ہمارے تصدیق شدہ ٹرکنگ کمپنیوں کے نیٹ ورک کو نظر آئے گا۔",
+      "quickResponses": "فوری جوابات",
+      "quickResponsesDesc": "پوسٹنگ کے گھنٹوں کے اندر کیریئرز سے قیمتیں حاصل کریں۔",
+      "secureTransactions": "محفوظ لین دین",
+      "secureTransactionsDesc": "تمام کیریئرز آپ کے ذہنی سکون کے لیے تصدیق شدہ اور بیمہ شدہ ہیں۔",
+      "trackEverything": "ہر چیز ٹریک کریں",
+      "trackEverythingDesc": "GPS اپ ڈیٹس کے ساتھ پک اپ سے ڈیلیوری تک حقیقی وقت میں ٹریکنگ۔",
+      "routeOptimization": "راستے کی اصلاح",
+      "routeOptimizationDesc": "خنجراب پاس کے ذریعے خصوصی راستے بارڈر کراسنگ مہارت کے ساتھ۔",
+      "fastMatching": "تیز میچنگ",
+      "fastMatchingDesc": "سمارٹ الگورتھم آپ کے کارگو کو فوری طور پر دستیاب صلاحیت سے جوڑتا ہے۔"
+    },
+    "cta": {
+      "title": "شروع کرنے کے لیے تیار ہیں؟",
+      "subtitle": "CPEC راستوں پر فریٹ منتقل کرنے والے سینکڑوں شپرز اور کیریئرز میں شامل ہوں",
+      "signUp": "مفت سائن اپ کریں"
+    }
+  },
+  "loads": {
+    "title": "لوڈز تلاش کریں",
+    "subtitle": "ٹرانسپورٹ کی تلاش میں دستیاب کارگو براؤز کریں",
+    "search": "لوڈز تلاش کریں...",
+    "filters": {
+      "truckType": "ٹرک کی قسم",
+      "cargoType": "کارگو کی قسم",
+      "route": "راستہ",
+      "urgent": "فوری",
+      "verifiedOnly": "صرف تصدیق شدہ کیریئرز",
+      "moreFilters": "مزید فلٹرز",
+      "clearFilters": "فلٹرز صاف کریں",
+      "filter": "فلٹر"
+    },
+    "sort": {
+      "newestFirst": "نیا پہلے",
+      "highestRate": "سب سے زیادہ شرح",
+      "closestPickup": "قریب ترین پک اپ"
+    },
+    "card": {
+      "pickup": "پک اپ:",
+      "delivery": "ڈیلیوری:",
+      "cargo": "کارگو:",
+      "customs": "کسٹمز:",
+      "postedBy": "پوسٹ کیا",
+      "viewDetails": "تفصیلات دیکھیں",
+      "sendQuote": "قیمت بھیجیں",
+      "urgent": "فوری",
+      "specialPermit": "خصوصی اجازت",
+      "negotiable": "قابل گفت و شنید"
+    },
+    "stats": {
+      "availableLoads": "دستیاب لوڈز",
+      "urgentLoads": "فوری لوڈز",
+      "avgRate": "اوسط شرح",
+      "newToday": "آج نیا"
+    }
+  },
+  "trucks": {
+    "title": "دستیاب ٹرک تلاش کریں",
+    "subtitle": "فی کلومیٹر شرح کے ساتھ تصدیق شدہ کیریئرز اور دستیاب ٹرک براؤز کریں",
+    "search": "کیریئرز تلاش کریں...",
+    "filters": {
+      "truckType": "ٹرک کی قسم",
+      "currentLocation": "موجودہ مقام",
+      "allTypes": "تمام اقسام",
+      "allLocations": "تمام مقامات",
+      "searchTrucks": "ٹرک تلاش کریں"
+    },
+    "sort": {
+      "highestRated": "سب سے زیادہ درجہ بند"
+    },
+    "stats": {
+      "availableTrucks": "دستیاب ٹرک",
+      "inChina": "چین میں",
+      "inPakistan": "پاکستان میں",
+      "verifiedCarriers": "تصدیق شدہ کیریئرز"
+    },
+    "card": {
+      "currentLocation": "موجودہ مقام:",
+      "availableFrom": "سے دستیاب:",
+      "preferredRoute": "ترجیحی راستہ:",
+      "verified": "تصدیق شدہ",
+      "insured": "بیمہ شدہ",
+      "gpsTracking": "GPS ٹریکنگ",
+      "viewCarrier": "کیریئر دیکھیں",
+      "requestQuote": "قیمت کی درخواست کریں",
+      "borderCrossing": "بارڈر کراسنگ کا تجربہ:",
+      "onTime": "وقت پر",
+      "diesel": "ڈیزل"
+    }
+  },
+  "postLoad": {
+    "title": "لوڈ پوسٹ کریں",
+    "subtitle": "اپنے کارگو کے لیے کیریئرز تلاش کرنے کے لیے نیچے تفصیلات بھریں",
+    "steps": {
+      "route": "راستہ",
+      "cargo": "کارگو",
+      "schedule": "شیڈول",
+      "pricing": "قیمت",
+      "requirements": "ضروریات",
+      "photos": "تصاویر"
+    },
+    "route": {
+      "title": "راستے کی معلومات",
+      "origin": "آغاز",
+      "destination": "منزل",
+      "selectCity": "منزل کا شہر منتخب کریں"
+    },
+    "cargo": {
+      "title": "کارگو کی تفصیلات",
+      "cargoType": "کارگو کی قسم",
+      "selectType": "کارگو کی قسم منتخب کریں",
+      "weight": "وزن (کلوگرام)",
+      "length": "لمبائی (سینٹی میٹر)",
+      "width": "چوڑائی (سینٹی میٹر)",
+      "height": "اونچائی (سینٹی میٹر)",
+      "volume": "حجم (CBM)",
+      "description": "تفصیل (اختیاری)",
+      "descriptionPlaceholder": "کارگو کے بارے میں اضافی تفصیلات..."
+    },
+    "schedule": {
+      "title": "شیڈول",
+      "pickupDate": "پک اپ کی تاریخ",
+      "deliveryDeadline": "ڈیلیوری کی آخری تاریخ"
+    },
+    "buttons": {
+      "previous": "پچھلا",
+      "next": "اگلا",
+      "submit": "لوڈ پوسٹ کریں"
+    },
+    "help": {
+      "title": "مدد کی ضرورت ہے؟",
+      "description": "ہماری سپورٹ ٹیم آپ کی شپمنٹ کی ضروریات میں مدد کے لیے 24/7 دستیاب ہے۔",
+      "phone": "فون: +92 51 123 4567",
+      "email": "ای میل: support@loadpak.com"
+    },
+    "benefits": {
+      "title": "لوڈ پاک پر کیوں پوسٹ کریں؟",
+      "carriers": "500+ تصدیق شدہ کیریئرز تک رسائی",
+      "carriersDesc": "آپ کا لوڈ ہمارے تصدیق شدہ ٹرکنگ کمپنیوں کے نیٹ ورک کو نظر آئے گا۔",
+      "responses": "فوری جوابات",
+      "responsesDesc": "پوسٹنگ کے گھنٹوں کے اندر کیریئرز سے قیمتیں حاصل کریں۔",
+      "transactions": "محفوظ لین دین",
+      "transactionsDesc": "تمام کیریئرز تصدیق شدہ اور بیمہ شدہ ہیں۔",
+      "tracking": "ہر چیز ٹریک کریں",
+      "trackingDesc": "پک اپ سے ڈیلیوری تک حقیقی وقت میں ٹریکنگ۔"
+    }
+  },
+  "routes": {
+    "title": "فریٹ راستے",
+    "subtitle": "قراقرم ہائی وے کے ذریعے چین-پاکستان فریٹ راہداریاں",
+    "alerts": {
+      "khunjerab": "خنجراب پاس",
+      "khunjerabDesc": "4,693 میٹر کی بلندی پر دنیا کی سب سے اونچی پکی بین الاقوامی سرحدی کراسنگ۔",
+      "seasonal": "موسمی وقت",
+      "seasonalDesc": "پاس عام طور پر اپریل سے نومبر تک کھلا رہتا ہے، موسم کی اجازت کے ساتھ۔",
+      "weather": "موسم کی انتباہات",
+      "weatherDesc": "سردیوں کے مہینوں میں شپمنٹس کی منصوبہ بندی سے پہلے موجودہ حالات چیک کریں۔"
+    },
+    "map": {
+      "title": "انٹرایکٹو راستے کا نقشہ",
+      "description": "تمام فعال راستوں، موجودہ شپمنٹس، اور دستیاب ٹرکوں کو ظاہر کرنے والا بصری نقشہ جلد آرہا ہے۔"
+    },
+    "allRoutes": "تمام راستے",
+    "distance": "فاصلہ",
+    "estTransitTime": "تخمینی ٹرانزٹ ٹائم",
+    "borderCrossing": "بارڈر کراسنگ",
+    "routePopularity": "راستے کی مقبولیت",
+    "viewLoads": "لوڈز دیکھیں",
+    "findTrucks": "ٹرک تلاش کریں",
+    "activeTrucks": "فعال ٹرک",
+    "activeLoads": "فعال لوڈز",
+    "days": "دن"
+  },
+  "tracking": {
+    "title": "شپمنٹ ٹریک کریں",
+    "trackingNumber": "ٹریکنگ نمبر",
+    "from": "سے",
+    "to": "تک",
+    "cargo": "کارگو",
+    "estArrival": "تخمینی آمد",
+    "documents": "دستاویزات",
+    "contactDriver": "ڈرائیور سے رابطہ کریں",
+    "progress": "شپمنٹ کی پیشرفت",
+    "inTransit": "راستے میں",
+    "borderCrossing": "بارڈر کراسنگ",
+    "milestones": {
+      "loadPickup": "لوڈ پک اپ",
+      "borderCrossing": "بارڈر کراسنگ",
+      "customsClearance": "کسٹمز کلیئرنس",
+      "inTransit": "راستے میں",
+      "finalDelivery": "حتمی ڈیلیوری"
+    }
+  },
+  "common": {
+    "loading": "لوڈ ہو رہا ہے...",
+    "error": "خرابی",
+    "success": "کامیابی",
+    "cancel": "منسوخ کریں",
+    "save": "محفوظ کریں",
+    "delete": "حذف کریں",
+    "edit": "ترمیم کریں",
+    "close": "بند کریں",
+    "search": "تلاش کریں",
+    "filter": "فلٹر",
+    "sort": "ترتیب دیں",
+    "showing": "دکھا رہا ہے",
+    "results": "نتائج",
+    "noResults": "کوئی نتیجہ نہیں ملا",
+    "tryAgain": "دوبارہ کوشش کریں"
+  }
+}

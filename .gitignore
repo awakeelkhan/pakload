@@ -1,0 +1,45 @@
+node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+
+# Environment files with secrets
+.env
+.env.local
+.env.production
+server/.env
+
+# AWS credentials - NEVER commit these
+.aws/
+*.pem
+*.key
+aws-credentials*
+credentials
+
+# Terraform state and secrets
+terraform/.terraform/
+terraform/**/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+terraform/*.tfvars
+terraform/**/*.tfvars
+!terraform/**/*.tfvars.example
+terraform/.terraform.lock.hcl
+terraform/**/.terraform.lock.hcl
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db

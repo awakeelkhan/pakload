@@ -1,0 +1,46 @@
+# SSH Setup Commands for EC2 PostgreSQL
+# Copy and paste these commands after SSH'ing into your EC2 instance
+
+# Step 1: SSH into EC2 (run this on your local machine)
+ssh -i ~/.ssh/pakload.pem ec2-user@13.63.16.242
+
+# Step 2: Once connected, run these commands on the EC2 server:
+
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# If not running, start it
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Switch to postgres user
+sudo su - postgres
+
+# Create database and user with your password
+psql <<EOF
+CREATE DATABASE pakload;
+CREATE USER pakload WITH PASSWORD 'Khan123@#';
+GRANT ALL PRIVILEGES ON DATABASE pakload TO pakload;
+\c pakload
+GRANT ALL ON SCHEMA public TO pakload;
+ALTER DATABASE pakload OWNER TO pakload;
+\q
+EOF
+
+# Exit postgres user
+exit
+
+# Verify the setup
+psql -h localhost -U pakload -d pakload -W -c "SELECT version();"
+# When prompted, enter password: Khan123@#
+
+# Exit SSH
+exit
+
+# Step 3: Back on your local machine, test the connection
+npm run db:test
+
+# If successful, deploy schema and seed data
+npm run db:push
+npm run db:seed
+npm run dev

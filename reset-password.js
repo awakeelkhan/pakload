@@ -1,5 +1,6 @@
-const bcrypt = require('bcrypt');
-const { Pool } = require('pg');
+import bcrypt from 'bcrypt';
+import pg from 'pg';
+const { Pool } = pg;
 
 const pool = new Pool({
   host: process.env.DB_HOST || '13.63.16.242',

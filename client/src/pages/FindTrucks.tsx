@@ -62,7 +62,7 @@ export default function FindTrucks() {
       if (filters.vehicleType) params.append('truckType', filters.vehicleType);
       if (filters.verifiedOnly) params.append('status', 'active');
       
-      const response = await fetch(`http://localhost:5000/api/trucks?${params}`);
+      const response = await fetch(`/api/trucks?${params}`);
       const data = await response.json();
       
       // Transform API data to match TruckData interface

@@ -27,7 +27,7 @@ export default function MyVehicles() {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/trucks');
+      const response = await fetch('/api/trucks');
       const data = await response.json();
       setVehicles(data);
     } catch (error) {
@@ -70,7 +70,7 @@ export default function MyVehicles() {
   const handleDeleteVehicle = async (id: number) => {
     if (confirm('Are you sure you want to remove this vehicle?')) {
       try {
-        await fetch(`http://localhost:5000/api/trucks/${id}`, {
+        await fetch(`/api/trucks/${id}`, {
           method: 'DELETE'
         });
         setVehicles(vehicles.filter(v => v.id !== id));
@@ -93,7 +93,7 @@ export default function MyVehicles() {
       };
 
       if (editingVehicle) {
-        const response = await fetch(`http://localhost:5000/api/trucks/${editingVehicle.id}`, {
+        const response = await fetch(`/api/trucks/${editingVehicle.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(vehicleData)
@@ -101,7 +101,7 @@ export default function MyVehicles() {
         const updated = await response.json();
         setVehicles(vehicles.map(v => v.id === editingVehicle.id ? updated : v));
       } else {
-        const response = await fetch('http://localhost:5000/api/trucks', {
+        const response = await fetch('/api/trucks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(vehicleData)

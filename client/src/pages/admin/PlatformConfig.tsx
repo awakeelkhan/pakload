@@ -37,7 +37,7 @@ export default function PlatformConfig() {
   const fetchConfigs = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/config', {
+      const response = await fetch('/api/admin/config', {
         headers: { 'Authorization': 'Bearer admin-token' }
       });
       const data = await response.json();
@@ -51,7 +51,7 @@ export default function PlatformConfig() {
 
   const handleUpdate = async (key: string) => {
     try {
-      await fetch(`http://localhost:5000/api/admin/config/${key}`, {
+      await fetch(`/api/admin/config/${key}`, {
         method: 'PUT',
         headers: {
           'Authorization': 'Bearer admin-token',
@@ -68,7 +68,7 @@ export default function PlatformConfig() {
 
   const handlePublish = async (key: string) => {
     try {
-      await fetch(`http://localhost:5000/api/admin/config/${key}/publish`, {
+      await fetch(`/api/admin/config/${key}/publish`, {
         method: 'POST',
         headers: { 'Authorization': 'Bearer admin-token' }
       });
@@ -81,7 +81,7 @@ export default function PlatformConfig() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('http://localhost:5000/api/admin/config', {
+      await fetch('/api/admin/config', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer admin-token',

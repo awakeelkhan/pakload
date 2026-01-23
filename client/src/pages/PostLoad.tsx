@@ -120,7 +120,7 @@ export default function PostLoad() {
         ].filter(Boolean).join(', '),
       };
 
-      const response = await fetch('http://localhost:5000/api/loads', {
+      const response = await fetch('/api/loads', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

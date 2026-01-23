@@ -30,7 +30,7 @@ export default function CargoCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/categories');
+      const response = await fetch('/api/admin/categories');
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -45,8 +45,8 @@ export default function CargoCategories() {
     e.preventDefault();
     try {
       const url = editingCategory 
-        ? `http://localhost:5000/api/admin/categories/${editingCategory.id}`
-        : 'http://localhost:5000/api/admin/categories';
+        ? `/api/admin/categories/${editingCategory.id}`
+        : '/api/admin/categories';
       
       await fetch(url, {
         method: editingCategory ? 'PUT' : 'POST',
@@ -68,7 +68,7 @@ export default function CargoCategories() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this category?')) {
       try {
-        await fetch(`http://localhost:5000/api/admin/categories/${id}`, {
+        await fetch(`/api/admin/categories/${id}`, {
           method: 'DELETE'
         });
         fetchCategories();

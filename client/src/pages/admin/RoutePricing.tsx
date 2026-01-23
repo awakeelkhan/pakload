@@ -33,7 +33,7 @@ export default function RoutePricing() {
   const fetchRoutePricing = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/route-pricing');
+      const response = await fetch('/api/admin/route-pricing');
       const data = await response.json();
       setRoutePricing(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -48,8 +48,8 @@ export default function RoutePricing() {
     e.preventDefault();
     try {
       const url = editingPricing 
-        ? `http://localhost:5000/api/admin/route-pricing/${editingPricing.id}`
-        : 'http://localhost:5000/api/admin/route-pricing';
+        ? `/api/admin/route-pricing/${editingPricing.id}`
+        : '/api/admin/route-pricing';
       
       await fetch(url, {
         method: editingPricing ? 'PUT' : 'POST',
@@ -71,7 +71,7 @@ export default function RoutePricing() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this route pricing?')) {
       try {
-        await fetch(`http://localhost:5000/api/admin/route-pricing/${id}`, {
+        await fetch(`/api/admin/route-pricing/${id}`, {
           method: 'DELETE'
         });
         fetchRoutePricing();

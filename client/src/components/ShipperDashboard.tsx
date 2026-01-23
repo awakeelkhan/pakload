@@ -29,11 +29,11 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
     try {
       setLoading(true);
       // Fetch stats
-      const statsRes = await fetch('http://localhost:5000/api/stats');
+      const statsRes = await fetch('/api/stats');
       const statsData = await statsRes.json();
       
       // Fetch loads
-      const loadsRes = await fetch('http://localhost:5000/api/loads');
+      const loadsRes = await fetch('/api/loads');
       const loadsData = await loadsRes.json();
       
       setStats({

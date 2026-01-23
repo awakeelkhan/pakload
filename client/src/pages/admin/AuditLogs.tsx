@@ -28,7 +28,7 @@ export default function AuditLogs() {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/audit-logs');
+      const response = await fetch('/api/admin/audit-logs');
       const data = await response.json();
       setLogs(Array.isArray(data) ? data : []);
     } catch (error) {

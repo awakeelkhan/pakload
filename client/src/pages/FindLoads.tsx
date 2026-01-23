@@ -59,7 +59,7 @@ export default function FindLoads() {
       if (filters.cargoType) params.append('cargoType', filters.cargoType);
       if (filters.urgentOnly) params.append('urgent', 'true');
       
-      const response = await fetch(`http://localhost:5000/api/loads?${params}`);
+      const response = await fetch(`/api/loads?${params}`);
       const data = await response.json();
       setLoads(data);
     } catch (error) {

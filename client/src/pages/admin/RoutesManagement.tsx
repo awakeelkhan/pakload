@@ -38,7 +38,7 @@ export default function RoutesManagement() {
   const fetchRoutes = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/routes');
+      const response = await fetch('/api/admin/routes');
       const data = await response.json();
       setRoutes(data);
     } catch (error) {
@@ -53,8 +53,8 @@ export default function RoutesManagement() {
     
     try {
       const url = editingRoute 
-        ? `http://localhost:5000/api/admin/routes/${editingRoute.id}`
-        : 'http://localhost:5000/api/admin/routes';
+        ? `/api/admin/routes/${editingRoute.id}`
+        : '/api/admin/routes';
       
       const response = await fetch(url, {
         method: editingRoute ? 'PUT' : 'POST',
@@ -95,7 +95,7 @@ export default function RoutesManagement() {
     if (!confirm('Are you sure you want to delete this route?')) return;
     
     try {
-      await fetch(`http://localhost:5000/api/admin/routes/${id}`, {
+      await fetch(`/api/admin/routes/${id}`, {
         method: 'DELETE'
       });
       fetchRoutes();

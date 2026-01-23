@@ -37,11 +37,11 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     try {
       setLoading(true);
       // Fetch stats
-      const statsRes = await fetch('http://localhost:5000/api/stats');
+      const statsRes = await fetch('/api/stats');
       const statsData = await statsRes.json();
       
       // Fetch carriers (users)
-      const carriersRes = await fetch('http://localhost:5000/api/carriers');
+      const carriersRes = await fetch('/api/carriers');
       const carriersData = await carriersRes.json();
       
       setStats({

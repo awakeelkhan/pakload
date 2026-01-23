@@ -30,16 +30,16 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
     try {
       setLoading(true);
       // Fetch stats
-      const statsRes = await fetch('http://localhost:5000/api/stats');
+      const statsRes = await fetch('/api/stats');
       const statsData = await statsRes.json();
       
       // Fetch available loads
-      const loadsRes = await fetch('http://localhost:5000/api/loads?status=available');
+      const loadsRes = await fetch('/api/loads?status=available');
       const loadsData = await loadsRes.json();
       const loadsArray = Array.isArray(loadsData) ? loadsData : [];
       
       // Fetch vehicles
-      const vehiclesRes = await fetch('http://localhost:5000/api/trucks');
+      const vehiclesRes = await fetch('/api/trucks');
       const vehiclesData = await vehiclesRes.json();
       
       const vehiclesArray = Array.isArray(vehiclesData) ? vehiclesData : [];

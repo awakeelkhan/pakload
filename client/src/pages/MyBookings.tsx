@@ -32,7 +32,7 @@ export default function MyBookings() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/bookings');
+      const response = await fetch('/api/bookings');
       const data = await response.json();
       
       // Transform the data for display

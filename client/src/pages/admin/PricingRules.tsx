@@ -34,7 +34,7 @@ export default function PricingRules() {
   const fetchRules = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/admin/pricing-rules');
+      const response = await fetch('/api/admin/pricing-rules');
       const data = await response.json();
       setRules(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -49,8 +49,8 @@ export default function PricingRules() {
     e.preventDefault();
     try {
       const url = editingRule 
-        ? `http://localhost:5000/api/admin/pricing-rules/${editingRule.id}`
-        : 'http://localhost:5000/api/admin/pricing-rules';
+        ? `/api/admin/pricing-rules/${editingRule.id}`
+        : '/api/admin/pricing-rules';
       
       await fetch(url, {
         method: editingRule ? 'PUT' : 'POST',
@@ -72,7 +72,7 @@ export default function PricingRules() {
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this rule?')) {
       try {
-        await fetch(`http://localhost:5000/api/admin/pricing-rules/${id}`, {
+        await fetch(`/api/admin/pricing-rules/${id}`, {
           method: 'DELETE'
         });
         fetchRules();

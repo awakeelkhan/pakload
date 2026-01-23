@@ -20,7 +20,7 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/stats');
+        const response = await fetch('/api/stats');
         if (response.ok) {
           const data = await response.json();
           setStats({

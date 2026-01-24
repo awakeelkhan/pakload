@@ -136,10 +136,16 @@ export default function Header() {
                           </button>
                         )}
                         {user?.role === 'shipper' && (
-                          <button onClick={() => { navigate('/post-load'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                            <Package className="w-4 h-4" />
-                            Post a Load
-                          </button>
+                          <>
+                            <button onClick={() => { navigate('/bids'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                              <Package className="w-4 h-4" />
+                              Manage Bids
+                            </button>
+                            <button onClick={() => { navigate('/post-load'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                              <Package className="w-4 h-4" />
+                              Post a Load
+                            </button>
+                          </>
                         )}
                         <button onClick={() => { navigate('/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Settings className="w-4 h-4" />

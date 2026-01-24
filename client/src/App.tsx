@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MyBookings from './pages/MyBookings';
 import MyVehicles from './pages/MyVehicles';
+import MyBids from './pages/MyBids';
 import Settings from './pages/Settings';
 import FindLoads from './pages/FindLoads';
 import FindTrucks from './pages/FindTrucks';
@@ -67,6 +68,7 @@ function App() {
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/profile" component={Profile} />
               <Route path="/bookings" component={MyBookings} />
+              <Route path="/bids" component={MyBids} />
               <Route path="/vehicles" component={MyVehicles} />
               <Route path="/settings" component={Settings} />
               <Route path="/admin/settings" component={AdminSettings} />

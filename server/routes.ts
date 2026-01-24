@@ -705,21 +705,31 @@ export function registerRoutes(app: Express) {
       
       const allBookings = await bookingRepo.findAll(filters);
       
+      // Flatten and enrich with load details
+      const enrichedBookings = await Promise.all(allBookings.map(async (item: any) => {
+        const loadData = await loadRepo.findById(item.booking?.loadId || item.loadId);
+        return {
+          ...item.booking,
+          load: loadData?.load || null,
+          carrier: item.carrier || null,
+        };
+      }));
+      
       // Pagination
       const pageNum = parseInt(page as string);
       const limitNum = parseInt(limit as string);
       const startIndex = (pageNum - 1) * limitNum;
       const endIndex = startIndex + limitNum;
       
-      const paginatedBookings = allBookings.slice(startIndex, endIndex);
+      const paginatedBookings = enrichedBookings.slice(startIndex, endIndex);
 
       res.json({
         bookings: paginatedBookings,
         pagination: {
           page: pageNum,
           limit: limitNum,
-          total: allBookings.length,
-          totalPages: Math.ceil(allBookings.length / limitNum),
+          total: enrichedBookings.length,
+          totalPages: Math.ceil(enrichedBookings.length / limitNum),
         },
       });
     } catch (error) {

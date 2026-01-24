@@ -31,21 +31,45 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({
+          loadId: load.id,
+          quotedPrice: parseFloat(bidAmount),
+          pickupDate: pickupDate,
+          estimatedDays: parseInt(deliveryDays),
+          equipmentType: equipmentType,
+          message: message,
+        }),
+      });
+
+      if (response.ok) {
+        setShowSuccess(true);
+        // Reset form and close after 2 seconds
+        setTimeout(() => {
+          setShowSuccess(false);
+          setBidAmount('');
+          setMessage('');
+          setDeliveryDays('');
+          setEquipmentType('');
+          onClose();
+        }, 2000);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to submit bid');
+      }
+    } catch (error) {
+      console.error('Error submitting bid:', error);
+      alert('Failed to submit bid. Please try again.');
+    } finally {
       setIsSubmitting(false);
-      setShowSuccess(true);
-      
-      // Reset form and close after 2 seconds
-      setTimeout(() => {
-        setShowSuccess(false);
-        setBidAmount('');
-        setMessage('');
-        setDeliveryDays('');
-        setEquipmentType('');
-        onClose();
-      }, 2000);
-    }, 1000);
+    }
   };
 
   const suggestedBid = load.rateUsd * 0.95; // 5% below asking price

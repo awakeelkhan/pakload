@@ -36,26 +36,29 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
       // Fetch available loads
       const loadsRes = await fetch('/api/loads?status=available');
       const loadsData = await loadsRes.json();
-      const loadsArray = Array.isArray(loadsData) ? loadsData : [];
+      // Handle paginated response
+      const loadsArray = loadsData.loads || loadsData || [];
       
       // Fetch vehicles
       const vehiclesRes = await fetch('/api/trucks');
       const vehiclesData = await vehiclesRes.json();
-      
-      const vehiclesArray = Array.isArray(vehiclesData) ? vehiclesData : [];
+      // Handle paginated response
+      const vehiclesArray = vehiclesData.trucks || vehiclesData || [];
+      const safeLoadsArray = Array.isArray(loadsArray) ? loadsArray : [];
+      const safeVehiclesArray = Array.isArray(vehiclesArray) ? vehiclesArray : [];
       setStats({
         activeBookings: statsData.activeBookings || 0,
         completedTrips: statsData.completedBookings || 0,
         totalEarned: statsData.totalRevenue || 0,
         avgRating: 4.9,
-        availableTrucks: vehiclesArray.filter((v: any) => v.status === 'active' || v.status === 'available').length,
+        availableTrucks: safeVehiclesArray.filter((v: any) => v.status === 'active' || v.status === 'available').length,
         inTransit: statsData.activeBookings || 0,
         avgUtilization: 87,
         profitMargin: 18.5,
       });
       
       // Transform loads for display
-      const transformedLoads = loadsArray.slice(0, 5).map((load: any) => ({
+      const transformedLoads = safeLoadsArray.slice(0, 5).map((load: any) => ({
         id: load.id,
         route: `${load.origin} → ${load.destination}`,
         cargo: load.cargoType,
@@ -67,7 +70,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
       setAvailableLoads(transformedLoads);
       
       // Transform vehicles for display
-      const transformedVehicles = vehiclesArray.slice(0, 5).map((v: any) => ({
+      const transformedVehicles = safeVehiclesArray.slice(0, 5).map((v: any) => ({
         id: v.id,
         truck: v.registrationNumber,
         type: v.type,

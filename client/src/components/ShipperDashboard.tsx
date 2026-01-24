@@ -35,9 +35,11 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       // Fetch loads
       const loadsRes = await fetch('/api/loads');
       const loadsData = await loadsRes.json();
+      // Handle paginated response
+      const loadsArray = loadsData.loads || loadsData || [];
       
       setStats({
-        activeLoads: statsData.totalLoads || loadsData.length,
+        activeLoads: statsData.totalLoads || loadsArray.length,
         completedLoads: statsData.completedLoads || 0,
         totalSpent: statsData.totalRevenue || 0,
         avgRating: 4.8,
@@ -48,7 +50,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       });
       
       // Transform loads for display
-      const transformedLoads = loadsData.slice(0, 5).map((load: any) => ({
+      const transformedLoads = (Array.isArray(loadsArray) ? loadsArray : []).slice(0, 5).map((load: any) => ({
         id: load.id,
         load: `${load.origin} → ${load.destination}`,
         cargo: load.cargoType,

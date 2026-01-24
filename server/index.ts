@@ -5,8 +5,13 @@ import express from 'express';
 import session from 'express-session';
 import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { registerRoutes } from './routes';
 import { passport } from './routes/oauth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const httpServer = createServer(app);
@@ -55,9 +60,20 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// CORS for development
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com',
+  'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com:5000',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -82,6 +98,18 @@ app.use((req, res, next) => {
 
 // Register API routes
 registerRoutes(app);
+
+// Serve static files in production
+const distPath = path.join(__dirname, '../dist/client');
+app.use(express.static(distPath));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(distPath, 'index.html'));
+});
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

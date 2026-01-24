@@ -100,7 +100,8 @@ app.use((req, res, next) => {
 registerRoutes(app);
 
 // Serve static files in production
-const distPath = path.join(__dirname, '../dist/client');
+const distPath = path.join(process.cwd(), 'dist/client');
+console.log('📁 Serving static files from:', distPath);
 app.use(express.static(distPath));
 
 // SPA fallback - serve index.html for all non-API routes
@@ -108,7 +109,13 @@ app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.join(distPath, 'index.html'));
+  const indexPath = path.join(distPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(404).json({ error: 'Not found' });
+    }
+  });
 });
 
 // Error handling

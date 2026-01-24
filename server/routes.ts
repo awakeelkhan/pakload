@@ -323,26 +323,31 @@ export function registerRoutes(app: Express) {
       const filters: any = {};
       if (status) filters.status = status as string;
       
-      const loads = await loadRepo.findAll(filters);
+      const loadsData = await loadRepo.findAll(filters);
+      
+      // Flatten the nested structure for frontend
+      const flattenedLoads = loadsData.map((item: any) => ({
+        ...item.load,
+        shipper: item.shipper,
+      }));
       
       // Apply additional filters
-      let filteredLoads = loads;
+      let filteredLoads = flattenedLoads;
       if (origin) {
-        filteredLoads = filteredLoads.filter(l => 
-          l.load?.origin?.toLowerCase().includes((origin as string).toLowerCase())
+        filteredLoads = filteredLoads.filter((l: any) => 
+          l.origin?.toLowerCase().includes((origin as string).toLowerCase())
         );
       }
       if (destination) {
-        filteredLoads = filteredLoads.filter(l => 
-          l.load?.destination?.toLowerCase().includes((destination as string).toLowerCase())
+        filteredLoads = filteredLoads.filter((l: any) => 
+          l.destination?.toLowerCase().includes((destination as string).toLowerCase())
         );
       }
       if (cargoType) {
-        filteredLoads = filteredLoads.filter(l => 
-          l.load?.cargoType?.toLowerCase().includes((cargoType as string).toLowerCase())
+        filteredLoads = filteredLoads.filter((l: any) => 
+          l.cargoType?.toLowerCase().includes((cargoType as string).toLowerCase())
         );
       }
-      // Note: urgent field not in schema, skip filter
 
       // Pagination
       const pageNum = parseInt(page as string);

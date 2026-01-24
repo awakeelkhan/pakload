@@ -1,8 +1,35 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { CheckCircle2, Circle, Upload, ShieldCheck, Zap, Package, MapPin, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle2, Upload, ShieldCheck, Zap, Package, MapPin, Loader2, Truck, Calendar, DollarSign, AlertCircle } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { useLocation } from 'wouter';
+
+// Pakistan cities for CPEC routes
+const PAKISTAN_CITIES = [
+  'Islamabad', 'Lahore', 'Karachi', 'Peshawar', 'Rawalpindi', 'Faisalabad', 
+  'Multan', 'Gwadar', 'Quetta', 'Sialkot', 'Hyderabad', 'Sukkur'
+];
+
+// China cities for CPEC routes
+const CHINA_CITIES = [
+  'Urumqi', 'Kashgar', 'Khunjerab', 'Beijing', 'Shanghai', 'Guangzhou', 
+  'Shenzhen', 'Chengdu', 'Xian'
+];
+
+// Equipment/Truck types (DAT standard)
+const EQUIPMENT_TYPES = [
+  { value: 'dry_van', label: 'Dry Van / Container', description: 'Standard enclosed trailer' },
+  { value: 'flatbed', label: 'Flatbed', description: 'Open deck for oversized cargo' },
+  { value: 'reefer', label: 'Refrigerated', description: 'Temperature controlled' },
+  { value: 'tanker', label: 'Tanker', description: 'Liquid cargo' },
+  { value: 'lowboy', label: 'Lowboy', description: 'Heavy machinery transport' },
+];
+
+// Cargo categories
+const CARGO_TYPES = [
+  'Electronics', 'Textiles', 'Machinery', 'General Freight', 'Food Products',
+  'Construction Materials', 'Chemicals', 'Automotive Parts', 'Pharmaceuticals', 'Raw Materials'
+];
 
 export default function PostLoad() {
   const { t } = useTranslation();
@@ -11,68 +38,145 @@ export default function PostLoad() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
-    origin: '',
-    destination: '',
+    // Route
+    originCity: '',
+    originAddress: '',
+    destinationCity: '',
+    destinationAddress: '',
+    // Cargo
     cargoType: '',
     weight: '',
+    weightUnit: 'kg',
     length: '',
     width: '',
     height: '',
-    volume: '',
+    dimensionUnit: 'cm',
+    pieces: '1',
     description: '',
+    // Schedule
     pickupDate: '',
+    pickupTimeWindow: 'flexible',
     deliveryDate: '',
+    deliveryTimeWindow: 'flexible',
+    // Equipment & Pricing
+    equipmentType: '',
+    price: '',
     rateType: 'flat',
-    rateUSD: '',
-    ratePKR: '',
-    insuredValue: '',
-    requiredTruckType: '',
+    // Special requirements
     refrigeration: false,
     hazardous: false,
     oversized: false,
     stackable: true,
+    liftgateRequired: false,
+    teamDriverRequired: false,
   });
 
+  // Auto-calculate volume when dimensions change
+  useEffect(() => {
+    if (formData.length && formData.width && formData.height) {
+      const l = parseFloat(formData.length);
+      const w = parseFloat(formData.width);
+      const h = parseFloat(formData.height);
+      if (!isNaN(l) && !isNaN(w) && !isNaN(h)) {
+        // Convert to CBM (cubic meters)
+        const volumeCBM = formData.dimensionUnit === 'cm' 
+          ? (l * w * h) / 1000000 
+          : (l * w * h) * 0.0283168; // ft to CBM
+        setFormData(prev => ({ ...prev, calculatedVolume: volumeCBM.toFixed(2) }));
+      }
+    }
+  }, [formData.length, formData.width, formData.height, formData.dimensionUnit]);
+
+  // Set minimum date to today
+  const today = new Date().toISOString().split('T')[0];
+
   const steps = [
-    { key: 'route', label: t('postLoad.steps.route'), icon: MapPin },
-    { key: 'cargo', label: t('postLoad.steps.cargo'), icon: Package },
-    { key: 'schedule', label: t('postLoad.steps.schedule'), icon: Circle },
-    { key: 'pricing', label: t('postLoad.steps.pricing'), icon: Circle },
-    { key: 'requirements', label: t('postLoad.steps.requirements'), icon: Circle },
-    { key: 'photos', label: t('postLoad.steps.photos'), icon: Upload },
+    { key: 'route', label: 'Route', icon: MapPin },
+    { key: 'cargo', label: 'Cargo', icon: Package },
+    { key: 'schedule', label: 'Schedule', icon: Calendar },
+    { key: 'equipment', label: 'Equipment & Rate', icon: Truck },
   ];
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Mark field as touched on blur
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    validateField(field);
+  };
+
+  // Real-time field validation
+  const validateField = (field: string): string | null => {
+    let error: string | null = null;
+    
+    switch (field) {
+      case 'originCity':
+        if (!formData.originCity) error = 'Origin city is required';
+        break;
+      case 'destinationCity':
+        if (!formData.destinationCity) error = 'Destination city is required';
+        else if (formData.destinationCity === formData.originCity) error = 'Destination must be different from origin';
+        break;
+      case 'cargoType':
+        if (!formData.cargoType) error = 'Cargo type is required';
+        break;
+      case 'weight':
+        if (!formData.weight) error = 'Weight is required';
+        else if (parseFloat(formData.weight) <= 0) error = 'Weight must be greater than 0';
+        else if (parseFloat(formData.weight) > 50000) error = 'Weight exceeds maximum (50,000 kg)';
+        break;
+      case 'pickupDate':
+        if (!formData.pickupDate) error = 'Pickup date is required';
+        else if (new Date(formData.pickupDate) < new Date(today)) error = 'Pickup date cannot be in the past';
+        break;
+      case 'deliveryDate':
+        if (!formData.deliveryDate) error = 'Delivery date is required';
+        else if (formData.pickupDate && new Date(formData.deliveryDate) < new Date(formData.pickupDate)) {
+          error = 'Delivery date must be after pickup date';
+        }
+        break;
+      case 'equipmentType':
+        if (!formData.equipmentType) error = 'Equipment type is required';
+        break;
+      case 'price':
+        if (!formData.price) error = 'Rate is required';
+        else if (parseFloat(formData.price) <= 0) error = 'Rate must be greater than 0';
+        break;
+    }
+    
+    setErrors(prev => {
+      if (error) return { ...prev, [field]: error };
+      const { [field]: _, ...rest } = prev;
+      return rest;
+    });
+    
+    return error;
+  };
+
   const validateStep = (step: number): boolean => {
-    const newErrors: Record<string, string> = {};
+    const fieldsToValidate: string[][] = [
+      ['originCity', 'destinationCity'], // Step 0: Route
+      ['cargoType', 'weight'], // Step 1: Cargo
+      ['pickupDate', 'deliveryDate'], // Step 2: Schedule
+      ['equipmentType', 'price'], // Step 3: Equipment & Rate
+    ];
     
-    if (step === 0) {
-      if (!formData.origin.trim()) newErrors.origin = 'Origin is required';
-      if (!formData.destination.trim()) newErrors.destination = 'Destination is required';
-    } else if (step === 1) {
-      if (!formData.cargoType.trim()) newErrors.cargoType = 'Cargo type is required';
-      if (!formData.weight || parseFloat(formData.weight) <= 0) newErrors.weight = 'Valid weight is required';
-    } else if (step === 2) {
-      if (!formData.pickupDate) newErrors.pickupDate = 'Pickup date is required';
-      if (!formData.deliveryDate) newErrors.deliveryDate = 'Delivery date is required';
-      if (formData.pickupDate && formData.deliveryDate && new Date(formData.pickupDate) > new Date(formData.deliveryDate)) {
-        newErrors.deliveryDate = 'Delivery date must be after pickup date';
-      }
-    } else if (step === 3) {
-      if (!formData.rateUSD && !formData.ratePKR) newErrors.rate = 'Please enter a rate';
+    const fields = fieldsToValidate[step] || [];
+    let isValid = true;
+    
+    fields.forEach(field => {
+      setTouched(prev => ({ ...prev, [field]: true }));
+      if (validateField(field)) isValid = false;
+    });
+    
+    if (!isValid) {
+      addToast('error', 'Please fill in all required fields correctly');
     }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length > 0) {
-      addToast('error', 'Please fill in all required fields');
-      return false;
-    }
-    return true;
+    return isValid;
   };
 
   const handleNext = () => {
@@ -88,8 +192,14 @@ export default function PostLoad() {
   };
 
   const handleSubmit = async () => {
-    // Validate all steps before submitting
-    if (!formData.origin || !formData.destination || !formData.cargoType || !formData.weight || !formData.pickupDate) {
+    // Final validation
+    if (!validateStep(currentStep)) return;
+    
+    // Validate all required fields
+    const requiredFields = ['originCity', 'destinationCity', 'cargoType', 'weight', 'pickupDate', 'deliveryDate', 'equipmentType', 'price'];
+    const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
+    
+    if (missingFields.length > 0) {
       addToast('error', 'Please complete all required fields');
       return;
     }
@@ -98,26 +208,45 @@ export default function PostLoad() {
     
     try {
       const token = localStorage.getItem('access_token');
+      
+      // Build origin/destination strings
+      const origin = formData.originAddress 
+        ? `${formData.originAddress}, ${formData.originCity}` 
+        : formData.originCity;
+      const destination = formData.destinationAddress 
+        ? `${formData.destinationAddress}, ${formData.destinationCity}` 
+        : formData.destinationCity;
+      
+      // Convert weight to kg if needed
+      const weightKg = formData.weightUnit === 'lbs' 
+        ? Math.round(parseFloat(formData.weight) * 0.453592) 
+        : parseFloat(formData.weight);
+      
+      // Build special requirements string
+      const specialReqs = [
+        formData.refrigeration && 'Refrigeration required',
+        formData.hazardous && 'Hazardous materials - special handling',
+        formData.oversized && 'Oversized load - permits may be required',
+        formData.liftgateRequired && 'Liftgate required',
+        formData.teamDriverRequired && 'Team drivers required',
+        !formData.stackable && 'Do not stack',
+      ].filter(Boolean).join('; ');
+      
       const loadData = {
-        origin: formData.origin,
-        destination: formData.destination,
+        origin,
+        destination,
         cargoType: formData.cargoType,
-        weight: parseInt(formData.weight) || 0,
-        length: parseInt(formData.length) || 0,
-        width: parseInt(formData.width) || 0,
-        height: parseInt(formData.height) || 0,
-        volume: formData.volume,
-        description: formData.description,
+        weight: weightKg,
+        length: formData.length ? parseInt(formData.length) : null,
+        width: formData.width ? parseInt(formData.width) : null,
+        height: formData.height ? parseInt(formData.height) : null,
+        volume: (formData as any).calculatedVolume || null,
+        description: formData.description || null,
         pickupDate: formData.pickupDate,
-        deliveryDate: formData.deliveryDate || formData.pickupDate,
-        price: formData.rateUSD || formData.ratePKR || '0',
-        currency: formData.rateUSD ? 'USD' : 'PKR',
-        urgent: false,
-        specialRequirements: [
-          formData.refrigeration && 'Refrigeration required',
-          formData.hazardous && 'Hazardous materials',
-          formData.oversized && 'Oversized cargo',
-        ].filter(Boolean).join(', '),
+        deliveryDate: formData.deliveryDate,
+        price: formData.price,
+        equipmentType: formData.equipmentType,
+        specialRequirements: specialReqs || null,
       };
 
       const response = await fetch('/api/loads', {
@@ -132,36 +261,15 @@ export default function PostLoad() {
       if (response.ok) {
         const newLoad = await response.json();
         addToast('success', `Load posted successfully! Tracking: ${newLoad.trackingNumber || 'N/A'}`);
-        // Reset form
-        setFormData({
-          origin: '',
-          destination: '',
-          cargoType: '',
-          weight: '',
-          length: '',
-          width: '',
-          height: '',
-          volume: '',
-          description: '',
-          pickupDate: '',
-          deliveryDate: '',
-          rateType: 'flat',
-          rateUSD: '',
-          ratePKR: '',
-          insuredValue: '',
-          requiredTruckType: '',
-          refrigeration: false,
-          hazardous: false,
-          oversized: false,
-          stackable: true,
-        });
-        setCurrentStep(0);
+        // Redirect to loads page after short delay
+        setTimeout(() => navigate('/loads'), 1500);
       } else {
-        addToast('error', 'Failed to post load. Please try again.');
+        const errorData = await response.json().catch(() => ({}));
+        addToast('error', errorData.error || 'Failed to post load. Please try again.');
       }
     } catch (error) {
       console.error('Error posting load:', error);
-      addToast('error', 'Failed to post load. Please try again.');
+      addToast('error', 'Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -215,34 +323,99 @@ export default function PostLoad() {
               {currentStep === 0 && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Route Information</h2>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Origin *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.origin}
-                      onChange={(e) => handleInputChange('origin', e.target.value)}
-                      placeholder="Urumqi, China"
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
+                  
+                  {/* Origin */}
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-green-600" /> Origin (Pickup Location)
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">City *</label>
+                        <select 
+                          value={formData.originCity}
+                          onChange={(e) => handleInputChange('originCity', e.target.value)}
+                          onBlur={() => handleBlur('originCity')}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                            touched.originCity && errors.originCity ? 'border-red-500' : 'border-slate-300'
+                          }`}
+                        >
+                          <option value="">Select origin city</option>
+                          <optgroup label="China">
+                            {CHINA_CITIES.map(city => (
+                              <option key={city} value={city}>{city}, China</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Pakistan">
+                            {PAKISTAN_CITIES.map(city => (
+                              <option key={city} value={city}>{city}, Pakistan</option>
+                            ))}
+                          </optgroup>
+                        </select>
+                        {touched.originCity && errors.originCity && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> {errors.originCity}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Address (Optional)</label>
+                        <input
+                          type="text"
+                          value={formData.originAddress}
+                          onChange={(e) => handleInputChange('originAddress', e.target.value)}
+                          placeholder="Street address, warehouse, etc."
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Destination *
-                    </label>
-                    <select 
-                      value={formData.destination}
-                      onChange={(e) => handleInputChange('destination', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    >
-                      <option value="">Select destination city</option>
-                      <option value="Islamabad">Islamabad, Pakistan</option>
-                      <option value="Lahore">Lahore, Pakistan</option>
-                      <option value="Karachi">Karachi, Pakistan</option>
-                      <option value="Peshawar">Peshawar, Pakistan</option>
-                      <option value="Rawalpindi">Rawalpindi, Pakistan</option>
-                    </select>
+
+                  {/* Destination */}
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-red-600" /> Destination (Delivery Location)
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">City *</label>
+                        <select 
+                          value={formData.destinationCity}
+                          onChange={(e) => handleInputChange('destinationCity', e.target.value)}
+                          onBlur={() => handleBlur('destinationCity')}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                            touched.destinationCity && errors.destinationCity ? 'border-red-500' : 'border-slate-300'
+                          }`}
+                        >
+                          <option value="">Select destination city</option>
+                          <optgroup label="Pakistan">
+                            {PAKISTAN_CITIES.map(city => (
+                              <option key={city} value={city}>{city}, Pakistan</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="China">
+                            {CHINA_CITIES.map(city => (
+                              <option key={city} value={city}>{city}, China</option>
+                            ))}
+                          </optgroup>
+                        </select>
+                        {touched.destinationCity && errors.destinationCity && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> {errors.destinationCity}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Address (Optional)</label>
+                        <input
+                          type="text"
+                          value={formData.destinationAddress}
+                          onChange={(e) => handleInputChange('destinationAddress', e.target.value)}
+                          placeholder="Street address, warehouse, etc."
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -251,97 +424,136 @@ export default function PostLoad() {
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Cargo Details</h2>
+                  
+                  {/* Cargo Type */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Cargo Type *
-                    </label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Cargo Type *</label>
                     <select 
                       value={formData.cargoType}
                       onChange={(e) => handleInputChange('cargoType', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      onBlur={() => handleBlur('cargoType')}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                        touched.cargoType && errors.cargoType ? 'border-red-500' : 'border-slate-300'
+                      }`}
                     >
                       <option value="">Select cargo type</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Textiles">Textiles</option>
-                      <option value="Machinery">Machinery</option>
-                      <option value="General Freight">General Freight</option>
-                      <option value="Food Products">Food Products</option>
-                      <option value="Construction Materials">Construction Materials</option>
+                      {CARGO_TYPES.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
                     </select>
+                    {touched.cargoType && errors.cargoType && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {errors.cargoType}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Weight with unit selector */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Weight *</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        value={formData.weight}
+                        onChange={(e) => handleInputChange('weight', e.target.value)}
+                        onBlur={() => handleBlur('weight')}
+                        placeholder="e.g. 15000"
+                        min="1"
+                        max="50000"
+                        className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                          touched.weight && errors.weight ? 'border-red-500' : 'border-slate-300'
+                        }`}
+                      />
+                      <select
+                        value={formData.weightUnit}
+                        onChange={(e) => handleInputChange('weightUnit', e.target.value)}
+                        className="w-24 px-3 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      >
+                        <option value="kg">kg</option>
+                        <option value="lbs">lbs</option>
+                      </select>
+                    </div>
+                    {touched.weight && errors.weight && (
+                      <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {errors.weight}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Dimensions with unit selector */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Weight (kg) *
+                      Dimensions (Optional)
+                      <span className="text-slate-500 font-normal ml-2">L × W × H</span>
                     </label>
-                    <input
-                      type="number"
-                      value={formData.weight}
-                      onChange={(e) => handleInputChange('weight', e.target.value)}
-                      placeholder="e.g. 15000"
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Length (cm)
-                      </label>
+                    <div className="flex gap-2 items-center">
                       <input
                         type="number"
                         value={formData.length}
                         onChange={(e) => handleInputChange('length', e.target.value)}
-                        placeholder="e.g. 1200"
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        placeholder="Length"
+                        className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Width (cm)
-                      </label>
+                      <span className="text-slate-400">×</span>
                       <input
                         type="number"
                         value={formData.width}
                         onChange={(e) => handleInputChange('width', e.target.value)}
-                        placeholder="e.g. 240"
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        placeholder="Width"
+                        className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Height (cm)
-                      </label>
+                      <span className="text-slate-400">×</span>
                       <input
                         type="number"
                         value={formData.height}
                         onChange={(e) => handleInputChange('height', e.target.value)}
-                        placeholder="e.g. 240"
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        placeholder="Height"
+                        className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                       />
+                      <select
+                        value={formData.dimensionUnit}
+                        onChange={(e) => handleInputChange('dimensionUnit', e.target.value)}
+                        className="w-20 px-2 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      >
+                        <option value="cm">cm</option>
+                        <option value="ft">ft</option>
+                      </select>
                     </div>
+                    {(formData as any).calculatedVolume && (
+                      <p className="mt-2 text-sm text-green-600">
+                        Calculated Volume: {(formData as any).calculatedVolume} CBM
+                      </p>
+                    )}
                   </div>
+
+                  {/* Number of pieces */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Volume (CBM)
-                    </label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Number of Pieces</label>
                     <input
                       type="number"
-                      value={formData.volume}
-                      onChange={(e) => handleInputChange('volume', e.target.value)}
-                      placeholder="e.g. 67"
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={formData.pieces}
+                      onChange={(e) => handleInputChange('pieces', e.target.value)}
+                      placeholder="1"
+                      min="1"
+                      className="w-32 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                     />
                   </div>
+
+                  {/* Description */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Description (Optional)
+                      <span className="text-slate-500 font-normal ml-2">Help carriers understand your cargo</span>
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Additional details about the cargo..."
-                      rows={4}
+                      placeholder="Describe your cargo: packaging, handling instructions, special notes..."
+                      rows={3}
+                      maxLength={500}
                       className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                     />
+                    <p className="mt-1 text-xs text-slate-500">{formData.description.length}/500 characters</p>
                   </div>
                 </div>
               )}
@@ -350,145 +562,229 @@ export default function PostLoad() {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Schedule</h2>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Pickup Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.pickupDate}
-                      onChange={(e) => handleInputChange('pickupDate', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
+                  
+                  {/* Pickup */}
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-green-600" /> Pickup
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Date *</label>
+                        <input
+                          type="date"
+                          value={formData.pickupDate}
+                          onChange={(e) => handleInputChange('pickupDate', e.target.value)}
+                          onBlur={() => handleBlur('pickupDate')}
+                          min={today}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                            touched.pickupDate && errors.pickupDate ? 'border-red-500' : 'border-slate-300'
+                          }`}
+                        />
+                        {touched.pickupDate && errors.pickupDate && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> {errors.pickupDate}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Time Window</label>
+                        <select
+                          value={formData.pickupTimeWindow}
+                          onChange={(e) => handleInputChange('pickupTimeWindow', e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="flexible">Flexible</option>
+                          <option value="morning">Morning (6AM - 12PM)</option>
+                          <option value="afternoon">Afternoon (12PM - 6PM)</option>
+                          <option value="evening">Evening (6PM - 10PM)</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Delivery Deadline *
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.deliveryDate}
-                      onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
+
+                  {/* Delivery */}
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-red-600" /> Delivery
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Date *</label>
+                        <input
+                          type="date"
+                          value={formData.deliveryDate}
+                          onChange={(e) => handleInputChange('deliveryDate', e.target.value)}
+                          onBlur={() => handleBlur('deliveryDate')}
+                          min={formData.pickupDate || today}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                            touched.deliveryDate && errors.deliveryDate ? 'border-red-500' : 'border-slate-300'
+                          }`}
+                        />
+                        {touched.deliveryDate && errors.deliveryDate && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> {errors.deliveryDate}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Time Window</label>
+                        <select
+                          value={formData.deliveryTimeWindow}
+                          onChange={(e) => handleInputChange('deliveryTimeWindow', e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="flexible">Flexible</option>
+                          <option value="morning">Morning (6AM - 12PM)</option>
+                          <option value="afternoon">Afternoon (12PM - 6PM)</option>
+                          <option value="evening">Evening (6PM - 10PM)</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Transit time estimate */}
+                  {formData.pickupDate && formData.deliveryDate && (
+                    <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+                      <strong>Transit Time:</strong> {Math.ceil((new Date(formData.deliveryDate).getTime() - new Date(formData.pickupDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Step 4: Pricing */}
+              {/* Step 4: Equipment & Rate */}
               {currentStep === 3 && (
                 <div className="space-y-6">
-                  <h2 className="text-xl font-semibold mb-4">Pricing</h2>
+                  <h2 className="text-xl font-semibold mb-4">Equipment & Rate</h2>
+                  
+                  {/* Equipment Type */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Rate Type *
-                    </label>
-                    <select 
-                      value={formData.rateType}
-                      onChange={(e) => handleInputChange('rateType', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="flat">Flat Rate (USD)</option>
-                      <option value="per_km">Per Kilometer</option>
-                      <option value="negotiable">Negotiable</option>
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Rate (USD) *
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.rateUSD}
-                        onChange={(e) => handleInputChange('rateUSD', e.target.value)}
-                        placeholder="e.g. 4500"
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                      />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Equipment Type *</label>
+                    <div className="grid grid-cols-1 gap-3">
+                      {EQUIPMENT_TYPES.map(type => (
+                        <label 
+                          key={type.value}
+                          className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                            formData.equipmentType === type.value 
+                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200' 
+                              : 'border-slate-300 hover:border-slate-400'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="equipmentType"
+                            value={type.value}
+                            checked={formData.equipmentType === type.value}
+                            onChange={(e) => handleInputChange('equipmentType', e.target.value)}
+                            className="w-4 h-4 text-green-600 border-slate-300 focus:ring-green-500"
+                          />
+                          <div className="ml-3">
+                            <span className="font-medium text-slate-900">{type.label}</span>
+                            <p className="text-xs text-slate-500">{type.description}</p>
+                          </div>
+                        </label>
+                      ))}
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Rate (PKR)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.ratePKR}
-                        onChange={(e) => handleInputChange('ratePKR', e.target.value)}
-                        placeholder="PKR 0"
-                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                        disabled
-                      />
-                    </div>
+                    {touched.equipmentType && errors.equipmentType && (
+                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {errors.equipmentType}
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Insured Value (USD)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.insuredValue}
-                      onChange={(e) => handleInputChange('insuredValue', e.target.value)}
-                      placeholder="e.g. 50000"
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* Step 5: Truck Requirements */}
-              {currentStep === 4 && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold mb-4">Truck Requirements</h2>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Required Truck Type *
-                    </label>
-                    <select 
-                      value={formData.requiredTruckType}
-                      onChange={(e) => handleInputChange('requiredTruckType', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="">Select truck type</option>
-                      <option value="20ft Container">20ft Container</option>
-                      <option value="40ft Container">40ft Container</option>
-                      <option value="Flatbed">Flatbed</option>
-                      <option value="Refrigerated">Refrigerated Truck</option>
-                      <option value="Tanker">Tanker</option>
-                    </select>
+                  {/* Rate */}
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-green-600" /> Your Rate
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Rate Type</label>
+                        <select 
+                          value={formData.rateType}
+                          onChange={(e) => handleInputChange('rateType', e.target.value)}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="flat">Flat Rate</option>
+                          <option value="per_km">Per Kilometer</option>
+                          <option value="negotiable">Negotiable</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 mb-1">Amount (USD) *</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                          <input
+                            type="number"
+                            value={formData.price}
+                            onChange={(e) => handleInputChange('price', e.target.value)}
+                            onBlur={() => handleBlur('price')}
+                            placeholder="e.g. 4500"
+                            min="1"
+                            className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 ${
+                              touched.price && errors.price ? 'border-red-500' : 'border-slate-300'
+                            }`}
+                          />
+                        </div>
+                        {touched.price && errors.price && (
+                          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> {errors.price}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Special Requirements */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-3">
-                      Special Requirements
-                    </label>
-                    <div className="space-y-3">
-                      <label className="flex items-center">
+                    <label className="block text-sm font-medium text-slate-700 mb-3">Special Requirements</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={formData.refrigeration}
                           onChange={(e) => handleInputChange('refrigeration', e.target.checked)}
                           className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                         />
-                        <span className="ml-3 text-sm text-slate-700">Refrigeration Required</span>
+                        <span className="ml-3 text-sm text-slate-700">Refrigeration</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={formData.hazardous}
                           onChange={(e) => handleInputChange('hazardous', e.target.checked)}
                           className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                         />
-                        <span className="ml-3 text-sm text-slate-700">Hazardous Material</span>
+                        <span className="ml-3 text-sm text-slate-700">Hazardous</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={formData.oversized}
                           onChange={(e) => handleInputChange('oversized', e.target.checked)}
                           className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                         />
-                        <span className="ml-3 text-sm text-slate-700">Oversized Load</span>
+                        <span className="ml-3 text-sm text-slate-700">Oversized</span>
                       </label>
-                      <label className="flex items-center">
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.liftgateRequired}
+                          onChange={(e) => handleInputChange('liftgateRequired', e.target.checked)}
+                          className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                        />
+                        <span className="ml-3 text-sm text-slate-700">Liftgate</span>
+                      </label>
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.teamDriverRequired}
+                          onChange={(e) => handleInputChange('teamDriverRequired', e.target.checked)}
+                          className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
+                        />
+                        <span className="ml-3 text-sm text-slate-700">Team Drivers</span>
+                      </label>
+                      <label className="flex items-center p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={formData.stackable}
@@ -502,43 +798,22 @@ export default function PostLoad() {
                 </div>
               )}
 
-              {/* Step 6: Photos & Documents */}
-              {currentStep === 5 && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold mb-4">Cargo Photos & Documents</h2>
-                  <p className="text-sm text-slate-600">
-                    Upload photos of your cargo to help carriers understand what they'll be transporting.
-                  </p>
-                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-12 text-center hover:border-green-500 transition-colors cursor-pointer">
-                    <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                    <p className="text-sm text-slate-600 mb-2">
-                      Drag and drop files here or click to browse
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Maximum 5 files, up to 10MB each
-                    </p>
-                    <input type="file" multiple className="hidden" accept="image/*" />
-                  </div>
-                  <div className="text-sm text-slate-500">
-                    0/5 images uploaded
-                  </div>
-                </div>
-              )}
-
               {/* Navigation Buttons */}
               <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
                 <button
                   onClick={handlePrevious}
-                  disabled={currentStep === 0}
+                  disabled={currentStep === 0 || loading}
                   className="px-6 py-3 border border-slate-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors"
                 >
                   Previous
                 </button>
                 <button
                   onClick={currentStep === steps.length - 1 ? handleSubmit : handleNext}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  disabled={loading}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {currentStep === steps.length - 1 ? 'Post Load' : 'Next'}
+                  {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  {currentStep === steps.length - 1 ? (loading ? 'Posting...' : 'Post Load') : 'Continue'}
                 </button>
               </div>
             </div>

@@ -705,14 +705,12 @@ export function registerRoutes(app: Express) {
       
       const allBookings = await bookingRepo.findAll(filters);
       
-      // Flatten and enrich with load details
-      const enrichedBookings = await Promise.all(allBookings.map(async (item: any) => {
-        const loadData = await loadRepo.findById(item.booking?.loadId || item.loadId);
-        return {
-          ...item.booking,
-          load: loadData?.load || null,
-          carrier: item.carrier || null,
-        };
+      // Flatten the nested structure - repository already returns load and carrier
+      const flattenedBookings = allBookings.map((item: any) => ({
+        ...item.booking,
+        load: item.load || null,
+        carrier: item.carrier || null,
+        vehicle: item.vehicle || null,
       }));
       
       // Pagination
@@ -721,15 +719,15 @@ export function registerRoutes(app: Express) {
       const startIndex = (pageNum - 1) * limitNum;
       const endIndex = startIndex + limitNum;
       
-      const paginatedBookings = enrichedBookings.slice(startIndex, endIndex);
+      const paginatedBookings = flattenedBookings.slice(startIndex, endIndex);
 
       res.json({
         bookings: paginatedBookings,
         pagination: {
           page: pageNum,
           limit: limitNum,
-          total: enrichedBookings.length,
-          totalPages: Math.ceil(enrichedBookings.length / limitNum),
+          total: flattenedBookings.length,
+          totalPages: Math.ceil(flattenedBookings.length / limitNum),
         },
       });
     } catch (error) {

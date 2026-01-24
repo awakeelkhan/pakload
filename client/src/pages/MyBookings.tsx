@@ -36,20 +36,22 @@ export default function MyBookings() {
       const data = await response.json();
       
       // Transform the data for display
-      // Handle both paginated and non-paginated responses
-      const bookingsArray = data.bookings || data;
+      // Handle paginated response - API now returns flat objects
+      const bookingsArray = data.bookings || data || [];
       const transformedBookings = (Array.isArray(bookingsArray) ? bookingsArray : []).map((item: any) => ({
-        id: item.booking?.id || item.id,
-        trackingNumber: item.load?.trackingNumber || `LP-${item.booking?.id || item.id}`,
+        id: item.id,
+        trackingNumber: item.load?.trackingNumber || `LP-${item.id}`,
         origin: item.load?.origin || 'N/A',
         destination: item.load?.destination || 'N/A',
         cargoType: item.load?.cargoType || 'General',
-        status: item.booking?.status || item.status || 'pending',
-        progress: item.booking?.progress || item.progress || 0,
-        pickupDate: item.booking?.pickupDate || item.pickupDate,
-        deliveryDate: item.booking?.deliveryDate || item.deliveryDate,
-        price: item.booking?.price || item.price || '0',
-        carrierName: item.carrier?.companyName || 'Carrier',
+        status: item.status || 'pending',
+        progress: item.progress || 0,
+        pickupDate: item.pickupDate,
+        deliveryDate: item.deliveryDate,
+        price: item.price || '0',
+        carrierName: item.carrier?.companyName || `${item.carrier?.firstName || ''} ${item.carrier?.lastName || ''}`.trim() || 'Carrier',
+        load: item.load,
+        carrier: item.carrier,
       }));
       
       setBookings(transformedBookings);

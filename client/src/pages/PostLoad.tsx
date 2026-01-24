@@ -1,8 +1,22 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
-import { CheckCircle2, Upload, ShieldCheck, Zap, Package, MapPin, Loader2, Truck, Calendar, DollarSign, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { CheckCircle2, Upload, ShieldCheck, Zap, Package, MapPin, Loader2, Truck, Calendar, DollarSign, AlertCircle, FileText, X, File } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { useLocation } from 'wouter';
+
+// CPEC Document types for border crossing and compliance
+const DOCUMENT_TYPES = [
+  { id: 'commercial_invoice', label: 'Commercial Invoice', required: true, description: 'Required for customs clearance' },
+  { id: 'packing_list', label: 'Packing List', required: true, description: 'Detailed list of cargo contents' },
+  { id: 'bill_of_lading', label: 'Bill of Lading / Airway Bill', required: false, description: 'Transport document' },
+  { id: 'certificate_of_origin', label: 'Certificate of Origin', required: false, description: 'For preferential tariff rates' },
+  { id: 'customs_declaration', label: 'Customs Declaration Form', required: false, description: 'Pre-filled customs form' },
+  { id: 'phytosanitary', label: 'Phytosanitary Certificate', required: false, description: 'For agricultural products' },
+  { id: 'hazmat_declaration', label: 'Hazmat Declaration', required: false, description: 'For hazardous materials' },
+  { id: 'insurance_certificate', label: 'Insurance Certificate', required: false, description: 'Cargo insurance proof' },
+  { id: 'checkpost_permit', label: 'Checkpost Transit Permit', required: false, description: 'For CPEC route checkpoints' },
+  { id: 'other', label: 'Other Documents', required: false, description: 'Any additional documentation' },
+];
 
 // Pakistan cities for CPEC routes
 const PAKISTAN_CITIES = [
@@ -39,6 +53,9 @@ export default function PostLoad() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [documents, setDocuments] = useState<{id: string; file: File; type: string}[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedDocType, setSelectedDocType] = useState('commercial_invoice');
   const [formData, setFormData] = useState({
     // Route
     originCity: '',
@@ -177,6 +194,49 @@ export default function PostLoad() {
       addToast('error', 'Please fill in all required fields correctly');
     }
     return isValid;
+  };
+
+  // Document handling functions
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      addToast('error', 'File size must be less than 10MB');
+      return;
+    }
+    
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      addToast('error', 'Only PDF and image files (JPG, PNG) are allowed');
+      return;
+    }
+    
+    // Add document to list
+    const newDoc = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      file,
+      type: selectedDocType,
+    };
+    
+    setDocuments(prev => [...prev, newDoc]);
+    addToast('success', `${DOCUMENT_TYPES.find(d => d.id === selectedDocType)?.label} uploaded`);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeDocument = (docId: string) => {
+    setDocuments(prev => prev.filter(d => d.id !== docId));
+  };
+
+  const getDocumentsByType = (type: string) => {
+    return documents.filter(d => d.type === type);
   };
 
   const handleNext = () => {
@@ -793,6 +853,106 @@ export default function PostLoad() {
                         />
                         <span className="ml-3 text-sm text-slate-700">Stackable</span>
                       </label>
+                    </div>
+                  </div>
+
+                  {/* CPEC Documents Section */}
+                  <div className="border-t border-slate-200 pt-6 mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-green-600" /> 
+                          Border & Compliance Documents
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Upload documents for customs clearance and checkpost transit (Optional)
+                        </p>
+                      </div>
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">CPEC Ready</span>
+                    </div>
+
+                    {/* Document Type Selector */}
+                    <div className="flex gap-3 mb-4">
+                      <select
+                        value={selectedDocType}
+                        onChange={(e) => setSelectedDocType(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 text-sm"
+                      >
+                        {DOCUMENT_TYPES.map(doc => (
+                          <option key={doc.id} value={doc.id}>
+                            {doc.label} {doc.required && '*'}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-2 text-sm"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileSelect}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                      />
+                    </div>
+
+                    {/* Document Type Description */}
+                    <p className="text-xs text-slate-500 mb-4">
+                      {DOCUMENT_TYPES.find(d => d.id === selectedDocType)?.description}
+                    </p>
+
+                    {/* Uploaded Documents List */}
+                    {documents.length > 0 && (
+                      <div className="space-y-2 mb-4">
+                        <p className="text-xs font-medium text-slate-600">Uploaded Documents ({documents.length})</p>
+                        {documents.map(doc => {
+                          const docType = DOCUMENT_TYPES.find(d => d.id === doc.type);
+                          return (
+                            <div key={doc.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <File className="w-5 h-5 text-slate-400" />
+                                <div>
+                                  <p className="text-sm font-medium text-slate-700">{doc.file.name}</p>
+                                  <p className="text-xs text-slate-500">{docType?.label} • {(doc.file.size / 1024).toFixed(1)} KB</p>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeDocument(doc.id)}
+                                className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Quick Document Checklist */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-amber-800 mb-2">📋 CPEC Document Checklist</h4>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {DOCUMENT_TYPES.slice(0, 6).map(doc => {
+                          const uploaded = getDocumentsByType(doc.id).length > 0;
+                          return (
+                            <div key={doc.id} className={`flex items-center gap-2 ${uploaded ? 'text-green-700' : 'text-amber-700'}`}>
+                              {uploaded ? (
+                                <CheckCircle2 className="w-3 h-3" />
+                              ) : (
+                                <span className="w-3 h-3 border border-current rounded-full" />
+                              )}
+                              <span>{doc.label} {doc.required && '*'}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-amber-600 mt-2">* Required for international shipments</p>
                     </div>
                   </div>
                 </div>

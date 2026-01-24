@@ -135,13 +135,34 @@ export default function Routes() {
     },
   ];
 
+  const [routeError, setRouteError] = useState('');
+
   const calculateRoute = () => {
-    if (origin && destination) {
-      const route = routes.find(
-        (r) => r.from.toLowerCase().includes(origin.toLowerCase()) && 
-               r.to.toLowerCase().includes(destination.toLowerCase())
-      );
-      setSelectedRoute(route || null);
+    setRouteError('');
+    
+    if (!origin.trim() || !destination.trim()) {
+      setRouteError('Please enter both origin and destination cities');
+      return;
+    }
+    
+    // Normalize input for better matching
+    const normalizedOrigin = origin.toLowerCase().trim();
+    const normalizedDest = destination.toLowerCase().trim();
+    
+    // Try to find a matching route (flexible matching)
+    const route = routes.find((r) => {
+      const fromMatch = r.from.toLowerCase().includes(normalizedOrigin) || 
+                        normalizedOrigin.includes(r.from.toLowerCase().split(',')[0].trim());
+      const toMatch = r.to.toLowerCase().includes(normalizedDest) || 
+                      normalizedDest.includes(r.to.toLowerCase().split(',')[0].trim());
+      return fromMatch && toMatch;
+    });
+    
+    if (route) {
+      setSelectedRoute(route);
+    } else {
+      setSelectedRoute(null);
+      setRouteError(`No route found from "${origin}" to "${destination}". Try: Kashgar, Urumqi → Islamabad, Lahore, Karachi, Peshawar, Gwadar`);
     }
   };
 
@@ -252,6 +273,13 @@ export default function Routes() {
                 <Navigation className="w-5 h-5" />
                 Calculate Route
               </button>
+
+              {/* Error Message */}
+              {routeError && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {routeError}
+                </div>
+              )}
 
               {selectedRoute && (
                 <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">

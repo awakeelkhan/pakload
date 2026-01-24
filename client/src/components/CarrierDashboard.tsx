@@ -306,10 +306,10 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-sm font-medium text-slate-900">{vehicle.truck}</h3>
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        vehicle.status === 'available' ? 'bg-green-100 text-green-700' :
+                        (vehicle.status || 'available') === 'available' ? 'bg-green-100 text-green-700' :
                         'bg-blue-100 text-blue-700'
                       }`}>
-                        {vehicle.status === 'available' ? 'Available' : 'In Transit'}
+                        {(vehicle.status || 'available') === 'available' ? 'Available' : 'In Transit'}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 mb-1">{vehicle.type}</p>

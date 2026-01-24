@@ -228,7 +228,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                             load.status === 'in_transit' ? 'bg-blue-100 text-blue-800' :
                             'bg-amber-100 text-amber-800'
                           }`}>
-                            {load.status.replace('_', ' ')}
+                            {(load.status || 'pending').replace('_', ' ')}
                           </span>
                         </div>
                       </div>

@@ -1,5 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Navigation, DollarSign, Clock, Fuel, AlertTriangle, Cloud, TrendingUp, Calculator, Route as RouteIcon, Truck, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default marker icons in Leaflet with Vite
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// City coordinates for CPEC routes
+const CITY_COORDS: Record<string, [number, number]> = {
+  'Kashgar, China': [39.4547, 75.9797],
+  'Urumqi, China': [43.8256, 87.6168],
+  'Khunjerab Pass': [36.8500, 75.4167],
+  'Islamabad, Pakistan': [33.6844, 73.0479],
+  'Lahore, Pakistan': [31.5497, 74.3436],
+  'Karachi, Pakistan': [24.8607, 67.0011],
+  'Peshawar, Pakistan': [34.0151, 71.5249],
+  'Gwadar, Pakistan': [25.1264, 62.3225],
+};
 
 interface RouteData {
   id: string;
@@ -306,23 +329,92 @@ export default function Routes() {
 
         {/* Interactive Map */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <MapPin className="w-6 h-6 text-green-600" />
-            <h2 className="text-xl font-bold text-slate-900">Interactive Route Map</h2>
-          </div>
-          <div className="bg-gradient-to-br from-slate-100 to-slate-200 h-96 rounded-xl flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-10 w-32 h-32 bg-green-500 rounded-full blur-3xl" />
-              <div className="absolute bottom-10 right-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-6 h-6 text-green-600" />
+              <h2 className="text-xl font-bold text-slate-900">Interactive Route Map</h2>
             </div>
-            <div className="text-center z-10">
-              <MapPin className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">CPEC Route Visualization</h3>
-              <p className="text-slate-500 mb-4">Interactive map showing all major routes</p>
-              <div className="flex gap-2 justify-center">
-                <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">6 Active Routes</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Real-time Updates</span>
-              </div>
+            <div className="flex gap-2">
+              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">{routes.length} Active Routes</span>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Live</span>
+            </div>
+          </div>
+          <div className="h-96 rounded-xl overflow-hidden border border-slate-200">
+            <MapContainer 
+              center={[35.0, 75.0]} 
+              zoom={5} 
+              style={{ height: '100%', width: '100%' }}
+              scrollWheelZoom={true}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              
+              {/* City Markers */}
+              {Object.entries(CITY_COORDS).map(([city, coords]) => (
+                <Marker key={city} position={coords}>
+                  <Popup>
+                    <div className="text-center">
+                      <strong>{city}</strong>
+                      <br />
+                      <span className="text-xs text-gray-500">
+                        {city.includes('China') ? '🇨🇳 China' : city.includes('Pass') ? '🏔️ Border' : '🇵🇰 Pakistan'}
+                      </span>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+              
+              {/* Route Lines */}
+              {routes.map((route) => {
+                const fromCoords = CITY_COORDS[route.from];
+                const toCoords = CITY_COORDS[route.to];
+                const khunjerabCoords = CITY_COORDS['Khunjerab Pass'];
+                
+                if (fromCoords && toCoords && khunjerabCoords) {
+                  // Route goes through Khunjerab Pass
+                  return (
+                    <Polyline
+                      key={route.id}
+                      positions={[fromCoords, khunjerabCoords, toCoords]}
+                      color={route.status === 'open' ? '#16a34a' : route.status === 'restricted' ? '#f59e0b' : '#ef4444'}
+                      weight={3}
+                      opacity={0.7}
+                      dashArray={route.popularRoute ? undefined : '10, 10'}
+                    >
+                      <Popup>
+                        <div>
+                          <strong>{route.from} → {route.to}</strong>
+                          <br />
+                          <span className="text-sm">Distance: {route.distance} km</span>
+                          <br />
+                          <span className="text-sm">Duration: {route.duration}</span>
+                          <br />
+                          <span className={`text-sm ${route.status === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
+                            Status: {route.status.toUpperCase()}
+                          </span>
+                        </div>
+                      </Popup>
+                    </Polyline>
+                  );
+                }
+                return null;
+              })}
+            </MapContainer>
+          </div>
+          <div className="mt-4 flex items-center gap-6 text-sm text-slate-600">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-green-500 rounded"></div>
+              <span>Open Route</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-amber-500 rounded"></div>
+              <span>Restricted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-green-500 rounded border-dashed"></div>
+              <span>Less Popular</span>
             </div>
           </div>
         </div>

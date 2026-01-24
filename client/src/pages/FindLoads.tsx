@@ -61,7 +61,9 @@ export default function FindLoads() {
       
       const response = await fetch(`/api/loads?${params}`);
       const data = await response.json();
-      setLoads(data);
+      // Handle paginated response
+      const loadsArray = data.loads || data || [];
+      setLoads(Array.isArray(loadsArray) ? loadsArray : []);
     } catch (error) {
       console.error('Error fetching loads:', error);
     } finally {

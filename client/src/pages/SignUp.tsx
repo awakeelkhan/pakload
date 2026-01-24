@@ -76,14 +76,15 @@ export default function SignUp() {
   };
 
   const handleSocialSignUp = (provider: string) => {
-    console.log(`Sign up with ${provider}`);
+    console.log('handleSocialSignUp called with provider:', provider, 'type:', typeof provider);
+    // Direct redirect without condition check
     if (provider === 'google') {
-      // Redirect to Google OAuth
-      const url = '/api/v1/auth/google';
-      console.log('Redirecting to:', url);
-      window.location.assign(url);
+      console.log('Google condition matched, redirecting...');
+      window.location.href = '/api/v1/auth/google';
     } else if (provider === 'facebook') {
       setErrors({ submit: 'Facebook login coming soon. Please use Google or email signup.' });
+    } else {
+      console.log('No condition matched for provider:', provider);
     }
   };
 

@@ -89,15 +89,14 @@ export default function SignIn() {
   };
 
   const handleSocialSignIn = (provider: string) => {
-    console.log('Sign in with', provider);
+    console.log('handleSocialSignIn called with provider:', provider, 'type:', typeof provider);
     if (provider === 'google') {
-      // Redirect to Google OAuth
-      const url = '/api/v1/auth/google';
-      console.log('Redirecting to:', url);
-      window.location.assign(url);
+      console.log('Google condition matched, redirecting...');
+      window.location.href = '/api/v1/auth/google';
     } else if (provider === 'facebook') {
-      // Facebook OAuth - show coming soon message
       setErrors({ submit: 'Facebook login coming soon. Please use Google or email login.' });
+    } else {
+      console.log('No condition matched for provider:', provider);
     }
   };
 

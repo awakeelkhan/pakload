@@ -91,12 +91,10 @@ export default function SignIn() {
   const handleSocialSignIn = (provider: string) => {
     console.log('Sign in with', provider);
     if (provider === 'google') {
-      // Redirect to Google OAuth - use same origin for production, localhost for dev
-      const backendUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000' 
-        : `${window.location.protocol}//${window.location.host}`;
-      console.log('Redirecting to:', `${backendUrl}/api/v1/auth/google`);
-      window.location.href = `${backendUrl}/api/v1/auth/google`;
+      // Redirect to Google OAuth
+      const url = '/api/v1/auth/google';
+      console.log('Redirecting to:', url);
+      window.location.assign(url);
     } else if (provider === 'facebook') {
       // Facebook OAuth - show coming soon message
       setErrors({ submit: 'Facebook login coming soon. Please use Google or email login.' });

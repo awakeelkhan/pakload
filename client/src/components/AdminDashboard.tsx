@@ -1,6 +1,7 @@
 import { Users, Package, Truck, DollarSign, TrendingUp, Activity, AlertTriangle, CheckCircle, Clock, BarChart3, Settings, Shield, FileText, Bell, X, Edit2, Trash2, Ban, CheckSquare, Plus, RefreshCw, MapPin, Database } from 'lucide-react';
 import { Link } from 'wouter';
 import { useState, useEffect } from 'react';
+import ConfirmModal from './ConfirmModal';
 
 interface AdminDashboardProps {
   user: any;
@@ -13,6 +14,13 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userActionConfirm, setUserActionConfirm] = useState<{ show: boolean; userId: number | null; action: string; title: string; message: string }>({
+    show: false,
+    userId: null,
+    action: '',
+    title: '',
+    message: '',
+  });
 
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -92,16 +100,36 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
       setSelectedUser(userToEdit);
       setShowUserModal(true);
     } else if (action === 'suspend') {
-      if (confirm('Are you sure you want to suspend this user?')) {
-        setUsers(users.map(u => u.id === userId ? { ...u, status: 'suspended' } : u));
-      }
+      setUserActionConfirm({
+        show: true,
+        userId,
+        action: 'suspend',
+        title: 'Suspend User',
+        message: 'Are you sure you want to suspend this user?',
+      });
     } else if (action === 'delete') {
-      if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-        setUsers(users.filter(u => u.id !== userId));
-      }
+      setUserActionConfirm({
+        show: true,
+        userId,
+        action: 'delete',
+        title: 'Delete User',
+        message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      });
     } else if (action === 'verify') {
       setUsers(users.map(u => u.id === userId ? { ...u, verified: true, status: 'active' } : u));
     }
+  };
+
+  const confirmUserAction = () => {
+    if (!userActionConfirm.userId) return;
+    
+    if (userActionConfirm.action === 'suspend') {
+      setUsers(users.map(u => u.id === userActionConfirm.userId ? { ...u, status: 'suspended' } : u));
+    } else if (userActionConfirm.action === 'delete') {
+      setUsers(users.filter(u => u.id !== userActionConfirm.userId));
+    }
+    
+    setUserActionConfirm({ show: false, userId: null, action: '', title: '', message: '' });
   };
 
   const handleConfigSave = () => {
@@ -620,6 +648,17 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
             </div>
           </div>
         )}
+
+        {/* User Action Confirmation Modal */}
+        <ConfirmModal
+          isOpen={userActionConfirm.show}
+          onClose={() => setUserActionConfirm({ show: false, userId: null, action: '', title: '', message: '' })}
+          onConfirm={confirmUserAction}
+          title={userActionConfirm.title}
+          message={userActionConfirm.message}
+          confirmText={userActionConfirm.action === 'delete' ? 'Delete' : 'Suspend'}
+          variant={userActionConfirm.action === 'delete' ? 'danger' : 'warning'}
+        />
       </div>
     </div>
   );

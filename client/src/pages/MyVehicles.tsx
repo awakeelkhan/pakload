@@ -2,6 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Truck, MapPin, Calendar, CheckCircle, Plus, Edit2, Trash2, X, Home } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function MyVehicles() {
   const { user } = useAuth();
@@ -19,6 +20,10 @@ export default function MyVehicles() {
     hasGPS: false,
     hasRefrigeration: false,
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; vehicleId: number | null }>({
+    show: false,
+    vehicleId: null,
+  });
 
   useEffect(() => {
     fetchVehicles();
@@ -29,7 +34,8 @@ export default function MyVehicles() {
       setLoading(true);
       const response = await fetch('/api/trucks');
       const data = await response.json();
-      setVehicles(data);
+      // Handle both paginated and non-paginated responses
+      setVehicles(data.trucks || data);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
     } finally {
@@ -67,17 +73,21 @@ export default function MyVehicles() {
     setShowModal(true);
   };
 
-  const handleDeleteVehicle = async (id: number) => {
-    if (confirm('Are you sure you want to remove this vehicle?')) {
-      try {
-        await fetch(`/api/trucks/${id}`, {
-          method: 'DELETE'
-        });
-        setVehicles(vehicles.filter(v => v.id !== id));
-      } catch (error) {
-        console.error('Error deleting vehicle:', error);
-        alert('Failed to delete vehicle');
-      }
+  const handleDeleteVehicle = (id: number) => {
+    setDeleteConfirm({ show: true, vehicleId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.vehicleId) return;
+    try {
+      await fetch(`/api/trucks/${deleteConfirm.vehicleId}`, {
+        method: 'DELETE'
+      });
+      setVehicles(vehicles.filter(v => v.id !== deleteConfirm.vehicleId));
+      setDeleteConfirm({ show: false, vehicleId: null });
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      setDeleteConfirm({ show: false, vehicleId: null });
     }
   };
 
@@ -211,6 +221,17 @@ export default function MyVehicles() {
             </div>
           ))}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmModal
+          isOpen={deleteConfirm.show}
+          onClose={() => setDeleteConfirm({ show: false, vehicleId: null })}
+          onConfirm={confirmDelete}
+          title="Remove Vehicle"
+          message="Are you sure you want to remove this vehicle? This action cannot be undone."
+          confirmText="Remove"
+          variant="danger"
+        />
 
         {/* Add/Edit Vehicle Modal */}
         {showModal && (

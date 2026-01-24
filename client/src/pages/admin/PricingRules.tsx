@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { DollarSign, Plus, Edit2, Trash2, Search, ChevronRight, ToggleLeft, ToggleRight } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 interface PricingRule {
   id: number;
@@ -25,6 +26,10 @@ export default function PricingRules() {
     ruleType: 'multiplier',
     multiplier: '1.0',
     conditions: '',
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; ruleId: number | null }>({
+    show: false,
+    ruleId: null,
   });
 
   useEffect(() => {
@@ -69,16 +74,23 @@ export default function PricingRules() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this rule?')) {
-      try {
-        await fetch(`/api/admin/pricing-rules/${id}`, {
-          method: 'DELETE'
-        });
-        fetchRules();
-      } catch (error) {
-        console.error('Error deleting rule:', error);
-      }
+  const handleDelete = (id: number) => {
+    setDeleteConfirm({ show: true, ruleId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.ruleId) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/pricing-rules/${deleteConfirm.ruleId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchRules();
+      setDeleteConfirm({ show: false, ruleId: null });
+    } catch (error) {
+      console.error('Error deleting rule:', error);
+      setDeleteConfirm({ show: false, ruleId: null });
     }
   };
 
@@ -186,6 +198,17 @@ export default function PricingRules() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.show}
+        onClose={() => setDeleteConfirm({ show: false, ruleId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Pricing Rule"
+        message="Are you sure you want to delete this pricing rule? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

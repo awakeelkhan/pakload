@@ -18,15 +18,8 @@ const auditLogRepo = new AuditLogRepository();
 const routeRepo = new RouteRepository();
 
 // Apply auth middleware to all admin routes
-// TODO: Re-enable in production
-// router.use(requireAuth);
-// router.use(requireAdmin);
-
-// For development, mock user
-router.use((req, res, next) => {
-  req.user = { id: 1, email: 'admin@pakload.com', role: 'admin' };
-  next();
-});
+router.use(requireAuth);
+router.use(requireAdmin);
 
 // ==================== CARGO CATEGORIES ====================
 
@@ -1094,6 +1087,212 @@ router.get('/routes/stats/summary', async (req, res) => {
   } catch (error) {
     console.error('Error fetching route stats:', error);
     res.status(500).json({ error: 'Failed to fetch route stats' });
+  }
+});
+
+// ==================== USER MANAGEMENT ====================
+
+import { UserRepository } from '../repositories/userRepository.js';
+const userRepo = new UserRepository();
+
+// Get all users with pagination
+router.get('/users', async (req, res) => {
+  try {
+    const { role, status, search, page = '1', limit = '20' } = req.query;
+    
+    const filters: any = {};
+    if (role) filters.role = role as string;
+    if (status) filters.status = status as string;
+    if (search) filters.search = search as string;
+    
+    const users = await userRepo.findAll(filters);
+    
+    // Pagination
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const startIndex = (pageNum - 1) * limitNum;
+    const endIndex = startIndex + limitNum;
+    
+    const paginatedUsers = users.slice(startIndex, endIndex);
+    
+    // Remove passwords from response
+    const safeUsers = paginatedUsers.map(({ password, ...user }) => user);
+    
+    res.json({
+      users: safeUsers,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: users.length,
+        totalPages: Math.ceil(users.length / limitNum),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Get user by ID
+router.get('/users/:id', async (req, res) => {
+  try {
+    const user = await userRepo.findById(parseInt(req.params.id));
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const { password, ...safeUser } = user;
+    res.json(safeUser);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+// Update user status (activate, suspend, etc.)
+router.patch('/users/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const userId = parseInt(req.params.id);
+    
+    if (!['active', 'pending', 'suspended', 'deleted'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    
+    const oldUser = await userRepo.findById(userId);
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const updatedUser = await userRepo.update(userId, { status });
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'users',
+      entityId: userId,
+      oldValues: { status: oldUser.status },
+      newValues: { status },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      severity: status === 'suspended' ? 'warning' : 'info',
+    });
+    
+    const { password, ...safeUser } = updatedUser!;
+    res.json(safeUser);
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    res.status(500).json({ error: 'Failed to update user status' });
+  }
+});
+
+// Verify user
+router.patch('/users/:id/verify', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    const oldUser = await userRepo.findById(userId);
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const updatedUser = await userRepo.update(userId, { verified: true });
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'users',
+      entityId: userId,
+      oldValues: { verified: oldUser.verified },
+      newValues: { verified: true },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    
+    const { password, ...safeUser } = updatedUser!;
+    res.json(safeUser);
+  } catch (error) {
+    console.error('Error verifying user:', error);
+    res.status(500).json({ error: 'Failed to verify user' });
+  }
+});
+
+// Update user role
+router.patch('/users/:id/role', async (req, res) => {
+  try {
+    const { role } = req.body;
+    const userId = parseInt(req.params.id);
+    
+    if (!['admin', 'shipper', 'carrier'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    
+    const oldUser = await userRepo.findById(userId);
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const updatedUser = await userRepo.update(userId, { role });
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'users',
+      entityId: userId,
+      oldValues: { role: oldUser.role },
+      newValues: { role },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      severity: 'critical',
+    });
+    
+    const { password, ...safeUser } = updatedUser!;
+    res.json(safeUser);
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).json({ error: 'Failed to update user role' });
+  }
+});
+
+// Delete user (soft delete - set status to deleted)
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    const user = await userRepo.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Soft delete by setting status to deleted
+    await userRepo.update(userId, { status: 'deleted' });
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'delete',
+      entity: 'users',
+      entityId: userId,
+      oldValues: user,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      severity: 'critical',
+    });
+    
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+// Get user statistics
+router.get('/users/stats/summary', async (req, res) => {
+  try {
+    const stats = await userRepo.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ error: 'Failed to fetch user stats' });
   }
 });
 

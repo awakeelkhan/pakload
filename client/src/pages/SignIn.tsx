@@ -89,8 +89,13 @@ export default function SignIn() {
   };
 
   const handleSocialSignIn = (provider: string) => {
-    console.log(`Sign in with ${provider}`);
-    // TODO: Implement social authentication
+    if (provider === 'google') {
+      // Redirect to Google OAuth (use absolute URL to backend)
+      window.location.href = 'http://localhost:5000/api/v1/auth/google';
+    } else if (provider === 'facebook') {
+      // Facebook OAuth - show coming soon message
+      setErrors({ submit: 'Facebook login coming soon. Please use Google or email login.' });
+    }
   };
 
   return (

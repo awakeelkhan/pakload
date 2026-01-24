@@ -66,7 +66,9 @@ export default function FindTrucks() {
       const data = await response.json();
       
       // Transform API data to match TruckData interface
-      const transformedTrucks: TruckData[] = (Array.isArray(data) ? data : []).map((truck: any) => ({
+      // Handle both paginated and non-paginated responses
+      const trucksArray = data.trucks || data;
+      const transformedTrucks: TruckData[] = (Array.isArray(trucksArray) ? trucksArray : []).map((truck: any) => ({
         id: truck.id,
         carrierName: truck.carrier?.companyName || truck.carrier?.firstName + ' ' + truck.carrier?.lastName || 'Unknown Carrier',
         vehicleType: truck.type || 'Container',

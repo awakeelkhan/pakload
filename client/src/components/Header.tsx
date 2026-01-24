@@ -117,6 +117,10 @@ export default function Header() {
                       </>
                     ) : (
                       <>
+                        <button onClick={() => { navigate('/dashboard'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          {user?.role === 'carrier' ? <Truck className="w-4 h-4" /> : <Package className="w-4 h-4" />}
+                          {user?.role === 'carrier' ? 'Carrier Dashboard' : 'Shipper Dashboard'}
+                        </button>
                         <button onClick={() => { navigate('/profile'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <User className="w-4 h-4" />
                           Profile
@@ -129,6 +133,12 @@ export default function Header() {
                           <button onClick={() => { navigate('/vehicles'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                             <Truck className="w-4 h-4" />
                             My Vehicles
+                          </button>
+                        )}
+                        {user?.role === 'shipper' && (
+                          <button onClick={() => { navigate('/post-load'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                            <Package className="w-4 h-4" />
+                            Post a Load
                           </button>
                         )}
                         <button onClick={() => { navigate('/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">

@@ -1,14 +1,41 @@
+import * as dotenv from 'dotenv';
+dotenv.config({ path: './server/.env' });
+
 import express from 'express';
 import session from 'express-session';
+import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { registerRoutes } from './routes';
+import { passport } from './routes/oauth.js';
 
 const app = express();
 const httpServer = createServer(app);
 
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 failed attempts per hour
+  message: { error: 'Too many login attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Apply rate limiting
+app.use('/api/', generalLimiter);
+app.use('/api/v1/auth/login', authLimiter);
+app.use('/api/v1/auth/register', authLimiter);
 
 // Session configuration
 app.use(
@@ -23,6 +50,10 @@ app.use(
     },
   })
 );
+
+// Initialize Passport for OAuth
+app.use(passport.initialize());
+app.use(passport.session());
 
 // CORS for development
 app.use((req, res, next) => {

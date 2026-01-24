@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { MapPin, Plus, Edit2, Trash2, Search, ChevronRight } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 interface RoutePricing {
   id: number;
@@ -24,6 +25,10 @@ export default function RoutePricing() {
     destination: '',
     basePrice: '',
     surgeMultiplier: '1.0',
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; pricingId: number | null }>({
+    show: false,
+    pricingId: null,
   });
 
   useEffect(() => {
@@ -68,16 +73,23 @@ export default function RoutePricing() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this route pricing?')) {
-      try {
-        await fetch(`/api/admin/route-pricing/${id}`, {
-          method: 'DELETE'
-        });
-        fetchRoutePricing();
-      } catch (error) {
-        console.error('Error deleting route pricing:', error);
-      }
+  const handleDelete = (id: number) => {
+    setDeleteConfirm({ show: true, pricingId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.pricingId) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/route-pricing/${deleteConfirm.pricingId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchRoutePricing();
+      setDeleteConfirm({ show: false, pricingId: null });
+    } catch (error) {
+      console.error('Error deleting route pricing:', error);
+      setDeleteConfirm({ show: false, pricingId: null });
     }
   };
 
@@ -185,6 +197,17 @@ export default function RoutePricing() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.show}
+        onClose={() => setDeleteConfirm({ show: false, pricingId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Route Pricing"
+        message="Are you sure you want to delete this route pricing? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

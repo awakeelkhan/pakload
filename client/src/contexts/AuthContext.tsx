@@ -21,6 +21,7 @@ interface AuthContextType {
   loginWithPhone: (phone: string, otp: string) => Promise<void>;
   requestOtp: (phone: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  socialLogin: (userData: User, accessToken: string) => void;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   isAuthenticated: boolean;
@@ -136,6 +137,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const socialLogin = (userData: User, accessToken: string) => {
+    setToken(accessToken);
+    setUser(userData);
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -146,6 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginWithPhone,
         requestOtp,
         register,
+        socialLogin,
         logout,
         updateUser,
         isAuthenticated: !!user,

@@ -32,8 +32,11 @@ import CargoCategories from './pages/admin/CargoCategories';
 import PricingRules from './pages/admin/PricingRules';
 import RoutePricing from './pages/admin/RoutePricing';
 import AuditLogs from './pages/admin/AuditLogs';
+import UserManagement from './pages/admin/UserManagement';
 import Documentation from './pages/Documentation';
 import HelpCenter from './pages/HelpCenter';
+import OAuthCallback from './pages/OAuthCallback';
+import SelectRole from './pages/SelectRole';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +76,7 @@ function App() {
               <Route path="/admin/settings/pricing-rules" component={PricingRules} />
               <Route path="/admin/settings/route-pricing" component={RoutePricing} />
               <Route path="/admin/settings/audit-logs" component={AuditLogs} />
+              <Route path="/admin/settings/users" component={UserManagement} />
               <Route path="/loads" component={FindLoads} />
               <Route path="/trucks" component={FindTrucks} />
               <Route path="/post-load" component={PostLoad} />
@@ -80,6 +84,8 @@ function App() {
               <Route path="/track" component={TrackShipment} />
               <Route path="/signin" component={SignIn} />
               <Route path="/signup" component={SignUp} />
+              <Route path="/oauth/callback" component={OAuthCallback} />
+              <Route path="/select-role" component={SelectRole} />
               <Route path="/privacy" component={PrivacyPolicy} />
               <Route path="/terms" component={Terms} />
               <Route path="/contact" component={Contact} />

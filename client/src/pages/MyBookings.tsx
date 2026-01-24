@@ -36,7 +36,9 @@ export default function MyBookings() {
       const data = await response.json();
       
       // Transform the data for display
-      const transformedBookings = (Array.isArray(data) ? data : []).map((item: any) => ({
+      // Handle both paginated and non-paginated responses
+      const bookingsArray = data.bookings || data;
+      const transformedBookings = (Array.isArray(bookingsArray) ? bookingsArray : []).map((item: any) => ({
         id: item.booking?.id || item.id,
         trackingNumber: item.load?.trackingNumber || `LP-${item.booking?.id || item.id}`,
         origin: item.load?.origin || 'N/A',

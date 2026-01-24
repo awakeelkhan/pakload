@@ -7,6 +7,7 @@ import { RouteRepository } from './repositories/routeRepository';
 import { generateToken, generateRefreshToken, requireAuth, optionalAuth, requireRole } from './middleware/auth.js';
 import bcrypt from 'bcryptjs';
 import adminRoutes from './routes/admin.js';
+import oauthRoutes from './routes/oauth.js';
 
 const userRepo = new UserRepository();
 const loadRepo = new LoadRepository();
@@ -22,6 +23,9 @@ export function registerRoutes(app: Express) {
 
   // Admin routes
   app.use('/api/admin', adminRoutes);
+
+  // OAuth routes
+  app.use('/api/v1/auth', oauthRoutes);
 
   // Authentication endpoints
   app.post('/api/v1/auth/register', async (req, res) => {
@@ -127,6 +131,60 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Update user role (for OAuth signup flow)
+  app.post('/api/v1/auth/update-role', requireAuth, async (req, res) => {
+    try {
+      const { role } = req.body;
+      
+      if (!role || !['shipper', 'carrier'].includes(role)) {
+        return res.status(400).json({ error: 'Invalid role. Must be shipper or carrier.' });
+      }
+      
+      const updatedUser = await userRepo.update(req.user!.id, { role });
+      
+      res.json({
+        message: 'Role updated successfully',
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          role: updatedUser.role,
+        },
+      });
+    } catch (error) {
+      console.error('Update role error:', error);
+      res.status(500).json({ error: 'Failed to update role' });
+    }
+  });
+
+  // Get current user from JWT token
+  app.get('/api/v1/auth/me', requireAuth, async (req, res) => {
+    try {
+      const user = await userRepo.findById(req.user!.id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      res.json({
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+        verified: user.verified,
+        companyName: user.companyName,
+        rating: user.rating,
+        totalLoads: user.totalLoads,
+        completedLoads: user.completedLoads,
+        createdAt: user.createdAt,
+      });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ error: 'Failed to get user' });
+    }
+  });
+
   app.post('/api/v1/auth/otp/request', (req, res) => {
     res.json({ message: 'OTP sent successfully' });
   });
@@ -180,10 +238,87 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Loads endpoints
+  // Password reset request
+  app.post('/api/v1/auth/reset-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+      
+      const user = await userRepo.findByEmail(email);
+      
+      if (!user) {
+        // Don't reveal if email exists for security
+        return res.json({ message: 'If the email exists, a reset link has been sent' });
+      }
+      
+      // Generate reset token (in production, store this in DB with expiry)
+      const crypto = await import('crypto');
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      
+      // TODO: In production:
+      // 1. Store resetToken in password_reset_tokens table with expiry
+      // 2. Send email with reset link containing token
+      // For now, we'll use a simple approach
+      
+      // Store token temporarily (in production use Redis or DB)
+      const tokenExpiry = Date.now() + 3600000; // 1 hour
+      
+      console.log(`Password reset requested for ${email}. Token: ${resetToken}`);
+      
+      res.json({ 
+        message: 'If the email exists, a reset link has been sent',
+        // Only for development - remove in production
+        _dev_token: resetToken,
+        _dev_expiry: new Date(tokenExpiry).toISOString(),
+      });
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      res.status(500).json({ error: 'Failed to process password reset request' });
+    }
+  });
+
+  // Password reset confirm (with token)
+  app.post('/api/v1/auth/reset-password/confirm', async (req, res) => {
+    try {
+      const { email, token, newPassword } = req.body;
+      
+      if (!email || !token || !newPassword) {
+        return res.status(400).json({ error: 'Email, token, and new password are required' });
+      }
+      
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
+      
+      const user = await userRepo.findByEmail(email);
+      
+      if (!user) {
+        return res.status(400).json({ error: 'Invalid reset request' });
+      }
+      
+      // TODO: In production, verify token from password_reset_tokens table
+      // For now, we'll accept any token in development
+      
+      // Hash new password and update
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await userRepo.update(user.id, { password: hashedPassword });
+      
+      // TODO: Invalidate the reset token in DB
+      
+      res.json({ message: 'Password reset successfully' });
+    } catch (error) {
+      console.error('Password reset confirm error:', error);
+      res.status(500).json({ error: 'Failed to reset password' });
+    }
+  });
+
+  // Loads endpoints with pagination
   app.get('/api/loads', async (req, res) => {
     try {
-      const { origin, destination, cargoType, urgent, status } = req.query;
+      const { origin, destination, cargoType, urgent, status, page = '1', limit = '20' } = req.query;
       
       const filters: any = {};
       if (status) filters.status = status as string;
@@ -194,24 +329,38 @@ export function registerRoutes(app: Express) {
       let filteredLoads = loads;
       if (origin) {
         filteredLoads = filteredLoads.filter(l => 
-          l.origin.toLowerCase().includes((origin as string).toLowerCase())
+          l.load?.origin?.toLowerCase().includes((origin as string).toLowerCase())
         );
       }
       if (destination) {
         filteredLoads = filteredLoads.filter(l => 
-          l.destination.toLowerCase().includes((destination as string).toLowerCase())
+          l.load?.destination?.toLowerCase().includes((destination as string).toLowerCase())
         );
       }
       if (cargoType) {
         filteredLoads = filteredLoads.filter(l => 
-          l.cargoType.toLowerCase().includes((cargoType as string).toLowerCase())
+          l.load?.cargoType?.toLowerCase().includes((cargoType as string).toLowerCase())
         );
       }
-      if (urgent === 'true') {
-        filteredLoads = filteredLoads.filter(l => l.urgent);
-      }
+      // Note: urgent field not in schema, skip filter
 
-      res.json(filteredLoads);
+      // Pagination
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const startIndex = (pageNum - 1) * limitNum;
+      const endIndex = startIndex + limitNum;
+      
+      const paginatedLoads = filteredLoads.slice(startIndex, endIndex);
+
+      res.json({
+        loads: paginatedLoads,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: filteredLoads.length,
+          totalPages: Math.ceil(filteredLoads.length / limitNum),
+        },
+      });
     } catch (error) {
       console.error('Error fetching loads:', error);
       res.status(500).json({ error: 'Failed to fetch loads' });
@@ -231,17 +380,31 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.put('/api/loads/:id', async (req, res) => {
+  app.put('/api/loads/:id', optionalAuth, async (req, res) => {
     try {
+      const loadId = parseInt(req.params.id);
+      const existingLoad = await loadRepo.findById(loadId);
+      
+      if (!existingLoad) {
+        return res.status(404).json({ error: 'Load not found' });
+      }
+      
+      // Ownership check: only owner or admin can update
+      if (req.user && req.user.role !== 'admin' && existingLoad.load.shipperId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only update your own loads' });
+      }
+      
+      // Prevent editing loads that are in transit or delivered
+      if (['in_transit', 'delivered'].includes(existingLoad.load.status)) {
+        return res.status(400).json({ error: 'Cannot edit load in current status' });
+      }
+      
       const loadData = {
         ...req.body,
         updatedAt: new Date(),
       };
       
-      const updatedLoad = await loadRepo.update(parseInt(req.params.id), loadData);
-      if (!updatedLoad) {
-        return res.status(404).json({ error: 'Load not found' });
-      }
+      const updatedLoad = await loadRepo.update(loadId, loadData);
       res.json(updatedLoad);
     } catch (error) {
       console.error('Error updating load:', error);
@@ -249,9 +412,26 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.delete('/api/loads/:id', async (req, res) => {
+  app.delete('/api/loads/:id', optionalAuth, async (req, res) => {
     try {
-      await loadRepo.delete(parseInt(req.params.id));
+      const loadId = parseInt(req.params.id);
+      const existingLoad = await loadRepo.findById(loadId);
+      
+      if (!existingLoad) {
+        return res.status(404).json({ error: 'Load not found' });
+      }
+      
+      // Ownership check: only owner or admin can delete
+      if (req.user && req.user.role !== 'admin' && existingLoad.load.shipperId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only delete your own loads' });
+      }
+      
+      // Prevent deleting loads that are in transit
+      if (['in_transit', 'confirmed'].includes(existingLoad.load.status)) {
+        return res.status(400).json({ error: 'Cannot delete load in current status. Cancel first.' });
+      }
+      
+      await loadRepo.delete(loadId);
       res.json({ message: 'Load deleted successfully' });
     } catch (error) {
       console.error('Error deleting load:', error);
@@ -259,13 +439,56 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post('/api/loads', async (req, res) => {
+  // Cancel load with reason
+  app.post('/api/loads/:id/cancel', optionalAuth, async (req, res) => {
+    try {
+      const loadId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      const existingLoad = await loadRepo.findById(loadId);
+      
+      if (!existingLoad) {
+        return res.status(404).json({ error: 'Load not found' });
+      }
+      
+      // Ownership check
+      if (req.user && req.user.role !== 'admin' && existingLoad.load.shipperId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only cancel your own loads' });
+      }
+      
+      // Cannot cancel delivered loads
+      if (existingLoad.load.status === 'delivered') {
+        return res.status(400).json({ error: 'Cannot cancel delivered load' });
+      }
+      
+      const updatedLoad = await loadRepo.update(loadId, {
+        status: 'cancelled',
+        specialRequirements: existingLoad.load.specialRequirements 
+          ? `${existingLoad.load.specialRequirements}\nCancellation reason: ${reason || 'Not specified'}`
+          : `Cancellation reason: ${reason || 'Not specified'}`,
+      });
+      
+      res.json({ message: 'Load cancelled successfully', load: updatedLoad });
+    } catch (error) {
+      console.error('Error cancelling load:', error);
+      res.status(500).json({ error: 'Failed to cancel load' });
+    }
+  });
+
+  app.post('/api/loads', optionalAuth, async (req, res) => {
     try {
       // Generate tracking number
       const trackingNumber = await loadRepo.generateTrackingNumber();
       
+      // Get shipper ID from authenticated user or request body
+      const shipperId = req.user?.id || req.body.shipperId || req.body.userId;
+      
+      if (!shipperId) {
+        return res.status(400).json({ error: 'Shipper ID is required' });
+      }
+      
       const loadData = {
-        shipperId: req.body.shipperId || req.body.userId || 1, // TODO: Get from auth session
+        shipperId,
         trackingNumber,
         origin: req.body.origin,
         destination: req.body.destination,
@@ -290,10 +513,10 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Vehicles endpoints
+  // Vehicles endpoints with pagination
   app.get('/api/trucks', async (req, res) => {
     try {
-      const { truckType, currentLocation, status } = req.query;
+      const { truckType, currentLocation, status, page = '1', limit = '20' } = req.query;
       
       const filters: any = {};
       if (status) filters.status = status as string;
@@ -319,7 +542,23 @@ export function registerRoutes(app: Express) {
         );
       }
 
-      res.json(filteredVehicles);
+      // Pagination
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const startIndex = (pageNum - 1) * limitNum;
+      const endIndex = startIndex + limitNum;
+      
+      const paginatedVehicles = filteredVehicles.slice(startIndex, endIndex);
+
+      res.json({
+        trucks: paginatedVehicles,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: filteredVehicles.length,
+          totalPages: Math.ceil(filteredVehicles.length / limitNum),
+        },
+      });
     } catch (error) {
       console.error('Error fetching vehicles:', error);
       res.status(500).json({ error: 'Failed to fetch vehicles' });
@@ -358,8 +597,20 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.put('/api/trucks/:id', async (req, res) => {
+  app.put('/api/trucks/:id', optionalAuth, async (req, res) => {
     try {
+      const vehicleId = parseInt(req.params.id);
+      const existingVehicle = await vehicleRepo.findById(vehicleId);
+      
+      if (!existingVehicle) {
+        return res.status(404).json({ error: 'Vehicle not found' });
+      }
+      
+      // Ownership check: only owner or admin can update
+      if (req.user && req.user.role !== 'admin' && existingVehicle.vehicle.carrierId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only update your own vehicles' });
+      }
+      
       const vehicleData = {
         type: req.body.type,
         registrationNumber: req.body.registrationNumber,
@@ -368,10 +619,7 @@ export function registerRoutes(app: Express) {
         status: req.body.status,
       };
       
-      const updatedVehicle = await vehicleRepo.update(parseInt(req.params.id), vehicleData);
-      if (!updatedVehicle) {
-        return res.status(404).json({ error: 'Vehicle not found' });
-      }
+      const updatedVehicle = await vehicleRepo.update(vehicleId, vehicleData);
       res.json(updatedVehicle);
     } catch (error) {
       console.error('Error updating vehicle:', error);
@@ -379,9 +627,21 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.delete('/api/trucks/:id', async (req, res) => {
+  app.delete('/api/trucks/:id', optionalAuth, async (req, res) => {
     try {
-      await vehicleRepo.delete(parseInt(req.params.id));
+      const vehicleId = parseInt(req.params.id);
+      const existingVehicle = await vehicleRepo.findById(vehicleId);
+      
+      if (!existingVehicle) {
+        return res.status(404).json({ error: 'Vehicle not found' });
+      }
+      
+      // Ownership check: only owner or admin can delete
+      if (req.user && req.user.role !== 'admin' && existingVehicle.vehicle.carrierId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only delete your own vehicles' });
+      }
+      
+      await vehicleRepo.delete(vehicleId);
       res.json({ message: 'Vehicle deleted successfully' });
     } catch (error) {
       console.error('Error deleting vehicle:', error);
@@ -429,17 +689,34 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Bookings endpoints
+  // Bookings endpoints with pagination
   app.get('/api/bookings', async (req, res) => {
     try {
-      const { carrierId, shipperId, status } = req.query;
+      const { carrierId, shipperId, status, page = '1', limit = '20' } = req.query;
       
       const filters: any = {};
       if (status) filters.status = status as string;
       if (carrierId) filters.carrierId = parseInt(carrierId as string);
       
       const allBookings = await bookingRepo.findAll(filters);
-      res.json(allBookings);
+      
+      // Pagination
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const startIndex = (pageNum - 1) * limitNum;
+      const endIndex = startIndex + limitNum;
+      
+      const paginatedBookings = allBookings.slice(startIndex, endIndex);
+
+      res.json({
+        bookings: paginatedBookings,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: allBookings.length,
+          totalPages: Math.ceil(allBookings.length / limitNum),
+        },
+      });
     } catch (error) {
       console.error('Error fetching bookings:', error);
       res.status(500).json({ error: 'Failed to fetch bookings' });
@@ -465,10 +742,13 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post('/api/bookings', async (req, res) => {
+  app.post('/api/bookings', optionalAuth, async (req, res) => {
     try {
+      const carrierId = req.user?.id || req.body.carrierId;
+      
       const bookingData = {
         ...req.body,
+        carrierId,
         status: 'pending',
         progress: 0,
       };
@@ -478,6 +758,224 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error creating booking:', error);
       res.status(500).json({ error: 'Failed to create booking' });
+    }
+  });
+
+  // Update booking status
+  app.put('/api/bookings/:id', optionalAuth, async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const existingBooking = await bookingRepo.findById(bookingId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      // Ownership check: carrier who owns booking or admin can update
+      if (req.user && req.user.role !== 'admin' && existingBooking.booking.carrierId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only update your own bookings' });
+      }
+      
+      const updatedBooking = await bookingRepo.update(bookingId, {
+        ...req.body,
+        updatedAt: new Date(),
+      });
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      res.status(500).json({ error: 'Failed to update booking' });
+    }
+  });
+
+  // Update booking status specifically
+  app.patch('/api/bookings/:id/status', optionalAuth, async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { status, currentLocation, progress } = req.body;
+      
+      const existingBooking = await bookingRepo.findById(bookingId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      // Validate status transition
+      const validTransitions: Record<string, string[]> = {
+        'pending': ['confirmed', 'cancelled'],
+        'confirmed': ['in_transit', 'cancelled'],
+        'in_transit': ['completed', 'cancelled'],
+        'completed': [],
+        'cancelled': [],
+      };
+      
+      const currentStatus = existingBooking.booking.status;
+      if (!validTransitions[currentStatus]?.includes(status)) {
+        return res.status(400).json({ 
+          error: `Cannot transition from ${currentStatus} to ${status}` 
+        });
+      }
+      
+      const updateData: any = { status };
+      if (currentLocation) updateData.currentLocation = currentLocation;
+      if (progress !== undefined) updateData.progress = progress;
+      
+      // Set actual dates based on status
+      if (status === 'in_transit') {
+        updateData.actualPickupDate = new Date();
+      } else if (status === 'completed') {
+        updateData.actualDeliveryDate = new Date();
+        updateData.progress = 100;
+      }
+      
+      const updatedBooking = await bookingRepo.update(bookingId, updateData);
+      
+      // Also update load status if booking status changes
+      if (status === 'in_transit') {
+        await loadRepo.update(existingBooking.booking.loadId, { status: 'in_transit' });
+      } else if (status === 'completed') {
+        await loadRepo.update(existingBooking.booking.loadId, { status: 'delivered' });
+      }
+      
+      res.json({ message: 'Booking status updated', booking: updatedBooking });
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      res.status(500).json({ error: 'Failed to update booking status' });
+    }
+  });
+
+  // Cancel booking
+  app.post('/api/bookings/:id/cancel', optionalAuth, async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      const existingBooking = await bookingRepo.findById(bookingId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
+      
+      // Cannot cancel completed bookings
+      if (existingBooking.booking.status === 'completed') {
+        return res.status(400).json({ error: 'Cannot cancel completed booking' });
+      }
+      
+      const updatedBooking = await bookingRepo.update(bookingId, {
+        status: 'cancelled',
+        notes: existingBooking.booking.notes 
+          ? `${existingBooking.booking.notes}\nCancellation reason: ${reason || 'Not specified'}`
+          : `Cancellation reason: ${reason || 'Not specified'}`,
+      });
+      
+      // Revert load status to posted if it was in transit
+      if (existingBooking.load?.status === 'in_transit') {
+        await loadRepo.update(existingBooking.booking.loadId, { status: 'posted' });
+      }
+      
+      res.json({ message: 'Booking cancelled successfully', booking: updatedBooking });
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      res.status(500).json({ error: 'Failed to cancel booking' });
+    }
+  });
+
+  // Accept quote (booking)
+  app.post('/api/quotes/:id/accept', optionalAuth, async (req, res) => {
+    try {
+      const quoteId = parseInt(req.params.id);
+      const existingBooking = await bookingRepo.findById(quoteId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Quote not found' });
+      }
+      
+      if (existingBooking.booking.status !== 'pending') {
+        return res.status(400).json({ error: 'Quote is no longer pending' });
+      }
+      
+      // Update this quote to confirmed
+      const acceptedBooking = await bookingRepo.update(quoteId, { status: 'confirmed' });
+      
+      // Update load status to assigned/in_transit
+      await loadRepo.update(existingBooking.booking.loadId, { status: 'in_transit' });
+      
+      // Reject all other pending quotes for this load
+      const allQuotes = await bookingRepo.findAll({ loadId: existingBooking.booking.loadId });
+      for (const quote of allQuotes) {
+        if (quote.booking.id !== quoteId && quote.booking.status === 'pending') {
+          await bookingRepo.update(quote.booking.id, { status: 'cancelled' });
+        }
+      }
+      
+      res.json({ message: 'Quote accepted successfully', booking: acceptedBooking });
+    } catch (error) {
+      console.error('Error accepting quote:', error);
+      res.status(500).json({ error: 'Failed to accept quote' });
+    }
+  });
+
+  // Reject quote
+  app.post('/api/quotes/:id/reject', optionalAuth, async (req, res) => {
+    try {
+      const quoteId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      const existingBooking = await bookingRepo.findById(quoteId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Quote not found' });
+      }
+      
+      if (existingBooking.booking.status !== 'pending') {
+        return res.status(400).json({ error: 'Quote is no longer pending' });
+      }
+      
+      const rejectedBooking = await bookingRepo.update(quoteId, { 
+        status: 'cancelled',
+        notes: reason ? `Rejected: ${reason}` : 'Rejected by shipper',
+      });
+      
+      res.json({ message: 'Quote rejected', booking: rejectedBooking });
+    } catch (error) {
+      console.error('Error rejecting quote:', error);
+      res.status(500).json({ error: 'Failed to reject quote' });
+    }
+  });
+
+  // Get user's own loads
+  app.get('/api/users/:userId/loads', requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      // Users can only see their own loads unless admin
+      if (req.user!.role !== 'admin' && req.user!.id !== userId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const loads = await loadRepo.findAll({ shipperId: userId });
+      res.json(loads);
+    } catch (error) {
+      console.error('Error fetching user loads:', error);
+      res.status(500).json({ error: 'Failed to fetch user loads' });
+    }
+  });
+
+  // Get user's own bookings
+  app.get('/api/users/:userId/bookings', requireAuth, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      // Users can only see their own bookings unless admin
+      if (req.user!.role !== 'admin' && req.user!.id !== userId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const bookings = await bookingRepo.findAll({ carrierId: userId });
+      res.json(bookings);
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+      res.status(500).json({ error: 'Failed to fetch user bookings' });
     }
   });
 

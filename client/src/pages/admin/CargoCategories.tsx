@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Package, Plus, Edit2, Trash2, Search, ChevronRight, Check, X } from 'lucide-react';
+import ConfirmModal from '../../components/ConfirmModal';
 
 interface Category {
   id: number;
@@ -21,6 +22,10 @@ export default function CargoCategories() {
     name: '',
     description: '',
     baseRate: '',
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; categoryId: number | null }>({
+    show: false,
+    categoryId: null,
   });
 
   useEffect(() => {
@@ -65,16 +70,23 @@ export default function CargoCategories() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      try {
-        await fetch(`/api/admin/categories/${id}`, {
-          method: 'DELETE'
-        });
-        fetchCategories();
-      } catch (error) {
-        console.error('Error deleting category:', error);
-      }
+  const handleDelete = (id: number) => {
+    setDeleteConfirm({ show: true, categoryId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.categoryId) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/categories/${deleteConfirm.categoryId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchCategories();
+      setDeleteConfirm({ show: false, categoryId: null });
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      setDeleteConfirm({ show: false, categoryId: null });
     }
   };
 
@@ -179,6 +191,17 @@ export default function CargoCategories() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.show}
+        onClose={() => setDeleteConfirm({ show: false, categoryId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

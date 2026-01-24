@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { 
   Settings, Package, DollarSign, MapPin, Database, 
-  FileText, Shield, TrendingUp, ChevronRight, Activity
+  FileText, Shield, TrendingUp, ChevronRight, Activity, Users
 } from 'lucide-react';
 
 export default function AdminSettings() {
   const [, navigate] = useLocation();
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     categories: { total: 0, published: 0, draft: 0 },
     pricingRules: { total: 0, active: 0, draft: 0 },
     routePricing: { total: 0, published: 0 },
     configs: { total: 0, published: 0 },
     auditLogs: { total: 0, today: 0 },
     routes: { total: 0, popular: 0 },
+    users: { total: 0, active: 0, pending: 0 },
   });
 
   const settingsModules = [
@@ -64,6 +65,14 @@ export default function AdminSettings() {
       path: '/admin/settings/audit-logs',
       color: 'bg-red-500',
       stats: `${stats.auditLogs.today} actions today`,
+    },
+    {
+      title: 'User Management',
+      description: 'Manage users, roles, verification, and permissions',
+      icon: Users,
+      path: '/admin/settings/users',
+      color: 'bg-teal-500',
+      stats: `${stats.users.active} active users`,
     },
   ];
 

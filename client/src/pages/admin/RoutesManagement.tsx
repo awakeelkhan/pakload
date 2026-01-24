@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { MapPin, Plus, Edit2, Trash2, Search, TrendingUp, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from '../../components/Loading';
+import ConfirmModal from '../../components/ConfirmModal';
 
 interface Route {
   id: number;
@@ -29,6 +30,10 @@ export default function RoutesManagement() {
     estimatedDays: '',
     borderCrossing: '',
     routePopularity: 'medium',
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; routeId: number | null }>({
+    show: false,
+    routeId: null,
   });
 
   useEffect(() => {
@@ -91,16 +96,23 @@ export default function RoutesManagement() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this route?')) return;
-    
+  const handleDelete = (id: number) => {
+    setDeleteConfirm({ show: true, routeId: id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.routeId) return;
     try {
-      await fetch(`/api/admin/routes/${id}`, {
-        method: 'DELETE'
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/routes/${deleteConfirm.routeId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       fetchRoutes();
+      setDeleteConfirm({ show: false, routeId: null });
     } catch (error) {
       console.error('Error deleting route:', error);
+      setDeleteConfirm({ show: false, routeId: null });
     }
   };
 
@@ -322,6 +334,17 @@ export default function RoutesManagement() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.show}
+        onClose={() => setDeleteConfirm({ show: false, routeId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Route"
+        message="Are you sure you want to delete this route? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

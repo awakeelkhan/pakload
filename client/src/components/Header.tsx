@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Menu, X, Globe, User, LogOut, Package, Truck, Settings, HelpCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -80,11 +81,16 @@ export default function Header() {
               </>
             ) : (
               /* User Menu - Logged In */
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                >
+              <div className="flex items-center gap-2">
+                {/* Notification Bell */}
+                <NotificationBell />
+                
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
                   <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                     <User className="w-5 h-5 text-white" />
                   </div>
@@ -171,6 +177,7 @@ export default function Header() {
                     </div>
                   </div>
                 )}
+              </div>
               </div>
             )}
             {/* Language Switcher */}

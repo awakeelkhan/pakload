@@ -254,15 +254,49 @@ export const activityLogs = pgTable('activity_logs', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Notification Type Enum
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'bid_received',      // Shipper: New bid on your load
+  'bid_accepted',      // Carrier: Your bid was accepted
+  'bid_rejected',      // Carrier: Your bid was rejected
+  'bid_expired',       // Carrier: Your bid expired
+  'load_posted',       // Carrier: New load matching your preferences
+  'load_assigned',     // Carrier: Load assigned to you
+  'load_cancelled',    // Both: Load was cancelled
+  'shipment_pickup',   // Both: Shipment picked up
+  'shipment_delivered',// Both: Shipment delivered
+  'shipment_delayed',  // Both: Shipment delayed
+  'payment_received',  // Carrier: Payment received
+  'payment_due',       // Shipper: Payment due reminder
+  'document_required', // Both: Document upload required
+  'message_received',  // Both: New message
+  'rating_received',   // Both: New rating/review
+  'account_alert',     // Both: Account-related alerts
+  'system',            // Both: System announcements
+]);
+
+// Notification Priority Enum
+export const notificationPriorityEnum = pgEnum('notification_priority', ['low', 'normal', 'high', 'urgent']);
+
 // Notifications Table
 export const notifications = pgTable('notifications', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
+  type: notificationTypeEnum('type').notNull(),
+  priority: notificationPriorityEnum('priority').notNull().default('normal'),
   title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),
-  type: varchar('type', { length: 50 }).notNull(),
   read: boolean('read').notNull().default(false),
+  readAt: timestamp('read_at'),
   link: varchar('link', { length: 255 }),
+  // Related entities for context
+  relatedLoadId: integer('related_load_id').references(() => loads.id),
+  relatedBookingId: integer('related_booking_id').references(() => bookings.id),
+  relatedUserId: integer('related_user_id').references(() => users.id),
+  // Metadata for additional context
+  metadata: jsonb('metadata'),
+  // Expiry for time-sensitive notifications
+  expiresAt: timestamp('expires_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

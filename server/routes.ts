@@ -4,6 +4,7 @@ import { LoadRepository } from './repositories/loadRepository';
 import { VehicleRepository } from './repositories/vehicleRepository';
 import { BookingRepository } from './repositories/bookingRepository';
 import { RouteRepository } from './repositories/routeRepository';
+import { notificationRepo, notificationService } from './repositories/notificationRepository';
 import { generateToken, generateRefreshToken, requireAuth, optionalAuth, requireRole } from './middleware/auth.js';
 import bcrypt from 'bcryptjs';
 import adminRoutes from './routes/admin.js';
@@ -662,13 +663,17 @@ export function registerRoutes(app: Express) {
       const deliveryDate = new Date(now);
       deliveryDate.setDate(deliveryDate.getDate() + (parseInt(req.body.estimatedDays) || 7));
       
+      const loadId = parseInt(req.body.loadId);
+      const carrierId = req.body.carrierId || 1;
+      const bidAmount = parseFloat(req.body.quotedPrice || req.body.price || 0);
+      
       const bookingData = {
-        loadId: parseInt(req.body.loadId),
-        carrierId: req.body.carrierId || 1,
+        loadId,
+        carrierId,
         vehicleId: req.body.vehicleId ? parseInt(req.body.vehicleId) : null,
-        price: req.body.quotedPrice?.toString() || req.body.price?.toString() || '0',
-        platformFee: (parseFloat(req.body.quotedPrice || req.body.price || 0) * 0.05).toFixed(2),
-        totalAmount: (parseFloat(req.body.quotedPrice || req.body.price || 0) * 1.05).toFixed(2),
+        price: bidAmount.toString(),
+        platformFee: (bidAmount * 0.05).toFixed(2),
+        totalAmount: (bidAmount * 1.05).toFixed(2),
         pickupDate: new Date(req.body.pickupDate || now),
         deliveryDate: new Date(req.body.deliveryDate || deliveryDate),
         status: 'pending' as const,
@@ -677,6 +682,25 @@ export function registerRoutes(app: Express) {
       };
       
       const newBooking = await bookingRepo.create(bookingData);
+      
+      // Notify the shipper about the new bid
+      try {
+        const loadData = await loadRepo.findById(loadId);
+        if (loadData?.load?.shipperId) {
+          const trackingNumber = loadData.load.trackingNumber || `LP-${loadId}`;
+          await notificationService.notifyBidReceived(
+            loadData.load.shipperId,
+            carrierId,
+            loadId,
+            bidAmount,
+            trackingNumber
+          );
+        }
+      } catch (notifError) {
+        console.error('Error sending bid notification:', notifError);
+        // Don't fail the bid creation if notification fails
+      }
+      
       res.status(201).json(newBooking);
     } catch (error) {
       console.error('Error creating quote:', error);
@@ -913,11 +937,33 @@ export function registerRoutes(app: Express) {
       // Update load status to assigned/in_transit
       await loadRepo.update(existingBooking.booking.loadId, { status: 'in_transit' });
       
-      // Reject all other pending quotes for this load
+      // Get load details for notifications
+      const loadData = await loadRepo.findById(existingBooking.booking.loadId);
+      const trackingNumber = loadData?.load?.trackingNumber || `LP-${existingBooking.booking.loadId}`;
+      const origin = loadData?.load?.origin || 'Origin';
+      const destination = loadData?.load?.destination || 'Destination';
+      
+      // Notify the winning carrier
+      await notificationService.notifyBidAccepted(
+        existingBooking.booking.carrierId,
+        existingBooking.booking.loadId,
+        trackingNumber,
+        origin,
+        destination
+      );
+      
+      // Reject all other pending quotes for this load and notify them
       const allQuotes = await bookingRepo.findAll({ loadId: existingBooking.booking.loadId });
       for (const quote of allQuotes) {
         if (quote.booking.id !== quoteId && quote.booking.status === 'pending') {
           await bookingRepo.update(quote.booking.id, { status: 'cancelled' });
+          // Notify rejected carriers
+          await notificationService.notifyBidRejected(
+            quote.booking.carrierId,
+            existingBooking.booking.loadId,
+            trackingNumber,
+            'Another bid was selected'
+          );
         }
       }
       
@@ -1124,6 +1170,100 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching carrier:', error);
       res.status(500).json({ error: 'Failed to fetch carrier' });
+    }
+  });
+
+  // ==================== NOTIFICATIONS API ====================
+
+  // Get user notifications
+  app.get('/api/notifications', requireAuth, async (req, res) => {
+    try {
+      const { unread_only, limit } = req.query;
+      const notifications = await notificationRepo.findByUserId(req.user!.id, {
+        unreadOnly: unread_only === 'true',
+        limit: limit ? parseInt(limit as string) : 50,
+      });
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ error: 'Failed to fetch notifications' });
+    }
+  });
+
+  // Get unread notification count
+  app.get('/api/notifications/count', requireAuth, async (req, res) => {
+    try {
+      const count = await notificationRepo.getUnreadCount(req.user!.id);
+      res.json({ count });
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+      res.status(500).json({ error: 'Failed to fetch notification count' });
+    }
+  });
+
+  // Mark single notification as read
+  app.patch('/api/notifications/:id/read', requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await notificationRepo.findById(notificationId);
+      
+      if (!notification) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+      
+      if (notification.userId !== req.user!.id) {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      
+      const updated = await notificationRepo.markAsRead(notificationId);
+      res.json(updated);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ error: 'Failed to mark notification as read' });
+    }
+  });
+
+  // Mark all notifications as read
+  app.post('/api/notifications/read-all', requireAuth, async (req, res) => {
+    try {
+      const count = await notificationRepo.markAllAsRead(req.user!.id);
+      res.json({ message: `Marked ${count} notifications as read`, count });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      res.status(500).json({ error: 'Failed to mark notifications as read' });
+    }
+  });
+
+  // Delete a notification
+  app.delete('/api/notifications/:id', requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await notificationRepo.findById(notificationId);
+      
+      if (!notification) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+      
+      if (notification.userId !== req.user!.id) {
+        return res.status(403).json({ error: 'Not authorized' });
+      }
+      
+      await notificationRepo.delete(notificationId);
+      res.json({ message: 'Notification deleted' });
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ error: 'Failed to delete notification' });
+    }
+  });
+
+  // Delete all read notifications
+  app.delete('/api/notifications/read', requireAuth, async (req, res) => {
+    try {
+      const count = await notificationRepo.deleteAllRead(req.user!.id);
+      res.json({ message: `Deleted ${count} read notifications`, count });
+    } catch (error) {
+      console.error('Error deleting read notifications:', error);
+      res.status(500).json({ error: 'Failed to delete read notifications' });
     }
   });
 

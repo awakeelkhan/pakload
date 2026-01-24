@@ -1114,8 +1114,5 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // 404 handler
-  app.use((req, res) => {
-    res.status(404).json({ error: 'Not found' });
-  });
+  // Note: 404 handler moved to index.ts after static file serving
 }

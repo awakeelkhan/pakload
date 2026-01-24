@@ -77,7 +77,16 @@ export default function SignUp() {
 
   const handleSocialSignUp = (provider: string) => {
     console.log(`Sign up with ${provider}`);
-    // TODO: Implement social authentication
+    if (provider === 'google') {
+      // Redirect to Google OAuth - use same origin for production, localhost for dev
+      const backendUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000' 
+        : `${window.location.protocol}//${window.location.host}`;
+      console.log('Redirecting to:', `${backendUrl}/api/v1/auth/google`);
+      window.location.href = `${backendUrl}/api/v1/auth/google`;
+    } else if (provider === 'facebook') {
+      setErrors({ submit: 'Facebook login coming soon. Please use Google or email signup.' });
+    }
   };
 
   return (

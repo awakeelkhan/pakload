@@ -134,6 +134,75 @@ router.get('/google/callback', (req, res, next) => {
   })(req, res, next);
 });
 
+// Google token verification for mobile apps
+// Mobile app sends Google access token, we verify and create/login user
+router.post('/google', async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Access token is required' });
+    }
+
+    // Verify Google token and get user info
+    const googleResponse = await fetch(
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`
+    );
+
+    if (!googleResponse.ok) {
+      return res.status(401).json({ error: 'Invalid Google token' });
+    }
+
+    const googleUser = await googleResponse.json();
+    const email = googleUser.email;
+
+    if (!email) {
+      return res.status(400).json({ error: 'No email found in Google profile' });
+    }
+
+    // Check if user exists
+    let user = await userRepo.findByEmail(email);
+
+    if (!user) {
+      // Create new user from Google profile
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await userRepo.create({
+        email,
+        password: randomPassword,
+        firstName: googleUser.given_name || 'User',
+        lastName: googleUser.family_name || '',
+        phone: '',
+        companyName: '',
+        role: 'carrier', // Default role for mobile app
+        status: 'active',
+        verified: true,
+      });
+    }
+
+    // Generate JWT tokens
+    const jwtAccessToken = generateToken({ id: user.id, email: user.email, role: user.role });
+    const jwtRefreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+    res.json({
+      accessToken: jwtAccessToken,
+      refreshToken: jwtRefreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: `${user.firstName} ${user.lastName}`.trim(),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+        verified: user.verified,
+      },
+    });
+  } catch (error) {
+    console.error('Google mobile login error:', error);
+    res.status(500).json({ error: 'Google login failed' });
+  }
+});
+
 // Simple token-based social login for development/testing
 // This allows frontend to send social provider token directly
 router.post('/social', async (req, res) => {

@@ -1,10 +1,20 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { register, loginWithGoogle, isAuthenticated } = useAuth();
+  
+  // Redirect if already authenticated (e.g., after Google login)
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated]);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -12,19 +22,69 @@ export default function RegisterScreen() {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'shipper',
+    role: 'carrier' as 'shipper' | 'carrier',
     companyName: '',
   });
 
-  const handleRegister = () => {
-    console.log('Register:', formData);
-    // TODO: Call API
-    router.replace('/(tabs)');
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
-  const handleSocialRegister = (provider: string) => {
-    console.log('Social register:', provider);
-    // TODO: Implement social auth
+  const handleRegister = async () => {
+    if (!formData.firstName || !formData.lastName) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+    if (!formData.email || !validateEmail(formData.email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+    if (!formData.phone) {
+      Alert.alert('Error', 'Please enter your phone number');
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await register({
+        email: formData.email,
+        password: formData.password,
+        fullName: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone,
+        role: formData.role,
+      });
+      Alert.alert('Success', 'Account created successfully!', [
+        { text: 'OK', onPress: () => router.replace('/(tabs)') }
+      ]);
+    } catch (error: any) {
+      Alert.alert('Registration Failed', error.message || 'Failed to create account');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialRegister = async (provider: string) => {
+    if (provider === 'google') {
+      setIsLoading(true);
+      try {
+        await loginWithGoogle();
+      } catch (error: any) {
+        Alert.alert('Google Sign Up Failed', error.message || 'Could not sign up with Google');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      Alert.alert('Coming Soon', `${provider} registration will be available soon`);
+    }
   };
 
   return (
@@ -166,8 +226,16 @@ export default function RegisterScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>Create Account</Text>
+          <TouchableOpacity 
+            style={[styles.registerButton, isLoading && styles.registerButtonDisabled]} 
+            onPress={handleRegister}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.registerButtonText}>Create Account</Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -266,8 +334,8 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   roleButtonActive: {
-    borderColor: '#2563eb',
-    backgroundColor: '#eff6ff',
+    borderColor: '#22c55e',
+    backgroundColor: '#f9fafb',
   },
   roleButtonText: {
     fontSize: 16,
@@ -275,7 +343,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   roleButtonTextActive: {
-    color: '#2563eb',
+    color: '#22c55e',
   },
   form: {
     gap: 16,
@@ -306,11 +374,14 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   registerButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#22c55e',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
+  },
+  registerButtonDisabled: {
+    opacity: 0.7,
   },
   registerButtonText: {
     fontSize: 16,
@@ -330,6 +401,6 @@ const styles = StyleSheet.create({
   signinLink: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2563eb',
+    color: '#22c55e',
   },
 });

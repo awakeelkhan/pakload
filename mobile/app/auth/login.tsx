@@ -1,11 +1,22 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { authAPI } from '../../src/services/api';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login, loginWithOtp, loginWithGoogle, isAuthenticated } = useAuth();
+  
+  // Redirect if already authenticated (e.g., after Google login)
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated]);
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -13,22 +24,88 @@ export default function LoginScreen() {
     otp: '',
   });
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleLogin = () => {
-    console.log('Login:', formData);
-    // TODO: Call API
-    router.replace('/(tabs)');
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
-  const handleRequestOtp = () => {
-    console.log('Request OTP:', formData.phone);
-    setShowOtpInput(true);
-    // TODO: Call API
+  const handleLogin = async () => {
+    setErrors({});
+    
+    if (loginMethod === 'email') {
+      if (!formData.email) {
+        setErrors({ email: 'Email is required' });
+        return;
+      }
+      if (!validateEmail(formData.email)) {
+        setErrors({ email: 'Please enter a valid email' });
+        return;
+      }
+      if (!formData.password) {
+        setErrors({ password: 'Password is required' });
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        await login(formData.email, formData.password);
+        router.replace('/(tabs)');
+      } catch (error: any) {
+        Alert.alert('Login Failed', error.message || 'Invalid email or password');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      if (!formData.otp) {
+        setErrors({ otp: 'OTP is required' });
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        await loginWithOtp(formData.phone, formData.otp);
+        router.replace('/(tabs)');
+      } catch (error: any) {
+        Alert.alert('Verification Failed', error.message || 'Invalid OTP');
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log('Social login:', provider);
-    // TODO: Implement social auth
+  const handleRequestOtp = async () => {
+    if (!formData.phone) {
+      setErrors({ phone: 'Phone number is required' });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await authAPI.requestOtp(formData.phone);
+      setShowOtpInput(true);
+      Alert.alert('OTP Sent', 'Please check your phone for the verification code');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to send OTP');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: string) => {
+    if (provider === 'google') {
+      setIsLoading(true);
+      try {
+        await loginWithGoogle();
+      } catch (error: any) {
+        Alert.alert('Google Login Failed', error.message || 'Could not sign in with Google');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      Alert.alert('Coming Soon', `${provider} login will be available soon`);
+    }
   };
 
   return (
@@ -116,8 +193,16 @@ export default function LoginScreen() {
               <Text style={styles.forgotPassword}>Forgot password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Sign In</Text>
+            <TouchableOpacity 
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.loginButtonText}>Sign In</Text>
+              )}
             </TouchableOpacity>
           </View>
         ) : (
@@ -244,7 +329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   toggleButtonActive: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#22c55e',
   },
   toggleButtonText: {
     fontSize: 16,
@@ -282,16 +367,16 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     fontSize: 14,
-    color: '#2563eb',
+    color: '#22c55e',
     textAlign: 'right',
   },
   resendOtp: {
     fontSize: 14,
-    color: '#2563eb',
+    color: '#22c55e',
     textAlign: 'center',
   },
   loginButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#22c55e',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -314,6 +399,9 @@ const styles = StyleSheet.create({
   signupLink: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2563eb',
+    color: '#22c55e',
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
 });

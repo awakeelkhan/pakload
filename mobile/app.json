@@ -4,12 +4,10 @@
     "slug": "pakload",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2563eb"
+      "backgroundColor": "#16a34a"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -23,10 +21,6 @@
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#2563eb"
-      },
       "package": "com.pakload.app",
       "permissions": [
         "ACCESS_FINE_LOCATION",
@@ -35,18 +29,17 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
       "expo-location",
       "expo-secure-store",
-      "expo-asset",
-      "expo-font"
+      "expo-web-browser"
     ],
     "scheme": "pakload",
     "extra": {
-      "apiUrl": "http://localhost:5000/api/v1"
+      "apiUrl": "http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com"
     }
   }
 }

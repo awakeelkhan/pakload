@@ -326,9 +326,12 @@ export function registerRoutes(app: Express) {
       
       const loadsData = await loadRepo.findAll(filters);
       
-      // Flatten the nested structure for frontend
+      // Flatten the nested structure for frontend and normalize field names
       const flattenedLoads = loadsData.map((item: any) => ({
         ...item.load,
+        // Normalize origin/destination fields
+        origin: item.load?.origin || item.load?.pickupCity || 'Not specified',
+        destination: item.load?.destination || item.load?.deliveryCity || 'Not specified',
         shipper: item.shipper,
       }));
       
@@ -658,14 +661,29 @@ export function registerRoutes(app: Express) {
   // Quotes endpoints - using quotes table
   app.post('/api/quotes', async (req, res) => {
     try {
+      console.log('Creating quote with data:', req.body);
+      
+      // Validate required fields
+      if (!req.body.loadId) {
+        return res.status(400).json({ error: 'Load ID is required' });
+      }
+      
       // For now, create a booking with all required fields
       const now = new Date();
       const deliveryDate = new Date(now);
       deliveryDate.setDate(deliveryDate.getDate() + (parseInt(req.body.estimatedDays) || 7));
       
       const loadId = parseInt(req.body.loadId);
-      const carrierId = req.body.carrierId || 1;
+      const carrierId = parseInt(req.body.carrierId) || 1;
       const bidAmount = parseFloat(req.body.quotedPrice || req.body.price || 0);
+      
+      if (isNaN(loadId) || loadId <= 0) {
+        return res.status(400).json({ error: 'Invalid load ID' });
+      }
+      
+      if (bidAmount <= 0) {
+        return res.status(400).json({ error: 'Bid amount must be greater than 0' });
+      }
       
       const bookingData = {
         loadId,
@@ -702,9 +720,10 @@ export function registerRoutes(app: Express) {
       }
       
       res.status(201).json(newBooking);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating quote:', error);
-      res.status(500).json({ error: 'Failed to create quote' });
+      console.error('Error details:', error?.message, error?.stack);
+      res.status(500).json({ error: 'Failed to create quote', details: error?.message });
     }
   });
 
@@ -715,6 +734,41 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching quotes:', error);
       res.status(500).json({ error: 'Failed to fetch quotes' });
+    }
+  });
+
+  // My Bids endpoint - get bids for the current user
+  app.get('/api/my-bids', optionalAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id || parseInt(req.query.userId as string) || 1;
+      
+      // Get all bookings where the user is the carrier (bids)
+      const allBookings = await bookingRepo.findAll({ carrierId: userId });
+      
+      // Flatten and format for bids view with normalized data
+      const bids = allBookings.map((item: any) => {
+        const load = item.load || {};
+        return {
+          id: item.booking?.id,
+          loadId: item.booking?.loadId,
+          status: item.booking?.status,
+          price: item.booking?.price,
+          quotedPrice: item.booking?.price,
+          createdAt: item.booking?.createdAt,
+          trackingNumber: item.booking?.trackingNumber || `PL-${String(item.booking?.id || 0).padStart(6, '0')}`,
+          origin: load.origin || load.pickupCity || 'Not specified',
+          destination: load.destination || load.deliveryCity || 'Not specified',
+          cargoType: load.cargoType || 'General',
+          weight: load.weight || 0,
+          loadBudget: load.budget || load.price || 0,
+          load: load,
+        };
+      });
+      
+      res.json(bids);
+    } catch (error) {
+      console.error('Error fetching my bids:', error);
+      res.status(500).json({ error: 'Failed to fetch bids' });
     }
   });
 
@@ -730,12 +784,23 @@ export function registerRoutes(app: Express) {
       const allBookings = await bookingRepo.findAll(filters);
       
       // Flatten the nested structure - repository already returns load and carrier
-      const flattenedBookings = allBookings.map((item: any) => ({
-        ...item.booking,
-        load: item.load || null,
-        carrier: item.carrier || null,
-        vehicle: item.vehicle || null,
-      }));
+      // Normalize data to ensure all fields are populated
+      const flattenedBookings = allBookings.map((item: any) => {
+        const load = item.load || {};
+        return {
+          ...item.booking,
+          // Generate tracking number if missing
+          trackingNumber: item.booking?.trackingNumber || `PL-${String(item.booking?.id || 0).padStart(6, '0')}`,
+          // Normalize origin/destination from load
+          origin: item.booking?.origin || load.origin || load.pickupCity || 'Not specified',
+          destination: item.booking?.destination || load.destination || load.deliveryCity || 'Not specified',
+          cargoType: item.booking?.cargoType || load.cargoType || 'General',
+          weight: item.booking?.weight || load.weight || 0,
+          load: load,
+          carrier: item.carrier || null,
+          vehicle: item.vehicle || null,
+        };
+      });
       
       // Pagination
       const pageNum = parseInt(page as string);

@@ -1,13 +1,22 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator, Animated, Keyboard, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { authAPI } from '../../src/services/api';
 
+const { width } = Dimensions.get('window');
+
 export default function LoginScreen() {
   const router = useRouter();
   const { login, loginWithOtp, loginWithGoogle, isAuthenticated } = useAuth();
+  
+  // Animation refs
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
   
   // Redirect if already authenticated (e.g., after Google login)
   useEffect(() => {
@@ -15,6 +24,23 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated]);
+  
+  // Entry animation
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+  
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,20 +57,41 @@ export default function LoginScreen() {
     return re.test(email);
   };
 
+  const triggerShake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+    ]).start();
+  };
+  
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(buttonScale, { toValue: 0.95, duration: 100, useNativeDriver: true }),
+      Animated.timing(buttonScale, { toValue: 1, duration: 100, useNativeDriver: true }),
+    ]).start();
+  };
+
   const handleLogin = async () => {
+    Keyboard.dismiss();
     setErrors({});
+    animateButton();
     
     if (loginMethod === 'email') {
       if (!formData.email) {
         setErrors({ email: 'Email is required' });
+        triggerShake();
         return;
       }
       if (!validateEmail(formData.email)) {
         setErrors({ email: 'Please enter a valid email' });
+        triggerShake();
         return;
       }
       if (!formData.password) {
         setErrors({ password: 'Password is required' });
+        triggerShake();
         return;
       }
       
@@ -53,7 +100,12 @@ export default function LoginScreen() {
         await login(formData.email, formData.password);
         router.replace('/(tabs)');
       } catch (error: any) {
-        Alert.alert('Login Failed', error.message || 'Invalid email or password');
+        triggerShake();
+        Alert.alert(
+          'Login Failed', 
+          error.message || 'Invalid email or password. Please check your credentials and try again.',
+          [{ text: 'OK', style: 'default' }]
+        );
       } finally {
         setIsLoading(false);
       }
@@ -109,13 +161,44 @@ export default function LoginScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
-        </View>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <LinearGradient
+        colors={['#f0fdf4', '#dcfce7', '#f0fdf4']}
+        style={styles.gradient}
+      >
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Animated.View 
+            style={[
+              styles.content,
+              {
+                opacity: fadeAnim,
+                transform: [
+                  { translateY: slideAnim },
+                  { translateX: shakeAnim },
+                ],
+              },
+            ]}
+          >
+            {/* Logo */}
+            <View style={styles.logoContainer}>
+              <View style={styles.logoIcon}>
+                <Ionicons name="cube" size={40} color="#fff" />
+              </View>
+            </View>
+            
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>Sign in to your PakLoad account</Text>
+            </View>
 
         {/* Social Login */}
         <View style={styles.socialContainer}>
@@ -193,17 +276,26 @@ export default function LoginScreen() {
               <Text style={styles.forgotPassword}>Forgot password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
-              onPress={handleLogin}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.loginButtonText}>Sign In</Text>
-              )}
-            </TouchableOpacity>
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <TouchableOpacity 
+                style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+                onPress={handleLogin}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                {isLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="#fff" />
+                    <Text style={styles.loadingText}>Signing in...</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.loginButtonText}>Sign In</Text>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
           </View>
         ) : (
           <View style={styles.form}>
@@ -247,39 +339,75 @@ export default function LoginScreen() {
           </View>
         )}
 
-        {/* Sign Up Link */}
-        <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/auth/register')}>
-            <Text style={styles.signupLink}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
+            {/* Sign Up Link */}
+            <View style={styles.signupContainer}>
+              <Text style={styles.signupText}>Don't have an account? </Text>
+              <TouchableOpacity onPress={() => router.push('/auth/register')}>
+                <Text style={styles.signupLink}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Terms */}
+            <Text style={styles.termsText}>
+              By signing in, you agree to our Terms of Service and Privacy Policy
+            </Text>
+          </Animated.View>
+        </ScrollView>
+      </LinearGradient>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 40,
   },
   content: {
     padding: 24,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: '#22c55e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#22c55e',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
   header: {
-    marginTop: 40,
     marginBottom: 32,
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#6b7280',
+    textAlign: 'center',
   },
   socialContainer: {
     gap: 12,
@@ -403,5 +531,30 @@ const styles = StyleSheet.create({
   },
   loginButtonDisabled: {
     opacity: 0.7,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    marginTop: -8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  termsText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginTop: 24,
+    lineHeight: 18,
   },
 });

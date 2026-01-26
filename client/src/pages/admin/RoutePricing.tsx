@@ -38,7 +38,10 @@ export default function RoutePricing() {
   const fetchRoutePricing = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/route-pricing');
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/route-pricing', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       setRoutePricing(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -56,10 +59,12 @@ export default function RoutePricing() {
         ? `/api/admin/route-pricing/${editingPricing.id}`
         : '/api/admin/route-pricing';
       
+      const token = localStorage.getItem('access_token');
       await fetch(url, {
         method: editingPricing ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });

@@ -43,9 +43,12 @@ export default function RoutesManagement() {
   const fetchRoutes = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/routes');
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/routes', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
-      setRoutes(data);
+      setRoutes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching routes:', error);
     } finally {
@@ -61,10 +64,12 @@ export default function RoutesManagement() {
         ? `/api/admin/routes/${editingRoute.id}`
         : '/api/admin/routes';
       
+      const token = localStorage.getItem('access_token');
       const response = await fetch(url, {
         method: editingRoute ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           ...formData,

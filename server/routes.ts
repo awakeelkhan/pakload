@@ -9,6 +9,13 @@ import { generateToken, generateRefreshToken, requireAuth, optionalAuth, require
 import bcrypt from 'bcryptjs';
 import adminRoutes from './routes/admin.js';
 import oauthRoutes from './routes/oauth.js';
+import documentRoutes from './routes/documents.js';
+import goodsRequestRoutes from './routes/goods-requests.js';
+import referenceDataRoutes from './routes/reference-data.js';
+import marketRequestRoutes from './routes/market-requests.js';
+import builtyRoutes from './routes/builty.js';
+import adminSettingsRoutes from './routes/admin-settings.js';
+import loadsEnhancedRoutes from './routes/loads-enhanced.js';
 
 const userRepo = new UserRepository();
 const loadRepo = new LoadRepository();
@@ -27,6 +34,27 @@ export function registerRoutes(app: Express) {
 
   // OAuth routes
   app.use('/api/v1/auth', oauthRoutes);
+
+  // Document management routes
+  app.use('/api/documents', documentRoutes);
+
+  // Goods requests routes (shipper looking for goods/services)
+  app.use('/api/goods-requests', goodsRequestRoutes);
+
+  // Reference data routes (TIR countries, Pakistan routes, legal terms)
+  app.use('/api/reference', referenceDataRoutes);
+
+  // Market requests routes (I need goods from X - internal fulfillment)
+  app.use('/api/market-requests', marketRequestRoutes);
+
+  // Builty routes (Pakistani transport receipts)
+  app.use('/api/builty', builtyRoutes);
+
+  // Admin settings routes (fees, GST, platform configuration)
+  app.use('/api/admin/settings', adminSettingsRoutes);
+
+  // Enhanced loads routes (container types, media, PIN locations)
+  app.use('/api/v2/loads', loadsEnhancedRoutes);
 
   // Authentication endpoints
   app.post('/api/v1/auth/register', async (req, res) => {

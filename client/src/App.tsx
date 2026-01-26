@@ -39,6 +39,9 @@ import Documentation from './pages/Documentation';
 import HelpCenter from './pages/HelpCenter';
 import OAuthCallback from './pages/OAuthCallback';
 import SelectRole from './pages/SelectRole';
+import KYC from './pages/KYC';
+import Analytics from './pages/Analytics';
+import MarketRequests from './pages/MarketRequests';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +99,9 @@ function App() {
               <Route path="/about" component={About} />
               <Route path="/docs" component={Documentation} />
               <Route path="/help" component={HelpCenter} />
+              <Route path="/kyc" component={KYC} />
+              <Route path="/analytics" component={Analytics} />
+              <Route path="/market-requests" component={MarketRequests} />
               <Route component={NotFound} />
             </Switch>
           </main>

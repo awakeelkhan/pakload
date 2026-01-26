@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw, Image, FileText, File } from 'lucide-react';
 import BidModal from '../components/BidModal';
 
 interface Load {
@@ -943,16 +943,21 @@ export default function FindLoads() {
               <p className="text-slate-500">Try adjusting your filters</p>
             </div>
           ) : (
-            sortedLoads.map((load) => (
+            sortedLoads.map((load) => {
+              // Extract city names only
+              const originCity = load.origin.split(',')[0].trim();
+              const destCity = load.destination.split(',')[0].trim();
+              
+              return (
               <div key={load.id} className="bg-white rounded-xl border border-slate-200 hover:border-green-200 hover:shadow-lg transition-all overflow-hidden">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Navigation className="w-5 h-5 text-green-600" />
-                        <span className="text-lg font-bold text-slate-900">{load.origin}</span>
-                        <span className="text-slate-400">→</span>
-                        <span className="text-lg font-bold text-slate-900">{load.destination}</span>
+                      {/* City-only title */}
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-xl font-bold text-slate-900">
+                          {originCity} → {destCity}
+                        </h3>
                         {load.urgent && (
                           <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
@@ -965,20 +970,27 @@ export default function FindLoads() {
                             Verified
                           </span>
                         )}
-                        <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
-                          {load.loadingType}
-                        </span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-600 mb-3">
-                        <Building className="w-4 h-4" />
-                        <span className="font-medium">{load.postedBy}</span>
+                      {/* Full address in smaller text */}
+                      <p className="text-xs text-slate-500 mb-2">
+                        {load.origin} → {load.destination}
+                      </p>
+                      {/* Meta info */}
+                      <div className="flex items-center gap-3 text-xs text-slate-500">
                         <span className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <Building className="w-3 h-3" />
+                          {load.postedBy}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                           {load.rating}
                         </span>
-                        <span className="flex items-center gap-1 text-slate-500">
-                          <Eye className="w-4 h-4" />
-                          {load.views} views
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {load.views}
+                        </span>
+                        <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                          {load.loadingType}
                         </span>
                       </div>
                     </div>
@@ -1056,10 +1068,59 @@ export default function FindLoads() {
 
                   {expandedLoad === load.id && (
                     <div className="mt-4 pt-4 border-t border-slate-200 space-y-4">
+                      {/* Product Images */}
+                      <div>
+                        <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                          <Image className="w-4 h-4 text-green-600" />
+                          Product Images
+                        </h4>
+                        <div className="flex flex-wrap gap-3">
+                          {/* Placeholder images - in real app these would come from load.images */}
+                          <div className="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200">
+                            <Image className="w-8 h-8 text-slate-300" />
+                          </div>
+                          <div className="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200">
+                            <Image className="w-8 h-8 text-slate-300" />
+                          </div>
+                          <div className="w-24 h-24 bg-slate-100 rounded-lg flex items-center justify-center border border-slate-200 text-slate-400 text-xs">
+                            No images
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Documents */}
+                      <div>
+                        <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          Documents
+                        </h4>
+                        <div className="space-y-2">
+                          {/* Placeholder documents - in real app these would come from load.documents */}
+                          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <File className="w-5 h-5 text-blue-500" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-slate-700">Commercial Invoice</p>
+                              <p className="text-xs text-slate-500">PDF • 245 KB</p>
+                            </div>
+                            <button className="text-xs text-green-600 hover:text-green-700 font-medium">View</button>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <File className="w-5 h-5 text-blue-500" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-slate-700">Packing List</p>
+                              <p className="text-xs text-slate-500">PDF • 128 KB</p>
+                            </div>
+                            <button className="text-xs text-green-600 hover:text-green-700 font-medium">View</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description */}
                       <div>
                         <h4 className="font-semibold text-slate-900 mb-2">Description</h4>
                         <p className="text-sm text-slate-600">{load.description}</p>
                       </div>
+
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <h4 className="font-semibold text-slate-900 mb-2">Contact Information</h4>
@@ -1115,7 +1176,8 @@ export default function FindLoads() {
                   )}
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
 

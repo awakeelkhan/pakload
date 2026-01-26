@@ -39,7 +39,10 @@ export default function PricingRules() {
   const fetchRules = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/pricing-rules');
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/pricing-rules', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       setRules(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -57,10 +60,12 @@ export default function PricingRules() {
         ? `/api/admin/pricing-rules/${editingRule.id}`
         : '/api/admin/pricing-rules';
       
+      const token = localStorage.getItem('access_token');
       await fetch(url, {
         method: editingRule ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });

@@ -37,11 +37,12 @@ export default function PlatformConfig() {
   const fetchConfigs = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/config', {
-        headers: { 'Authorization': 'Bearer admin-token' }
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/settings', {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
-      setConfigs(data);
+      setConfigs(data.configs || []);
     } catch (error) {
       console.error('Error fetching configs:', error);
     } finally {
@@ -51,10 +52,11 @@ export default function PlatformConfig() {
 
   const handleUpdate = async (key: string) => {
     try {
-      await fetch(`/api/admin/config/${key}`, {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/settings/${key}`, {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer admin-token',
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ value: editValue })
@@ -68,9 +70,10 @@ export default function PlatformConfig() {
 
   const handlePublish = async (key: string) => {
     try {
-      await fetch(`/api/admin/config/${key}/publish`, {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/admin/settings/${key}/publish`, {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer admin-token' }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       fetchConfigs();
     } catch (error) {
@@ -81,10 +84,11 @@ export default function PlatformConfig() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch('/api/admin/config', {
+      const token = localStorage.getItem('access_token');
+      await fetch('/api/admin/settings', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer admin-token',
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(newConfig)

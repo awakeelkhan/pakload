@@ -1,0 +1,16 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="48" height="48" rx="8" fill="#16a34a"/>
+  
+  <!-- Simplified truck icon for small size -->
+  <path d="M8 30 L8 20 C8 18.5 9 17.5 10.5 17.5 L26 17.5 C27.5 17.5 28.5 18.5 28.5 20 L28.5 30 Z" fill="white"/>
+  <path d="M28.5 22 L28.5 30 L36 30 L36 26 C36 24 35 22 33 22 Z" fill="white"/>
+  <circle cx="14" cy="31.5" r="3.5" fill="#1f2937"/>
+  <circle cx="14" cy="31.5" r="2" fill="#6b7280"/>
+  <circle cx="32" cy="31.5" r="3.5" fill="#1f2937"/>
+  <circle cx="32" cy="31.5" r="2" fill="#6b7280"/>
+  
+  <!-- Location pin -->
+  <circle cx="38" cy="14" r="6" fill="white"/>
+  <circle cx="38" cy="14" r="3" fill="#16a34a"/>
+</svg>

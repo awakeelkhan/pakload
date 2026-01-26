@@ -1,0 +1,54 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="200" fill="#16a34a"/>
+  
+  <!-- Gradient overlay -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="truckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="url(#grad1)"/>
+  
+  <!-- Truck Body -->
+  <path d="M200 620 L200 420 C200 390 220 370 250 370 L580 370 C610 370 630 390 630 420 L630 620 Z" fill="url(#truckGrad)"/>
+  
+  <!-- Truck Cabin -->
+  <path d="M630 460 L630 620 L780 620 L780 520 C780 480 760 460 720 460 Z" fill="url(#truckGrad)"/>
+  
+  <!-- Cabin Window -->
+  <path d="M650 480 L650 560 L740 560 L740 510 C740 490 730 480 710 480 Z" fill="#16a34a" opacity="0.7"/>
+  
+  <!-- Wheels -->
+  <circle cx="300" cy="640" r="70" fill="#1f2937"/>
+  <circle cx="300" cy="640" r="40" fill="#6b7280"/>
+  <circle cx="300" cy="640" r="15" fill="#1f2937"/>
+  
+  <circle cx="700" cy="640" r="70" fill="#1f2937"/>
+  <circle cx="700" cy="640" r="40" fill="#6b7280"/>
+  <circle cx="700" cy="640" r="15" fill="#1f2937"/>
+  
+  <!-- Ground line -->
+  <rect x="120" y="700" width="784" height="8" rx="4" fill="white" opacity="0.3"/>
+  
+  <!-- Package boxes on truck -->
+  <rect x="240" y="400" width="100" height="80" rx="8" fill="#fbbf24"/>
+  <rect x="360" y="420" width="80" height="60" rx="6" fill="#f97316"/>
+  <rect x="460" y="390" width="120" height="90" rx="10" fill="#3b82f6"/>
+  
+  <!-- Location pin -->
+  <g transform="translate(750, 280)">
+    <path d="M50 0 C22.4 0 0 22.4 0 50 C0 87.5 50 130 50 130 C50 130 100 87.5 100 50 C100 22.4 77.6 0 50 0 Z" fill="white"/>
+    <circle cx="50" cy="50" r="25" fill="#16a34a"/>
+  </g>
+  
+  <!-- Speed lines -->
+  <rect x="100" y="450" width="60" height="8" rx="4" fill="white" opacity="0.6"/>
+  <rect x="80" y="500" width="80" height="8" rx="4" fill="white" opacity="0.5"/>
+  <rect x="100" y="550" width="50" height="8" rx="4" fill="white" opacity="0.4"/>
+</svg>

@@ -35,7 +35,10 @@ export default function CargoCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/categories');
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/categories', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -53,10 +56,12 @@ export default function CargoCategories() {
         ? `/api/admin/categories/${editingCategory.id}`
         : '/api/admin/categories';
       
+      const token = localStorage.getItem('access_token');
       await fetch(url, {
         method: editingCategory ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });

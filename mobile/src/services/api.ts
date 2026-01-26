@@ -89,8 +89,16 @@ api.interceptors.response.use(
 // Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/api/v1/auth/login', { email, password });
-    return response.data;
+    try {
+      console.log('Attempting login to:', API_BASE_URL + '/api/v1/auth/login');
+      const response = await api.post('/api/v1/auth/login', { email, password });
+      console.log('Login response:', JSON.stringify(response.data));
+      return response.data;
+    } catch (error: any) {
+      console.error('Login error:', error.message);
+      console.error('Login error response:', error.response?.data);
+      throw error;
+    }
   },
   
   register: async (data: {
@@ -100,8 +108,28 @@ export const authAPI = {
     phone: string;
     role: 'shipper' | 'carrier';
   }) => {
-    const response = await api.post('/api/v1/auth/register', data);
-    return response.data;
+    // Split fullName into firstName and lastName for server compatibility
+    const nameParts = data.fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    try {
+      console.log('Attempting registration to:', API_BASE_URL + '/api/v1/auth/register');
+      const response = await api.post('/api/v1/auth/register', {
+        email: data.email,
+        password: data.password,
+        firstName,
+        lastName,
+        phone: data.phone,
+        role: data.role,
+      });
+      console.log('Register response:', JSON.stringify(response.data));
+      return response.data;
+    } catch (error: any) {
+      console.error('Register error:', error.message);
+      console.error('Register error response:', error.response?.data);
+      throw error;
+    }
   },
   
   requestOtp: async (phone: string) => {

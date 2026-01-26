@@ -1,0 +1,68 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Full screen background gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="truckGradSplash" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0fdf4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1284" height="2778" fill="url(#bgGrad)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="100" cy="400" r="200" fill="white" opacity="0.05"/>
+  <circle cx="1200" cy="600" r="300" fill="white" opacity="0.03"/>
+  <circle cx="200" cy="2400" r="250" fill="white" opacity="0.04"/>
+  <circle cx="1100" cy="2200" r="180" fill="white" opacity="0.05"/>
+  
+  <!-- Main Logo Group - centered -->
+  <g transform="translate(342, 1089)">
+    <!-- Truck Body -->
+    <path d="M100 320 L100 180 C100 158 115 143 138 143 L368 143 C391 143 406 158 406 180 L406 320 Z" fill="url(#truckGradSplash)"/>
+    
+    <!-- Truck Cabin -->
+    <path d="M406 195 L406 320 L498 320 L498 250 C498 225 485 195 460 195 Z" fill="url(#truckGradSplash)"/>
+    
+    <!-- Cabin Window -->
+    <path d="M418 208 L418 285 L475 285 L475 243 C475 228 468 208 450 208 Z" fill="#16a34a" opacity="0.7"/>
+    
+    <!-- Wheels -->
+    <circle cx="175" cy="335" r="45" fill="#1f2937"/>
+    <circle cx="175" cy="335" r="28" fill="#6b7280"/>
+    <circle cx="175" cy="335" r="10" fill="#1f2937"/>
+    
+    <circle cx="450" cy="335" r="45" fill="#1f2937"/>
+    <circle cx="450" cy="335" r="28" fill="#6b7280"/>
+    <circle cx="450" cy="335" r="10" fill="#1f2937"/>
+    
+    <!-- Package boxes -->
+    <rect x="125" y="163" width="70" height="55" rx="5" fill="#fbbf24"/>
+    <rect x="208" y="178" width="55" height="42" rx="4" fill="#f97316"/>
+    <rect x="276" y="153" width="85" height="65" rx="6" fill="#3b82f6"/>
+    
+    <!-- Location pin -->
+    <g transform="translate(480, 60)">
+      <path d="M35 0 C15.7 0 0 15.7 0 35 C0 61.25 35 91 35 91 C35 91 70 61.25 70 35 C70 15.7 54.3 0 35 0 Z" fill="white"/>
+      <circle cx="35" cy="35" r="17" fill="#16a34a"/>
+    </g>
+    
+    <!-- Speed lines -->
+    <rect x="30" y="200" width="45" height="6" rx="3" fill="white" opacity="0.7"/>
+    <rect x="15" y="235" width="60" height="6" rx="3" fill="white" opacity="0.6"/>
+    <rect x="30" y="270" width="40" height="6" rx="3" fill="white" opacity="0.5"/>
+  </g>
+  
+  <!-- App Name -->
+  <text x="642" y="1550" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="bold" fill="white" text-anchor="middle">PakLoad</text>
+  
+  <!-- Tagline -->
+  <text x="642" y="1620" font-family="Arial, Helvetica, sans-serif" font-size="36" fill="white" opacity="0.9" text-anchor="middle">Pakistan's #1 Load Matching Platform</text>
+  
+  <!-- Loading indicator area -->
+  <rect x="542" y="1700" width="200" height="4" rx="2" fill="white" opacity="0.3"/>
+</svg>

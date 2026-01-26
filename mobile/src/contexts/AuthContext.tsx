@@ -100,11 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authAPI.login(email, password);
       
-      if (response.accessToken) {
-        await setToken(response.accessToken);
+      const accessToken = response.accessToken || response.access_token;
+      const refreshToken = response.refreshToken || response.refresh_token;
+      
+      if (accessToken) {
+        await setToken(accessToken);
       }
-      if (response.refreshToken) {
-        await setRefreshToken(response.refreshToken);
+      if (refreshToken) {
+        await setRefreshToken(refreshToken);
       }
       
       const userData = response.user || response;
@@ -119,11 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authAPI.verifyOtp(phone, otp);
       
-      if (response.accessToken) {
-        await setToken(response.accessToken);
+      const accessToken = response.accessToken || response.access_token;
+      const refreshToken = response.refreshToken || response.refresh_token;
+      
+      if (accessToken) {
+        await setToken(accessToken);
       }
-      if (response.refreshToken) {
-        await setRefreshToken(response.refreshToken);
+      if (refreshToken) {
+        await setRefreshToken(refreshToken);
       }
       
       const userData = response.user || response;
@@ -139,11 +145,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Send Google token to backend for verification and user creation/login
       const response = await authAPI.googleLogin(googleAccessToken);
       
-      if (response.accessToken) {
-        await setToken(response.accessToken);
+      const accessToken = response.accessToken || response.access_token;
+      const refreshToken = response.refreshToken || response.refresh_token;
+      
+      if (accessToken) {
+        await setToken(accessToken);
       }
-      if (response.refreshToken) {
-        await setRefreshToken(response.refreshToken);
+      if (refreshToken) {
+        await setRefreshToken(refreshToken);
       }
       
       const userData = response.user || response;
@@ -166,11 +175,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authAPI.register(data);
       
-      if (response.accessToken) {
-        await setToken(response.accessToken);
+      const accessToken = response.accessToken || response.access_token;
+      const refreshToken = response.refreshToken || response.refresh_token;
+      
+      if (accessToken) {
+        await setToken(accessToken);
       }
-      if (response.refreshToken) {
-        await setRefreshToken(response.refreshToken);
+      if (refreshToken) {
+        await setRefreshToken(refreshToken);
       }
       
       const userData = response.user || response;

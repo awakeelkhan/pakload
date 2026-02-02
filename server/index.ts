@@ -99,6 +99,10 @@ app.use((req, res, next) => {
 // Register API routes
 registerRoutes(app);
 
+// Serve uploaded files
+const uploadsPath = path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsPath));
+
 // Serve static files in production
 const distPath = path.join(process.cwd(), 'dist/client');
 console.log('📁 Serving static files from:', distPath);

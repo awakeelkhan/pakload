@@ -16,6 +16,7 @@ import marketRequestRoutes from './routes/market-requests.js';
 import builtyRoutes from './routes/builty.js';
 import adminSettingsRoutes from './routes/admin-settings.js';
 import loadsEnhancedRoutes from './routes/loads-enhanced.js';
+import uploadRoutes from './routes/upload.js';
 
 const userRepo = new UserRepository();
 const loadRepo = new LoadRepository();
@@ -55,6 +56,9 @@ export function registerRoutes(app: Express) {
 
   // Enhanced loads routes (container types, media, PIN locations)
   app.use('/api/v2/loads', loadsEnhancedRoutes);
+
+  // File upload routes
+  app.use('/api/upload', uploadRoutes);
 
   // Authentication endpoints
   app.post('/api/v1/auth/register', async (req, res) => {

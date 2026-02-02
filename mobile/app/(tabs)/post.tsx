@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { loadsAPI, marketRequestsAPI } from '../../src/services/api';
+import { loadsAPI, marketRequestsAPI, uploadAPI } from '../../src/services/api';
 import { useAuth } from '../../src/contexts/AuthContext';
 
 type Mode = 'select' | 'post-load' | 'market-request';
@@ -127,9 +127,36 @@ export default function PostScreen() {
   // Create load mutation
   const loadMutation = useMutation({
     mutationFn: async () => {
-      // For now, we pass URIs as image/document URLs (in production, upload first)
-      const imageUrls = images.map((f) => f.uri);
-      const docUrls = documents.map((f) => f.uri);
+      // Upload images and documents to server first
+      let uploadedImageUrls: string[] = [];
+      let uploadedDocUrls: string[] = [];
+      
+      if (images.length > 0) {
+        try {
+          const uploadResult = await uploadAPI.uploadImages(
+            images.map(f => ({ uri: f.uri, name: f.name }))
+          );
+          uploadedImageUrls = uploadResult.urls || [];
+        } catch (uploadError) {
+          console.log('Image upload failed, using local URIs:', uploadError);
+          uploadedImageUrls = images.map(f => f.uri);
+        }
+      }
+      
+      if (documents.length > 0) {
+        try {
+          for (const doc of documents) {
+            const uploadResult = await uploadAPI.uploadDocument(doc.uri, doc.name);
+            if (uploadResult.url) {
+              uploadedDocUrls.push(uploadResult.url);
+            }
+          }
+        } catch (uploadError) {
+          console.log('Document upload failed, using local URIs:', uploadError);
+          uploadedDocUrls = documents.map(f => f.uri);
+        }
+      }
+      
       return loadsAPI.create({
         origin,
         destination,
@@ -140,8 +167,8 @@ export default function PostScreen() {
         price: Number(price),
         description: description || undefined,
         containerType: equipmentType || undefined,
-        images: imageUrls.length ? imageUrls : undefined,
-        documents: docUrls.length ? docUrls : undefined,
+        images: uploadedImageUrls.length ? uploadedImageUrls : undefined,
+        documents: uploadedDocUrls.length ? uploadedDocUrls : undefined,
       });
     },
     onSuccess: (result: any) => {

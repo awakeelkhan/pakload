@@ -360,4 +360,123 @@ export const statsAPI = {
   },
 };
 
+// Upload API
+export const uploadAPI = {
+  uploadImage: async (uri: string, filename: string) => {
+    const formData = new FormData();
+    formData.append('image', {
+      uri,
+      name: filename,
+      type: 'image/jpeg',
+    } as any);
+    
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/api/upload/image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    return response.json();
+  },
+  
+  uploadImages: async (files: { uri: string; name: string }[]) => {
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append('images', {
+        uri: file.uri,
+        name: file.name || `image-${index}.jpg`,
+        type: 'image/jpeg',
+      } as any);
+    });
+    
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    return response.json();
+  },
+  
+  uploadDocument: async (uri: string, filename: string, mimeType: string = 'application/pdf') => {
+    const formData = new FormData();
+    formData.append('document', {
+      uri,
+      name: filename,
+      type: mimeType,
+    } as any);
+    
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/api/upload/document`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    return response.json();
+  },
+  
+  uploadMixed: async (
+    images: { uri: string; name: string }[],
+    documents: { uri: string; name: string; type: string }[]
+  ) => {
+    const formData = new FormData();
+    
+    images.forEach((file, index) => {
+      formData.append('images', {
+        uri: file.uri,
+        name: file.name || `image-${index}.jpg`,
+        type: 'image/jpeg',
+      } as any);
+    });
+    
+    documents.forEach((file, index) => {
+      formData.append('documents', {
+        uri: file.uri,
+        name: file.name || `doc-${index}.pdf`,
+        type: file.type || 'application/pdf',
+      } as any);
+    });
+    
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/api/upload/mixed`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    return response.json();
+  },
+};
+
 export default api;

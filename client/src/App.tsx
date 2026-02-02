@@ -42,6 +42,7 @@ import SelectRole from './pages/SelectRole';
 import KYC from './pages/KYC';
 import Analytics from './pages/Analytics';
 import MarketRequests from './pages/MarketRequests';
+import MyRequests from './pages/MyRequests';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +103,7 @@ function App() {
               <Route path="/kyc" component={KYC} />
               <Route path="/analytics" component={Analytics} />
               <Route path="/market-requests" component={MarketRequests} />
+              <Route path="/my-requests" component={MyRequests} />
               <Route component={NotFound} />
             </Switch>
           </main>

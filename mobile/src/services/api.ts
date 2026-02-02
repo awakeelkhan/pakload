@@ -21,6 +21,49 @@ export const getToken = async (): Promise<string | null> => {
   }
 };
 
+// Market Requests API
+export const marketRequestsAPI = {
+  getMyRequests: async (params?: { status?: string; fulfillmentStatus?: string; limit?: number; offset?: number }) => {
+    const response = await api.get('/api/market-requests/my-requests', { params });
+    return response.data;
+  },
+
+  getById: async (id: number) => {
+    const response = await api.get(`/api/market-requests/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await api.post('/api/market-requests', data);
+    return response.data;
+  },
+
+  cancel: async (id: number) => {
+    const response = await api.post(`/api/market-requests/${id}/cancel`);
+    return response.data;
+  },
+};
+
+// Documents API (KYC)
+export const documentsAPI = {
+  getMyDocuments: async () => {
+    const response = await api.get('/api/documents/my-documents');
+    return response.data;
+  },
+
+  uploadDocument: async (data: {
+    documentType: string;
+    documentNumber?: string;
+    documentUrl: string;
+    issueDate?: string;
+    expiryDate?: string;
+    issuingAuthority?: string;
+  }) => {
+    const response = await api.post('/api/documents/upload', data);
+    return response.data;
+  },
+};
+
 export const setToken = async (token: string): Promise<void> => {
   await SecureStore.setItemAsync('access_token', token);
 };
@@ -57,31 +100,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        const refreshToken = await getRefreshToken();
-        if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
-            refreshToken,
-          });
-          
-          const { accessToken, refreshToken: newRefreshToken } = response.data;
-          await setToken(accessToken);
-          await setRefreshToken(newRefreshToken);
-          
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        await removeToken();
-        await SecureStore.deleteItemAsync('refresh_token');
-      }
+    if (error.response?.status === 401) {
+      await removeToken();
+      await SecureStore.deleteItemAsync('refresh_token');
+      await SecureStore.deleteItemAsync('user');
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -133,17 +157,17 @@ export const authAPI = {
   },
   
   requestOtp: async (phone: string) => {
-    const response = await api.post('/api/v1/auth/request-otp', { phone });
+    const response = await api.post('/api/v1/auth/otp/request', { phone });
     return response.data;
   },
   
   verifyOtp: async (phone: string, otp: string) => {
-    const response = await api.post('/api/v1/auth/verify-otp', { phone, otp });
+    const response = await api.post('/api/v1/auth/otp/verify', { phone, otp });
     return response.data;
   },
   
   getProfile: async () => {
-    const response = await api.get('/api/v1/auth/profile');
+    const response = await api.get('/api/v1/auth/me');
     return response.data;
   },
   
@@ -161,6 +185,21 @@ export const authAPI = {
 
 // Loads API
 export const loadsAPI = {
+  _normalizeLoadsResponse: (responseData: any) => {
+    const payload = responseData?.loads ?? responseData?.data ?? responseData;
+    if (!Array.isArray(payload)) return [];
+    // /api/v2/loads returns [{ load, shipper }]
+    return payload.map((item: any) => {
+      if (item?.load) {
+        return {
+          ...item.load,
+          shipper: item.shipper,
+        };
+      }
+      return item;
+    });
+  },
+
   getAll: async (params?: {
     origin?: string;
     destination?: string;
@@ -171,23 +210,29 @@ export const loadsAPI = {
     limit?: number;
     offset?: number;
   }) => {
-    const response = await api.get('/api/loads', { params });
-    return response.data;
+    const response = await api.get('/api/v2/loads', { params });
+    return {
+      ...response.data,
+      loads: loadsAPI._normalizeLoadsResponse(response.data),
+    };
   },
   
   getById: async (id: number) => {
-    const response = await api.get(`/api/loads/${id}`);
+    const response = await api.get(`/api/v2/loads/${id}`);
     return response.data;
   },
   
   create: async (data: any) => {
-    const response = await api.post('/api/loads', data);
+    const response = await api.post('/api/v2/loads', data);
     return response.data;
   },
   
   search: async (query: string) => {
-    const response = await api.get('/api/loads/search', { params: { q: query } });
-    return response.data;
+    const response = await api.get('/api/v2/loads', { params: { search: query } });
+    return {
+      ...response.data,
+      loads: loadsAPI._normalizeLoadsResponse(response.data),
+    };
   },
 };
 
@@ -229,7 +274,7 @@ export const quotesAPI = {
   },
   
   getByLoad: async (loadId: number) => {
-    const response = await api.get(`/api/loads/${loadId}/quotes`);
+    const response = await api.get(`/api/quotes/load/${loadId}`);
     return response.data;
   },
   

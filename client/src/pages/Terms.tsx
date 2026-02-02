@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { FileText } from 'lucide-react';
+import { FileText, Scale, DollarSign, Shield, Users } from 'lucide-react';
 
 export default function Terms() {
   return (
@@ -20,78 +20,6 @@ export default function Terms() {
           <p className="text-slate-600 leading-relaxed">
             These Terms of Service govern your use of the PakLoad logistics platform. By using our services, you agree to these terms.
           </p>
-        </div>
-
-        {/* Partnership Agreement Summary */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-8 mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Scale className="w-8 h-8 text-blue-600" />
-            <h2 className="text-2xl font-bold text-slate-900">Partnership Agreement</h2>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Parties to the Agreement</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-slate-900 mb-2">Service Provider</h4>
-                <div className="space-y-1 text-sm text-slate-600">
-                  <p><strong>Hypercloud Technology Partners</strong></p>
-                  <p>Address: G9/4, Pakistan</p>
-                  <p>Phone: 0313-9986357</p>
-                  <p>Email: abdul.wakeel@hypercloud.pk</p>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold text-slate-900 mb-2">Platform Owner</h4>
-                <div className="space-y-1 text-sm text-slate-600">
-                  <p><strong>Zhengrong</strong></p>
-                  <p>Address: B17, Pakistan</p>
-                  <p>Phone: +92 51 8897668</p>
-                  <p>Email: info@zhengrong.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="bg-white rounded-xl p-6">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-blue-600" />
-                Project Cost & Payment Structure
-              </h3>
-              <div className="space-y-2 text-sm text-slate-600">
-                <p><strong>Total Development Cost:</strong> PKR 1,500,000</p>
-                <div className="ml-4 mt-2">
-                  <p className="font-medium text-slate-900">Cash Payment: PKR 1,000,000</p>
-                  <ul className="list-disc list-inside ml-4 mt-1">
-                    <li>40% at project start</li>
-                    <li>30% at mid-stage</li>
-                    <li>30% upon final delivery</li>
-                  </ul>
-                </div>
-                <div className="ml-4 mt-2">
-                  <p className="font-medium text-slate-900">Service Partnership: PKR 500,000 (Value-Based)</p>
-                  <p className="ml-4 mt-1">20% of net profit, payable quarterly after profitability</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-600" />
-                Ownership & Intellectual Property
-              </h3>
-              <div className="space-y-2 text-sm text-slate-600">
-                <p><strong>Upon completion and full payment:</strong></p>
-                <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>All rights and ownership vest exclusively in Zhengrong</li>
-                  <li>Zhengrong retains exclusive rights over business model, branding, and revenue</li>
-                  <li>Hypercloud may showcase project for portfolio purposes</li>
-                  <li>Hypercloud retains ownership of proprietary development methods</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Terms Sections */}

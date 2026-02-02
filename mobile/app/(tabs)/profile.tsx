@@ -171,23 +171,29 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - 4 items in a grid */}
       <View style={styles.quickActions}>
         <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/bookings')}>
           <View style={[styles.quickActionIcon, { backgroundColor: '#dcfce7' }]}>
-            <Ionicons name="list" size={22} color="#22c55e" />
+            <Ionicons name="list" size={20} color="#22c55e" />
           </View>
           <Text style={styles.quickActionText}>Bookings</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/requests')}>
+          <View style={[styles.quickActionIcon, { backgroundColor: '#dbeafe' }]}>
+            <Ionicons name="briefcase" size={20} color="#2563eb" />
+          </View>
+          <Text style={styles.quickActionText}>Requests</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/bids')}>
           <View style={[styles.quickActionIcon, { backgroundColor: '#fef3c7' }]}>
-            <Ionicons name="pricetags" size={22} color="#d97706" />
+            <Ionicons name="pricetags" size={20} color="#d97706" />
           </View>
           <Text style={styles.quickActionText}>My Bids</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/notifications')}>
-          <View style={[styles.quickActionIcon, { backgroundColor: '#dbeafe' }]}>
-            <Ionicons name="notifications" size={22} color="#2563eb" />
+          <View style={[styles.quickActionIcon, { backgroundColor: '#faf5ff' }]}>
+            <Ionicons name="notifications" size={20} color="#9333ea" />
           </View>
           <Text style={styles.quickActionText}>Alerts</Text>
         </TouchableOpacity>
@@ -489,15 +495,16 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
     paddingTop: 20,
-    gap: 12,
+    gap: 10,
   },
   quickActionButton: {
-    flex: 1,
+    width: '48%',
     backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 16,
+    padding: 14,
+    borderRadius: 14,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -506,12 +513,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   quickActionText: {
     fontSize: 12,

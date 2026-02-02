@@ -33,7 +33,7 @@ export default function Header() {
     { path: '/trucks', label: t('nav.findTrucks') },
     { path: '/routes', label: t('nav.routes') },
     { path: '/track', label: t('nav.trackShipment') },
-    { path: '/help', label: 'Help' },
+    { path: '/help', label: t('nav.help', 'Help') },
   ];
 
   return (
@@ -70,13 +70,13 @@ export default function Header() {
                   onClick={() => navigate('/signin')}
                   className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                 >
-                  Sign In
+                  {t('header.signIn', 'Sign In')}
                 </button>
                 <button
                   onClick={() => navigate('/signup')}
                   className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm"
                 >
-                  Sign Up
+                  {t('header.signUp', 'Sign Up')}
                 </button>
               </>
             ) : (
@@ -110,56 +110,60 @@ export default function Header() {
                       <>
                         <button onClick={() => { navigate('/dashboard'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Admin Dashboard
+                          {t('header.adminDashboard', 'Admin Dashboard')}
                         </button>
                         <button onClick={() => { navigate('/admin/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Settings className="w-4 h-4" />
-                          Admin Settings
+                          {t('header.adminSettings', 'Admin Settings')}
                         </button>
                         <button onClick={() => { navigate('/help'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <HelpCircle className="w-4 h-4" />
-                          Help Center
+                          {t('header.helpCenter', 'Help Center')}
                         </button>
                       </>
                     ) : (
                       <>
                         <button onClick={() => { navigate('/dashboard'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           {user?.role === 'carrier' ? <Truck className="w-4 h-4" /> : <Package className="w-4 h-4" />}
-                          {user?.role === 'carrier' ? 'Carrier Dashboard' : 'Shipper Dashboard'}
+                          {user?.role === 'carrier' ? t('header.carrierDashboard', 'Carrier Dashboard') : t('header.shipperDashboard', 'Shipper Dashboard')}
                         </button>
                         <button onClick={() => { navigate('/profile'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <User className="w-4 h-4" />
-                          Profile
+                          {t('header.profile', 'Profile')}
                         </button>
                         <button onClick={() => { navigate('/bookings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          My Bookings
+                          {t('header.myBookings', 'My Bookings')}
+                        </button>
+                        <button onClick={() => { navigate('/my-requests'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          {t('header.myRequests', 'My Requests')}
                         </button>
                         {user?.role === 'carrier' && (
                           <button onClick={() => { navigate('/vehicles'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                             <Truck className="w-4 h-4" />
-                            My Vehicles
+                            {t('header.myVehicles', 'My Vehicles')}
                           </button>
                         )}
                         {user?.role === 'shipper' && (
                           <>
                             <button onClick={() => { navigate('/bids'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                               <Package className="w-4 h-4" />
-                              Manage Bids
+                              {t('header.manageBids', 'Manage Bids')}
                             </button>
                             <button onClick={() => { navigate('/post-load'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                               <Package className="w-4 h-4" />
-                              Post a Load
+                              {t('header.postALoad', 'Post a Load')}
                             </button>
                           </>
                         )}
                         <button onClick={() => { navigate('/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Settings className="w-4 h-4" />
-                          Settings
+                          {t('header.settings', 'Settings')}
                         </button>
                         <button onClick={() => { navigate('/help'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <HelpCircle className="w-4 h-4" />
-                          Help Center
+                          {t('header.helpCenter', 'Help Center')}
                         </button>
                       </>
                     )}
@@ -168,11 +172,12 @@ export default function Header() {
                         onClick={() => {
                           logout();
                           setUserMenuOpen(false);
+                          navigate('/');
                         }}
                         className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <LogOut className="w-4 h-4" />
-                        Logout
+                        {t('header.logout', 'Logout')}
                       </button>
                     </div>
                   </div>
@@ -237,12 +242,12 @@ export default function Header() {
                 <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-slate-200">
                   <Link href="/signin">
                     <a className="px-4 py-3 text-sm font-medium text-center text-slate-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-                      Sign In
+                      {t('header.signIn', 'Sign In')}
                     </a>
                   </Link>
                   <Link href="/signup">
                     <a className="px-4 py-3 text-sm font-medium text-center text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
-                      Sign Up
+                      {t('header.signUp', 'Sign Up')}
                     </a>
                   </Link>
                 </div>

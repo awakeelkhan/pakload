@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert, Image, Linking } from 'react-native';
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -80,6 +80,44 @@ export default function LoadDetailsScreen() {
   };
 
   const load = loadData?.load || loadData;
+  const media = loadData?.media;
+
+  const normalizeUrls = (value: any): string[] => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.map(String).filter(Boolean);
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+      } catch {
+        // ignore
+      }
+    }
+    return [];
+  };
+
+  const imageUrls = [
+    ...normalizeUrls(load?.images),
+    ...(Array.isArray(media?.images) ? media.images.map((m: any) => m?.mediaUrl).filter(Boolean) : []),
+  ];
+
+  const documentUrls = [
+    ...normalizeUrls(load?.documents),
+    ...(Array.isArray(media?.documents) ? media.documents.map((m: any) => m?.mediaUrl).filter(Boolean) : []),
+  ];
+
+  const openUrl = async (url: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) {
+        Alert.alert('Cannot open link', url);
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Cannot open link', url);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -263,6 +301,40 @@ export default function LoadDetailsScreen() {
                 </View>
               ))}
             </View>
+          </View>
+        )}
+
+        {(imageUrls.length > 0 || documentUrls.length > 0) && (
+          <View style={styles.detailsCard}>
+            <Text style={styles.sectionTitle}>Media</Text>
+
+            {imageUrls.length > 0 && (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={styles.mediaLabel}>Images</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
+                  {imageUrls.map((url: string, idx: number) => (
+                    <TouchableOpacity key={`${url}-${idx}`} onPress={() => openUrl(url)} style={styles.imageThumbWrapper}>
+                      <Image source={{ uri: url }} style={styles.imageThumb} />
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {documentUrls.length > 0 && (
+              <View>
+                <Text style={styles.mediaLabel}>Documents</Text>
+                <View style={{ marginTop: 10, gap: 10 }}>
+                  {documentUrls.map((url: string, idx: number) => (
+                    <TouchableOpacity key={`${url}-${idx}`} style={styles.docRow} onPress={() => openUrl(url)}>
+                      <Ionicons name="document-text" size={18} color="#2563eb" />
+                      <Text style={styles.docText} numberOfLines={1}>{url}</Text>
+                      <Ionicons name="open-outline" size={18} color="#6b7280" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
         )}
 
@@ -656,6 +728,40 @@ const styles = StyleSheet.create({
   },
   requirementText: {
     fontSize: 14,
+    color: '#374151',
+  },
+  mediaLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  imageThumbWrapper: {
+    marginRight: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+  },
+  imageThumb: {
+    width: 120,
+    height: 90,
+    backgroundColor: '#f3f4f6',
+  },
+  docRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  docText: {
+    flex: 1,
+    fontSize: 12,
     color: '#374151',
   },
   bottomBar: {

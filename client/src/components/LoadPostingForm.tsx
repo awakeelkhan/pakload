@@ -669,6 +669,25 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                 className="w-full pl-12 pr-4 py-4 text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
+            {/* Currency Conversion Display */}
+            {formData.price && parseFloat(formData.price) > 0 && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-blue-700 font-medium">Currency Conversion</span>
+                  <span className="text-xs text-blue-500">Rate: 1 USD = 278 PKR</span>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-4">
+                  <div className="bg-white p-2 rounded border border-blue-100">
+                    <p className="text-xs text-gray-500">PKR (Pakistani Rupee)</p>
+                    <p className="text-lg font-bold text-gray-900">Rs {parseFloat(formData.price).toLocaleString()}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded border border-blue-100">
+                    <p className="text-xs text-gray-500">USD (US Dollar)</p>
+                    <p className="text-lg font-bold text-green-600">${(parseFloat(formData.price) / 278).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <p className="text-xs text-gray-500 mt-2">
               This is the total amount you're willing to pay for this shipment
             </p>

@@ -1,4 +1,4 @@
-import { Package, TrendingUp, DollarSign, Clock, MapPin, Star, CheckCircle, Calendar, BarChart3, ArrowUpRight, Bell, AlertTriangle, Users, FileText, Truck, Plus, RefreshCw, Settings } from 'lucide-react';
+import { Package, TrendingUp, DollarSign, Clock, MapPin, Star, CheckCircle, Calendar, BarChart3, ArrowUpRight, Bell, AlertTriangle, Users, FileText, Truck, Plus, RefreshCw, Settings, Edit, Trash2, X, Loader2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 
@@ -20,6 +20,17 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
   });
   const [recentLoads, setRecentLoads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingLoad, setEditingLoad] = useState<any>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    origin: '',
+    destination: '',
+    cargoType: '',
+    weight: '',
+    price: '',
+    description: ''
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -65,6 +76,62 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditLoad = (load: any) => {
+    setEditingLoad(load);
+    setEditForm({
+      origin: load.load.split(' → ')[0] || '',
+      destination: load.load.split(' → ')[1] || '',
+      cargoType: load.cargo || '',
+      weight: load.weight?.replace(' kg', '').replace(',', '') || '',
+      price: load.amount?.toString() || '',
+      description: ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleDeleteLoad = async (loadId: number) => {
+    if (!confirm('Are you sure you want to delete this load?')) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/loads/${loadId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setRecentLoads(prev => prev.filter(l => l.id !== loadId));
+    } catch (error) {
+      console.error('Error deleting load:', error);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingLoad) return;
+    setEditLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      await fetch(`/api/loads/${editingLoad.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          origin: editForm.origin,
+          destination: editForm.destination,
+          cargoType: editForm.cargoType,
+          weight: parseFloat(editForm.weight),
+          price: editForm.price,
+          description: editForm.description
+        })
+      });
+      setShowEditModal(false);
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error updating load:', error);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -230,6 +297,25 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                           }`}>
                             {(load.status || 'pending').replace('_', ' ')}
                           </span>
+                          {/* Edit and Delete buttons for non-completed loads */}
+                          {load.status !== 'completed' && load.status !== 'in_transit' && (
+                            <div className="flex gap-2 mt-2 justify-end">
+                              <button
+                                onClick={() => handleEditLoad(load)}
+                                className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                title="Edit Load"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLoad(load.id)}
+                                className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                                title="Delete Load"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -351,6 +437,94 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
             </div>
           </div>
         </div>
+
+        {/* Edit Load Modal */}
+        {showEditModal && editingLoad && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Edit Load</h3>
+                <button onClick={() => setShowEditModal(false)}><X className="w-5 h-5" /></button>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Origin</label>
+                    <input
+                      type="text"
+                      value={editForm.origin}
+                      onChange={(e) => setEditForm({...editForm, origin: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Destination</label>
+                    <input
+                      type="text"
+                      value={editForm.destination}
+                      onChange={(e) => setEditForm({...editForm, destination: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Cargo Type</label>
+                    <input
+                      type="text"
+                      value={editForm.cargoType}
+                      onChange={(e) => setEditForm({...editForm, cargoType: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Weight (kg)</label>
+                    <input
+                      type="number"
+                      value={editForm.weight}
+                      onChange={(e) => setEditForm({...editForm, weight: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Price (USD)</label>
+                  <input
+                    type="number"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({...editForm, price: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={editLoading}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {editLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

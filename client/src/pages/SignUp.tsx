@@ -346,7 +346,7 @@ export default function SignUp() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !formData.agreeToTerms || !formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword}
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-5 h-5 animate-spin" />}

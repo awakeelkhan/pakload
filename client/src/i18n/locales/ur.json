@@ -57,6 +57,12 @@
       "findTrucks": "دستیاب ٹرک تلاش کریں",
       "browseLoads": "لوڈز براؤز کریں"
     },
+    "trustBadges": {
+      "freeToJoin": "مفت شامل ہوں",
+      "verifiedCarriers": "500+ تصدیق شدہ کیریئرز",
+      "realTimeTracking": "ریئل ٹائم ٹریکنگ",
+      "securePayments": "محفوظ ادائیگیاں"
+    },
     "stats": {
       "verifiedCarriers": "تصدیق شدہ کیریئرز",
       "loadsMoved": "منتقل شدہ لوڈز",

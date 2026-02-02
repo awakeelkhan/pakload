@@ -66,11 +66,11 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row items-center gap-4 justify-center pt-4">
                 <button onClick={() => navigate('/signup')} className="group inline-flex items-center px-10 h-16 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl shadow-2xl hover:shadow-green-500/50 transition-all transform hover:scale-105">
                   <Sparkles className="mr-2 w-6 h-6 group-hover:rotate-12 transition-transform" />
-                  Get Started Free
+                  {t('header.getStartedFree', 'Get Started Free')}
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button onClick={() => navigate('/signin')} className="inline-flex items-center px-10 h-16 text-lg font-semibold bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:bg-white/20 text-white rounded-xl transition-all transform hover:scale-105">
-                  Sign In
+                  {t('header.signIn', 'Sign In')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </button>
               </div>
@@ -82,7 +82,7 @@ export default function Home() {
                 </button>
                 <button onClick={() => navigate('/loads')} className="inline-flex items-center px-8 h-14 text-lg bg-white/10 border border-white/20 hover:bg-white/20 text-white rounded-lg transition-colors">
                   <Truck className="mr-2 w-5 h-5" />
-                  Find Loads
+                  {t('nav.findLoads', 'Find Loads')}
                 </button>
               </div>
             )}
@@ -117,19 +117,19 @@ export default function Home() {
             <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="font-medium">Free to Join</span>
+                <span className="font-medium">{t('home.trustBadges.freeToJoin', 'Free to Join')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="font-medium">500+ Verified Carriers</span>
+                <span className="font-medium">{t('home.trustBadges.verifiedCarriers', '500+ Verified Carriers')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="font-medium">Real-time Tracking</span>
+                <span className="font-medium">{t('home.trustBadges.realTimeTracking', 'Real-time Tracking')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="font-medium">Secure Payments</span>
+                <span className="font-medium">{t('home.trustBadges.securePayments', 'Secure Payments')}</span>
               </div>
             </div>
           </div>

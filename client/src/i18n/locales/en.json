@@ -78,6 +78,12 @@
       "findTrucks": "Find Available Trucks",
       "browseLoads": "Browse Loads"
     },
+    "trustBadges": {
+      "freeToJoin": "Free to Join",
+      "verifiedCarriers": "500+ Verified Carriers",
+      "realTimeTracking": "Real-time Tracking",
+      "securePayments": "Secure Payments"
+    },
     "stats": {
       "verifiedCarriers": "Verified Carriers",
       "loadsMoved": "Loads Moved",

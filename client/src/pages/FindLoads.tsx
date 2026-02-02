@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw, Image, FileText, File } from 'lucide-react';
+import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw, Image, FileText, File, Edit, Trash2, MoreVertical } from 'lucide-react';
 import BidModal from '../components/BidModal';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Load {
   id: number;
@@ -22,6 +23,7 @@ interface Load {
 }
 
 export default function FindLoads() {
+  const { user } = useAuth();
   const [loads, setLoads] = useState<Load[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
@@ -30,6 +32,9 @@ export default function FindLoads() {
   const [expandedLoad, setExpandedLoad] = useState<number | null>(null);
   const [showBidModal, setShowBidModal] = useState(false);
   const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingLoad, setEditingLoad] = useState<any>(null);
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   
   const [filters, setFilters] = useState({
     originCity: '',
@@ -73,6 +78,29 @@ export default function FindLoads() {
 
   const handleSearch = () => {
     fetchLoads();
+  };
+
+  const handleEditLoad = (load: any) => {
+    setEditingLoad(load);
+    setShowEditModal(true);
+    setMenuOpenId(null);
+  };
+
+  const handleDeleteLoad = async (loadId: number) => {
+    if (!confirm('Are you sure you want to delete this load?')) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/loads/${loadId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        fetchLoads();
+      }
+    } catch (error) {
+      console.error('Error deleting load:', error);
+    }
+    setMenuOpenId(null);
   };
 
   // Convert database loads to display format
@@ -1011,6 +1039,36 @@ export default function FindLoads() {
                           <Bookmark className="w-5 h-5 text-slate-400" />
                         )}
                       </button>
+                      {/* Three-dot menu for Edit/Delete */}
+                      {user?.role === 'shipper' && (
+                        <div className="relative">
+                          <button
+                            onClick={() => setMenuOpenId(menuOpenId === load.id ? null : load.id)}
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="More options"
+                          >
+                            <MoreVertical className="w-5 h-5 text-slate-400" />
+                          </button>
+                          {menuOpenId === load.id && (
+                            <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+                              <button
+                                onClick={() => handleEditLoad(load)}
+                                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit Load
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLoad(load.id)}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Load
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 

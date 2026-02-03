@@ -203,7 +203,7 @@ export default function ProfileScreen() {
       <View style={styles.menuSection}>
         <Text style={styles.menuSectionTitle}>Account</Text>
         <View style={styles.menuCard}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Edit Profile', 'Profile editing will be available in the next update. For now, please use the web version at pakload.com')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
               <Ionicons name="person-outline" size={20} color="#059669" />
             </View>
@@ -213,7 +213,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('My Vehicles', 'Vehicle management will be available in the next update. For now, please use the web version at pakload.com')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
               <Ionicons name="car-outline" size={20} color="#2563eb" />
             </View>
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => Alert.alert('Documents', 'Document management will be available in the next update. For now, please use the web version at pakload.com')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#fefce8' }]}>
               <Ionicons name="document-text-outline" size={20} color="#d97706" />
             </View>
@@ -249,7 +249,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Language', 'Language selection will be available in the next update.', [{ text: 'OK' }])}>
             <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
               <Ionicons name="language-outline" size={20} color="#059669" />
             </View>
@@ -259,7 +259,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => Alert.alert('Help & Support', 'For assistance, please contact:\n\nEmail: support@pakload.com\nPhone: +92 51 8897668\n\nOur team is available 24/7.', [{ text: 'OK' }])}>
             <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
               <Ionicons name="help-circle-outline" size={20} color="#2563eb" />
             </View>

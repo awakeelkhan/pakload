@@ -1,7 +1,9 @@
-import { Link } from 'wouter';
-import { FileText, Scale, DollarSign, Shield, Users } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { FileText } from 'lucide-react';
 
 export default function Terms() {
+  const [, navigate] = useLocation();
+  
   return (
     <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -141,11 +143,12 @@ export default function Terms() {
 
         {/* Back Link */}
         <div className="mt-8 text-center">
-          <Link href="/">
-            <a className="text-blue-600 hover:text-blue-700 font-medium">
-              ← Back to Home
-            </a>
-          </Link>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            ← Back to Home
+          </button>
         </div>
       </div>
     </div>

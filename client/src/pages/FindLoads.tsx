@@ -1043,29 +1043,38 @@ export default function FindLoads() {
                       {user?.role === 'shipper' && (
                         <div className="relative">
                           <button
-                            onClick={() => setMenuOpenId(menuOpenId === load.id ? null : load.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuOpenId(menuOpenId === load.id ? null : load.id);
+                            }}
                             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                             title="More options"
                           >
                             <MoreVertical className="w-5 h-5 text-slate-400" />
                           </button>
                           {menuOpenId === load.id && (
-                            <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
-                              <button
-                                onClick={() => handleEditLoad(load)}
-                                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                              >
-                                <Edit className="w-4 h-4" />
-                                Edit Load
-                              </button>
-                              <button
-                                onClick={() => handleDeleteLoad(load.id)}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete Load
-                              </button>
-                            </div>
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setMenuOpenId(null)}
+                              />
+                              <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+                                <button
+                                  onClick={() => handleEditLoad(load)}
+                                  className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                  Edit Load
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteLoad(load.id)}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete Load
+                                </button>
+                              </div>
+                            </>
                           )}
                         </div>
                       )}

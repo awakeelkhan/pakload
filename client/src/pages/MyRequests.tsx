@@ -349,6 +349,93 @@ export default function MyRequests() {
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Action Buttons */}
+                      {(request.status === 'pending' || request.status === 'in_progress') && (
+                        <div className="flex gap-3 mt-4 pt-4 border-t border-slate-200">
+                          {request.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const token = localStorage.getItem('access_token');
+                                    if (request.type === 'booking') {
+                                      await fetch(`/api/bookings/${request.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ status: 'in_progress' })
+                                      });
+                                    }
+                                    setRequests(prev => prev.map(r => 
+                                      r.id === request.id ? { ...r, status: 'in_progress' as const } : r
+                                    ));
+                                  } catch (e) {
+                                    console.error('Error updating status:', e);
+                                  }
+                                }}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                              >
+                                Confirm Request
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (!confirm('Are you sure you want to cancel this request?')) return;
+                                  try {
+                                    const token = localStorage.getItem('access_token');
+                                    if (request.type === 'booking') {
+                                      await fetch(`/api/bookings/${request.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify({ status: 'rejected' })
+                                      });
+                                    }
+                                    setRequests(prev => prev.map(r => 
+                                      r.id === request.id ? { ...r, status: 'rejected' as const } : r
+                                    ));
+                                  } catch (e) {
+                                    console.error('Error canceling request:', e);
+                                  }
+                                }}
+                                className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium"
+                              >
+                                Cancel Request
+                              </button>
+                            </>
+                          )}
+                          {request.status === 'in_progress' && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const token = localStorage.getItem('access_token');
+                                  if (request.type === 'booking') {
+                                    await fetch(`/api/bookings/${request.id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                      body: JSON.stringify({ status: 'completed' })
+                                    });
+                                  }
+                                  setRequests(prev => prev.map(r => 
+                                    r.id === request.id ? { ...r, status: 'completed' as const } : r
+                                  ));
+                                } catch (e) {
+                                  console.error('Error completing request:', e);
+                                }
+                              }}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                            >
+                              Mark as Completed
+                            </button>
+                          )}
+                          {request.type === 'booking' && (
+                            <button
+                              onClick={() => navigate(`/track?id=${request.id}`)}
+                              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium"
+                            >
+                              Track Shipment
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

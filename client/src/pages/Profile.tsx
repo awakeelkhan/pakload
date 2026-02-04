@@ -79,7 +79,7 @@ export default function Profile() {
     
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:5000/api/users/change-password', {
+      const response = await fetch('/api/users/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +236,10 @@ export default function Profile() {
                 <p className="font-medium text-slate-900">Change Password</p>
                 <p className="text-sm text-slate-600 mt-1">Update your password regularly</p>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+              <button 
+                onClick={() => addToast('info', 'Two-Factor Authentication will be available soon.')}
+                className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+              >
                 <p className="font-medium text-slate-900">Two-Factor Authentication</p>
                 <p className="text-sm text-slate-600 mt-1">Add an extra layer of security</p>
               </button>
@@ -246,11 +249,17 @@ export default function Profile() {
           <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Preferences</h2>
             <div className="space-y-3">
-              <button className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+              <button 
+                onClick={() => navigate('/settings')}
+                className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+              >
                 <p className="font-medium text-slate-900">Notification Settings</p>
                 <p className="text-sm text-slate-600 mt-1">Manage email and SMS alerts</p>
               </button>
-              <button className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+              <button 
+                onClick={() => navigate('/settings')}
+                className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+              >
                 <p className="font-medium text-slate-900">Language & Region</p>
                 <p className="text-sm text-slate-600 mt-1">English (Pakistan)</p>
               </button>

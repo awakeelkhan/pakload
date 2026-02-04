@@ -35,6 +35,11 @@ export class UserRepository {
     return user;
   }
 
+  async findByPhone(phone: string) {
+    const [user] = await db.select().from(users).where(eq(users.phone, phone));
+    return user;
+  }
+
   async create(userData: NewUser) {
     const [user] = await db.insert(users).values(userData).returning();
     return user;

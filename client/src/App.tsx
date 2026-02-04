@@ -43,6 +43,7 @@ import KYC from './pages/KYC';
 import Analytics from './pages/Analytics';
 import MarketRequests from './pages/MarketRequests';
 import MyRequests from './pages/MyRequests';
+import ForgotPassword from './pages/ForgotPassword';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,6 +93,7 @@ function App() {
               <Route path="/track" component={TrackShipment} />
               <Route path="/signin" component={SignIn} />
               <Route path="/signup" component={SignUp} />
+              <Route path="/forgot-password" component={ForgotPassword} />
               <Route path="/oauth/callback" component={OAuthCallback} />
               <Route path="/select-role" component={SelectRole} />
               <Route path="/privacy" component={PrivacyPolicy} />

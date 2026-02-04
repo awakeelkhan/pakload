@@ -164,6 +164,39 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Forgot password endpoint
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email, phone } = req.body;
+      
+      let user = null;
+      if (email) {
+        user = await userRepo.findByEmail(email);
+      } else if (phone) {
+        user = await userRepo.findByPhone(phone);
+      }
+      
+      if (!user) {
+        // Don't reveal if user exists or not for security
+        return res.json({ 
+          message: 'If an account exists with this information, you will receive reset instructions.' 
+        });
+      }
+      
+      // In production, send email/SMS with reset link
+      // For now, just return success
+      console.log(`Password reset requested for user: ${user.email || user.phone}`);
+      
+      res.json({ 
+        message: 'If an account exists with this information, you will receive reset instructions.',
+        success: true
+      });
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ error: 'Failed to process request' });
+    }
+  });
+
   // Update user role (for OAuth signup flow)
   app.post('/api/v1/auth/update-role', requireAuth, async (req, res) => {
     try {

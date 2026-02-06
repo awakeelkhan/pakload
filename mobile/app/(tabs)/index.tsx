@@ -198,17 +198,39 @@ export default function HomeScreen() {
 
           <TouchableOpacity 
             style={styles.actionCard}
-            onPress={() => router.push('/profile')}
+            onPress={() => router.push('/trucks')}
             activeOpacity={0.8}
           >
             <LinearGradient
               colors={['#f3e8ff', '#e9d5ff']}
               style={styles.actionIconBg}
             >
-              <Ionicons name="person" size={28} color="#9333ea" />
+              <Ionicons name="car" size={28} color="#9333ea" />
             </LinearGradient>
-            <Text style={styles.actionTitle}>Profile</Text>
-            <Text style={styles.actionSubtitle}>Settings</Text>
+            <Text style={styles.actionTitle}>Find Trucks</Text>
+            <Text style={styles.actionSubtitle}>Available carriers</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Secondary Actions */}
+        <View style={styles.secondaryActions}>
+          <TouchableOpacity 
+            style={styles.secondaryActionCard}
+            onPress={() => router.push('/track')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="location" size={24} color="#22c55e" />
+            <Text style={styles.secondaryActionText}>Track Shipment</Text>
+            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.secondaryActionCard}
+            onPress={() => router.push('/post')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add-circle" size={24} color="#22c55e" />
+            <Text style={styles.secondaryActionText}>Post a Load</Text>
+            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </TouchableOpacity>
         </View>
 
@@ -722,5 +744,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#22c55e',
+  },
+  secondaryActions: {
+    marginTop: 16,
+    gap: 12,
+  },
+  secondaryActionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  secondaryActionText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginLeft: 12,
   },
 });

@@ -357,5 +357,20 @@
     "timeZone": "ٹائم زون",
     "paymentMethods": "ادائیگی کے طریقے",
     "addPaymentMethod": "ادائیگی کا طریقہ شامل کریں"
+  },
+  "validation": {
+    "emailRequired": "ای میل ضروری ہے",
+    "emailInvalid": "براہ کرم درست ای میل ایڈریس درج کریں",
+    "passwordRequired": "پاس ورڈ ضروری ہے",
+    "passwordMinLength": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے",
+    "passwordMismatch": "پاس ورڈ مماثل نہیں ہیں",
+    "phoneRequired": "فون نمبر ضروری ہے",
+    "phoneInvalid": "براہ کرم درست فون نمبر درج کریں",
+    "firstNameRequired": "پہلا نام ضروری ہے",
+    "lastNameRequired": "آخری نام ضروری ہے",
+    "termsRequired": "آپ کو شرائط و ضوابط سے متفق ہونا ضروری ہے",
+    "incorrectPassword": "غلط پاس ورڈ",
+    "userNotFound": "صارف نہیں ملا",
+    "loginFailed": "لاگ ان ناکام۔ براہ کرم دوبارہ کوشش کریں"
   }
 }

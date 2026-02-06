@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Search, Truck, ShieldCheck, MapPin, Star, Phone, Mail, Calendar, DollarSign, Package, Navigation, Filter, X, Bookmark, BookmarkCheck, Award, Clock, TrendingUp, ChevronDown, ChevronUp, Eye, Building } from 'lucide-react';
 import QuoteRequestModal from '../components/QuoteRequestModal';
+import { useAuth } from '../contexts/AuthContext';
 
 interface TruckData {
   id: number;
@@ -30,6 +32,8 @@ interface TruckData {
 }
 
 export default function FindTrucks() {
+  const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [trucks, setTrucks] = useState<TruckData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
@@ -38,6 +42,15 @@ export default function FindTrucks() {
   const [expandedTruck, setExpandedTruck] = useState<number | null>(null);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState<TruckData | null>(null);
+
+  const handleRequestQuote = (truck: TruckData) => {
+    if (!isAuthenticated) {
+      navigate('/signin?redirect=/trucks');
+      return;
+    }
+    setSelectedTruck(truck);
+    setShowQuoteModal(true);
+  };
   
   const [filters, setFilters] = useState({
     location: '',

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw, Image, FileText, File, Edit, Trash2, MoreVertical } from 'lucide-react';
 import BidModal from '../components/BidModal';
 import { useAuth } from '../contexts/AuthContext';

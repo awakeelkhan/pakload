@@ -249,13 +249,13 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Language', 'Language selection will be available in the next update.', [{ text: 'OK' }])}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
-              <Ionicons name="language-outline" size={20} color="#059669" />
+              <Ionicons name="settings-outline" size={20} color="#059669" />
             </View>
             <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Language</Text>
-              <Text style={styles.menuSubtext}>English</Text>
+              <Text style={styles.menuText}>Settings</Text>
+              <Text style={styles.menuSubtext}>App preferences & security</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>

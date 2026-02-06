@@ -12,16 +12,34 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// City coordinates for CPEC routes
+// City coordinates for CPEC routes - expanded list
 const CITY_COORDS: Record<string, [number, number]> = {
+  // China
   'Kashgar, China': [39.4547, 75.9797],
   'Urumqi, China': [43.8256, 87.6168],
+  'Tashkurgan, China': [37.7833, 75.2333],
   'Khunjerab Pass': [36.8500, 75.4167],
+  // Pakistan - Major Cities
   'Islamabad, Pakistan': [33.6844, 73.0479],
+  'Rawalpindi, Pakistan': [33.5651, 73.0169],
   'Lahore, Pakistan': [31.5497, 74.3436],
   'Karachi, Pakistan': [24.8607, 67.0011],
   'Peshawar, Pakistan': [34.0151, 71.5249],
   'Gwadar, Pakistan': [25.1264, 62.3225],
+  'Quetta, Pakistan': [30.1798, 66.9750],
+  'Faisalabad, Pakistan': [31.4504, 73.1350],
+  'Multan, Pakistan': [30.1575, 71.5249],
+  'Sialkot, Pakistan': [32.4945, 74.5229],
+  'Hyderabad, Pakistan': [25.3960, 68.3578],
+  'Sukkur, Pakistan': [27.7052, 68.8574],
+  // CPEC Corridor Cities
+  'Gilgit, Pakistan': [35.9208, 74.3144],
+  'Skardu, Pakistan': [35.2971, 75.6333],
+  'Hunza, Pakistan': [36.3167, 74.6500],
+  'Abbottabad, Pakistan': [34.1688, 73.2215],
+  'Mansehra, Pakistan': [34.3300, 73.2000],
+  'Dera Ismail Khan, Pakistan': [31.8320, 70.9017],
+  'Zhob, Pakistan': [31.3417, 69.4486],
 };
 
 interface RouteData {

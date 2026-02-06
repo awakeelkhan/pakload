@@ -272,7 +272,7 @@ export default function LoginScreen() {
               />
             </View>
 
-            <TouchableOpacity onPress={() => Alert.alert('Reset Password', 'Password reset functionality will send a reset link to your email. Please contact support@pakload.com for assistance.')}>
+            <TouchableOpacity onPress={() => router.push('/auth/forgot-password')}>
               <Text style={styles.forgotPassword}>Forgot password?</Text>
             </TouchableOpacity>
 

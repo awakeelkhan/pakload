@@ -1,14 +1,22 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { LoadPostingForm } from '../components/LoadPostingForm';
 import { MarketRequestForm } from '../components/MarketRequestForm';
 import { Package, ArrowLeft, Truck, Users, ShoppingBag } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function PostLoad() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [mode, setMode] = useState<'select' | 'post-load' | 'market-request'>('select');
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/signin?redirect=/post-load');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Mode selection screen
   if (mode === 'select') {

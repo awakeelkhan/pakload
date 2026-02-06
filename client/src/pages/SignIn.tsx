@@ -64,7 +64,14 @@ export default function SignIn() {
         setTimeout(() => setLocation('/dashboard'), 1000);
       }
     } catch (error: any) {
-      setErrors({ submit: error.message || 'Login failed. Please try again.' });
+      const errorMessage = error.message || '';
+      if (errorMessage.toLowerCase().includes('password') || errorMessage.toLowerCase().includes('credentials')) {
+        setErrors({ submit: t('validation.incorrectPassword', 'Incorrect password') });
+      } else if (errorMessage.toLowerCase().includes('not found') || errorMessage.toLowerCase().includes('no user')) {
+        setErrors({ submit: t('validation.userNotFound', 'User not found') });
+      } else {
+        setErrors({ submit: t('validation.loginFailed', 'Login failed. Please try again') });
+      }
     } finally {
       setLoading(false);
     }

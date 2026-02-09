@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
-import { User, Mail, Phone, Building, Star, Calendar, MapPin, Edit2, Shield, Award, Home, X, Save, Lock } from 'lucide-react';
+import { User, Mail, Phone, Building, Star, Calendar, MapPin, Edit2, Shield, Award, Home, X, Save, Lock, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 
 export default function Profile() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, loading: authLoading } = useAuth();
   const { addToast } = useToast();
   const [, navigate] = useLocation();
   const [showEditModal, setShowEditModal] = useState(false);
@@ -24,6 +24,23 @@ export default function Profile() {
     newPassword: '',
     confirmPassword: '',
   });
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/signin?redirect=/profile');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto mb-4" />
+          <p className="text-slate-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;

@@ -126,6 +126,36 @@ export default function MyBids() {
     }
   };
 
+  const handleWithdrawBid = async (bidId: number) => {
+    if (!confirm('Are you sure you want to withdraw this bid?')) return;
+    
+    setProcessingBid(bidId);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/quotes/${bidId}/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ reason: 'Carrier withdrew the bid' }),
+      });
+
+      if (response.ok) {
+        addToast('success', 'Bid withdrawn successfully');
+        fetchBids();
+      } else {
+        const error = await response.json();
+        addToast('error', error.error || 'Failed to withdraw bid');
+      }
+    } catch (error) {
+      console.error('Error withdrawing bid:', error);
+      addToast('error', 'Failed to withdraw bid');
+    } finally {
+      setProcessingBid(null);
+    }
+  };
+
   const filteredBids = bids.filter(bid => {
     if (filter === 'all') return true;
     return bid.status === filter;

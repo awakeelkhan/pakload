@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Package, MapPin, Calendar, DollarSign, Truck, Clock, CheckCircle, AlertCircle, ArrowLeft, Home, RefreshCw } from 'lucide-react';
+import { Package, MapPin, Calendar, DollarSign, Truck, Clock, CheckCircle, AlertCircle, ArrowLeft, Home, RefreshCw, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 
 interface Booking {
@@ -20,13 +20,21 @@ interface Booking {
 }
 
 export default function MyBookings() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBookings();
+    if (!authLoading && !user) {
+      navigate('/signin?redirect=/bookings');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchBookings();
+    }
   }, [user]);
 
   const fetchBookings = async () => {

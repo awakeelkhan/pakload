@@ -997,11 +997,29 @@ export function registerRoutes(app: Express) {
       
       const updatedBooking = await bookingRepo.update(bookingId, updateData);
       
+      // Get load details for notifications
+      const loadData = await loadRepo.findById(existingBooking.booking.loadId);
+      const trackingNumber = loadData?.load?.trackingNumber || existingBooking.booking.trackingNumber || `PL-${bookingId}`;
+      const shipperId = loadData?.load?.shipperId;
+      
       // Also update load status if booking status changes
       if (status === 'in_transit') {
         await loadRepo.update(existingBooking.booking.loadId, { status: 'in_transit' });
+        // Notify shipper that shipment is picked up
+        if (shipperId) {
+          await notificationService.notifyShipmentPickup(shipperId, bookingId, trackingNumber);
+        }
       } else if (status === 'completed') {
         await loadRepo.update(existingBooking.booking.loadId, { status: 'delivered' });
+        // Notify shipper that shipment is delivered
+        if (shipperId) {
+          await notificationService.notifyShipmentDelivered(shipperId, bookingId, trackingNumber);
+        }
+      } else if (status === 'confirmed') {
+        // Notify shipper that carrier confirmed the booking
+        if (shipperId) {
+          await notificationService.notifyLoadAssigned(shipperId, existingBooking.booking.loadId, bookingId, trackingNumber);
+        }
       }
       
       res.json({ message: 'Booking status updated', booking: updatedBooking });
@@ -1132,6 +1150,51 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Withdraw bid (carrier withdraws their own bid)
+  app.post('/api/quotes/:id/withdraw', optionalAuth, async (req, res) => {
+    try {
+      const quoteId = parseInt(req.params.id);
+      const { reason } = req.body;
+      
+      const existingBooking = await bookingRepo.findById(quoteId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Bid not found' });
+      }
+      
+      // Only the carrier who placed the bid can withdraw it
+      if (req.user && existingBooking.booking.carrierId !== req.user.id) {
+        return res.status(403).json({ error: 'You can only withdraw your own bids' });
+      }
+      
+      if (existingBooking.booking.status !== 'pending') {
+        return res.status(400).json({ error: 'Can only withdraw pending bids' });
+      }
+      
+      const withdrawnBooking = await bookingRepo.update(quoteId, { 
+        status: 'cancelled',
+        notes: reason ? `Withdrawn by carrier: ${reason}` : 'Withdrawn by carrier',
+      });
+      
+      // Notify shipper that bid was withdrawn
+      const loadData = await loadRepo.findById(existingBooking.booking.loadId);
+      if (loadData?.load?.shipperId) {
+        const trackingNumber = loadData.load.trackingNumber || `LP-${existingBooking.booking.loadId}`;
+        await notificationService.notifySystemMessage(
+          loadData.load.shipperId,
+          'Bid Withdrawn',
+          `A carrier has withdrawn their bid on load ${trackingNumber}.`,
+          '/loads'
+        );
+      }
+      
+      res.json({ message: 'Bid withdrawn successfully', booking: withdrawnBooking });
+    } catch (error) {
+      console.error('Error withdrawing bid:', error);
+      res.status(500).json({ error: 'Failed to withdraw bid' });
+    }
+  });
+
   // Get user's own loads
   app.get('/api/users/:userId/loads', requireAuth, async (req, res) => {
     try {
@@ -1177,13 +1240,13 @@ export function registerRoutes(app: Express) {
       const userStats = await userRepo.getStats();
       
       res.json({
-        activeLoads: loadStats.available || 0,
-        availableTrucks: vehicleStats.available || 0,
-        inTransit: bookingStats.in_transit || 0,
+        activeLoads: loadStats.posted || 0,
+        availableTrucks: vehicleStats.active || 0,
+        inTransit: bookingStats.inTransit || 0,
         completed: bookingStats.completed || 0,
-        verifiedCarriers: userStats.verified_carriers || 0,
+        verifiedCarriers: userStats.carriers || 0,
         totalLoads: loadStats.total || 0,
-        urgentLoads: loadStats.urgent || 0,
+        urgentLoads: loadStats.pending || 0,
         totalUsers: userStats.total || 0,
         totalVehicles: vehicleStats.total || 0,
         totalBookings: bookingStats.total || 0,

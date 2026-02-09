@@ -1,11 +1,11 @@
 import { useAuth } from '../contexts/AuthContext';
-import { Truck, MapPin, Calendar, CheckCircle, Plus, Edit2, Trash2, X, Home } from 'lucide-react';
+import { Truck, MapPin, Calendar, CheckCircle, Plus, Edit2, Trash2, X, Home, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function MyVehicles() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [showModal, setShowModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<any>(null);
@@ -26,8 +26,16 @@ export default function MyVehicles() {
   });
 
   useEffect(() => {
-    fetchVehicles();
-  }, []);
+    if (!authLoading && !user) {
+      navigate('/signin?redirect=/vehicles');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchVehicles();
+    }
+  }, [user]);
 
   const fetchVehicles = async () => {
     try {
@@ -42,6 +50,17 @@ export default function MyVehicles() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto mb-4" />
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;

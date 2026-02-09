@@ -27,12 +27,26 @@ export default function SignUp() {
 
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    
+    // Email validation - stricter format check
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address (e.g., user@example.com)';
     }
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    
+    // Phone validation - Pakistani format with length check
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (phoneDigits.length < 10) {
+      newErrors.phone = 'Phone number is too short. Pakistani numbers should have 10-11 digits';
+    } else if (phoneDigits.length > 13) {
+      newErrors.phone = 'Phone number is too long. Please enter a valid phone number';
+    } else if (!/^(\+92|92|0)?3[0-9]{9}$/.test(phoneDigits) && !/^(\+92|92)?[0-9]{10,11}$/.test(formData.phone.replace(/[\s-]/g, ''))) {
+      newErrors.phone = 'Please enter a valid Pakistani phone number (e.g., 03001234567 or +923001234567)';
+    }
+    
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {

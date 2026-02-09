@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { 
   Package, MapPin, Calendar, DollarSign, Send, AlertCircle, Check, Loader2,
-  ChevronRight, ChevronLeft, User, Phone, FileText, Image, Upload, X, File, Camera
+  ChevronRight, ChevronLeft, User, Phone, FileText, Image, Upload, X, File, Camera, LogIn
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'wouter';
 
 interface MarketRequestFormProps {
   onSuccess?: (request: any) => void;
@@ -34,11 +36,38 @@ const GOODS_TYPES = [
 ];
 
 export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProps) {
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [createdRequest, setCreatedRequest] = useState<any>(null);
   const [step, setStep] = useState(1);
+
+  // Block guest users from submitting requests
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center max-w-md mx-auto">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <LogIn className="w-8 h-8 text-amber-600" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">Authentication Required</h3>
+        <p className="text-slate-600 mb-6">You need to sign in or create an account to submit a request.</p>
+        <div className="flex gap-3 justify-center">
+          {onCancel && (
+            <button onClick={onCancel} className="px-6 py-2 border border-slate-300 rounded-lg hover:bg-slate-50">
+              Cancel
+            </button>
+          )}
+          <Link href="/signin" className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Sign In
+          </Link>
+        </div>
+        <p className="mt-4 text-sm text-slate-500">
+          Don't have an account? <Link href="/signup" className="text-green-600 hover:underline">Sign Up</Link>
+        </p>
+      </div>
+    );
+  }
   
   const imageInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);

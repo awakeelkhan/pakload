@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'wouter';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useSearch } from 'wouter';
 import { useTranslation } from 'react-i18next';
 import { Mail, Lock, Phone, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,7 +7,21 @@ import { useAuth } from '../contexts/AuthContext';
 export default function SignIn() {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
-  const { login, loginWithPhone, requestOtp } = useAuth();
+  const searchString = useSearch();
+  const { login, loginWithPhone, requestOtp, isAuthenticated, loading: authLoading } = useAuth();
+  
+  // Get redirect URL from query params
+  const getRedirectUrl = () => {
+    const params = new URLSearchParams(searchString);
+    return params.get('redirect') || '/dashboard';
+  };
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      setLocation(getRedirectUrl());
+    }
+  }, [isAuthenticated, authLoading, setLocation]);
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [formData, setFormData] = useState({
     email: '',
@@ -54,14 +68,16 @@ export default function SignIn() {
     setErrors({});
 
     try {
+      const redirectUrl = getRedirectUrl();
       if (loginMethod === 'email') {
         await login(formData.email, formData.password);
         setSuccessMessage('Login successful! Redirecting...');
-        setTimeout(() => setLocation('/dashboard'), 1000);
+        // Use immediate redirect instead of setTimeout
+        setLocation(redirectUrl);
       } else {
         await loginWithPhone(formData.phone, formData.otp);
         setSuccessMessage('Login successful! Redirecting...');
-        setTimeout(() => setLocation('/dashboard'), 1000);
+        setLocation(redirectUrl);
       }
     } catch (error: any) {
       const errorMessage = error.message || '';

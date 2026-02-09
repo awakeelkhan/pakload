@@ -4,6 +4,24 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
+// Get all market requests (public list for carriers to see available requests)
+router.get('/', async (req, res) => {
+  try {
+    const { status, limit, offset } = req.query;
+
+    const requests = await marketRequestRepo.findAll({
+      status: status as string || 'open',
+      limit: limit ? parseInt(limit as string) : 50,
+      offset: offset ? parseInt(offset as string) : 0,
+    });
+
+    res.json({ requests });
+  } catch (error) {
+    console.error('Get market requests error:', error);
+    res.status(500).json({ error: 'Failed to get market requests' });
+  }
+});
+
 // Create a new market request (shipper/individual)
 router.post('/', requireAuth, async (req, res) => {
   try {

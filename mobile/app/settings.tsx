@@ -13,11 +13,7 @@ export default function SettingsScreen() {
   const [pushNotifications, setPushNotifications] = useState(true);
 
   const handleChangePassword = () => {
-    Alert.alert(
-      'Change Password',
-      'Password change will be available in the next update. For now, please use the web version at pakload.com',
-      [{ text: 'OK' }]
-    );
+    router.push('/change-password');
   };
 
   const handleTwoFactor = () => {

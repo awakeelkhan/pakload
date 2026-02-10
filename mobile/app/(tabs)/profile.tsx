@@ -203,7 +203,7 @@ export default function ProfileScreen() {
       <View style={styles.menuSection}>
         <Text style={styles.menuSectionTitle}>Account</Text>
         <View style={styles.menuCard}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Edit Profile', 'Profile editing will be available in the next update. For now, please use the web version at pakload.com')}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/edit-profile')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
               <Ionicons name="person-outline" size={20} color="#059669" />
             </View>
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => Alert.alert('Documents', 'Document management will be available in the next update. For now, please use the web version at pakload.com')}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/documents')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#fefce8' }]}>
               <Ionicons name="document-text-outline" size={20} color="#d97706" />
             </View>

@@ -25,6 +25,7 @@ export default function RegisterScreen() {
     role: 'carrier' as 'shipper' | 'carrier',
     companyName: '',
   });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,12 +45,22 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'Please enter your phone number');
       return;
     }
+    // Validate phone number length (should be 10-15 digits)
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      Alert.alert('Error', 'Please enter a valid phone number (10-15 digits)');
+      return;
+    }
     if (!formData.password || formData.password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+    if (!acceptedTerms) {
+      Alert.alert('Error', 'Please accept the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -107,11 +118,11 @@ export default function RegisterScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.socialButton}
-            onPress={() => handleSocialRegister('facebook')}
+            style={[styles.socialButton, styles.socialButtonDisabled]}
+            onPress={() => Alert.alert('Coming Soon', 'Facebook registration will be available in a future update.')}
           >
-            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-            <Text style={styles.socialButtonText}>Continue with Facebook</Text>
+            <Ionicons name="logo-facebook" size={24} color="#9ca3af" />
+            <Text style={[styles.socialButtonText, { color: '#9ca3af' }]}>Continue with Facebook</Text>
           </TouchableOpacity>
         </View>
 
@@ -226,10 +237,26 @@ export default function RegisterScreen() {
             />
           </View>
 
+          {/* Terms of Service Checkbox */}
           <TouchableOpacity 
-            style={[styles.registerButton, isLoading && styles.registerButtonDisabled]} 
+            style={styles.termsContainer}
+            onPress={() => setAcceptedTerms(!acceptedTerms)}
+          >
+            <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+              {acceptedTerms && <Ionicons name="checkmark" size={16} color="#fff" />}
+            </View>
+            <Text style={styles.termsText}>
+              I agree to the{' '}
+              <Text style={styles.termsLink} onPress={() => router.push('/terms')}>Terms of Service</Text>
+              {' '}and{' '}
+              <Text style={styles.termsLink} onPress={() => router.push('/privacy')}>Privacy Policy</Text>
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.registerButton, (isLoading || !acceptedTerms) && styles.registerButtonDisabled]} 
             onPress={handleRegister}
-            disabled={isLoading}
+            disabled={isLoading || !acceptedTerms}
           >
             {isLoading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -402,5 +429,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#22c55e',
+  },
+  socialButtonDisabled: {
+    opacity: 0.6,
+    backgroundColor: '#f3f4f6',
+  },
+  termsContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginTop: 8,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#22c55e',
+    borderColor: '#22c55e',
+  },
+  termsText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+  termsLink: {
+    color: '#22c55e',
+    fontWeight: '600',
   },
 });

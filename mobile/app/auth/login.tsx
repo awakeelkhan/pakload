@@ -211,11 +211,11 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin('facebook')}
+            style={[styles.socialButton, styles.socialButtonDisabled]}
+            onPress={() => Alert.alert('Coming Soon', 'Facebook login will be available in a future update.')}
           >
-            <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-            <Text style={styles.socialButtonText}>Continue with Facebook</Text>
+            <Ionicons name="logo-facebook" size={24} color="#9ca3af" />
+            <Text style={[styles.socialButtonText, { color: '#9ca3af' }]}>Continue with Facebook</Text>
           </TouchableOpacity>
         </View>
 
@@ -556,5 +556,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 24,
     lineHeight: 18,
+  },
+  socialButtonDisabled: {
+    opacity: 0.6,
+    backgroundColor: '#f3f4f6',
   },
 });

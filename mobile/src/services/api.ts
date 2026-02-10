@@ -181,6 +181,21 @@ export const authAPI = {
     const response = await api.post('/api/v1/auth/google', { accessToken: googleAccessToken });
     return response.data;
   },
+  
+  updateProfile: async (data: { fullName?: string; phone?: string; companyName?: string; address?: string }) => {
+    const response = await api.patch('/api/v1/auth/profile', data);
+    return response.data;
+  },
+  
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const response = await api.post('/api/v1/auth/change-password', { currentPassword, newPassword });
+    return response.data;
+  },
+  
+  requestPasswordReset: async (email: string) => {
+    const response = await api.post('/api/v1/auth/forgot-password', { email });
+    return response.data;
+  },
 };
 
 // Loads API

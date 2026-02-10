@@ -94,6 +94,12 @@ export default function HomeScreen() {
             <Text style={styles.headerSubtitle}>Your trusted logistics partner</Text>
           </View>
           <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.langButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Ionicons name="language-outline" size={22} color="#14532d" />
+            </TouchableOpacity>
             {isAuthenticated && (
               <TouchableOpacity 
                 style={styles.notifButton}
@@ -407,6 +413,16 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     gap: 12,
+  },
+  langButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f0fdf4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   notifButton: {
     width: 44,

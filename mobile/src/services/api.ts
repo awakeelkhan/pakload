@@ -288,31 +288,77 @@ export const quotesAPI = {
     return response.data;
   },
   
+  withdraw: async (quoteId: number, reason?: string) => {
+    const response = await api.post(`/api/quotes/${quoteId}/withdraw`, { reason });
+    return response.data;
+  },
+  
   getMyBids: async () => {
     const response = await api.get('/api/my-bids');
     return response.data;
   },
 };
 
-// Vehicles API
+// Vehicles/Trucks API
 export const vehiclesAPI = {
-  getAll: async () => {
-    const response = await api.get('/api/vehicles');
+  getAll: async (params?: { status?: string; type?: string }) => {
+    const response = await api.get('/api/trucks', { params });
     return response.data;
   },
   
   getById: async (id: number) => {
-    const response = await api.get(`/api/vehicles/${id}`);
+    const response = await api.get(`/api/trucks/${id}`);
     return response.data;
   },
   
   create: async (data: any) => {
-    const response = await api.post('/api/vehicles', data);
+    const response = await api.post('/api/trucks', data);
     return response.data;
   },
   
   update: async (id: number, data: any) => {
-    const response = await api.put(`/api/vehicles/${id}`, data);
+    const response = await api.put(`/api/trucks/${id}`, data);
+    return response.data;
+  },
+  
+  delete: async (id: number) => {
+    const response = await api.delete(`/api/trucks/${id}`);
+    return response.data;
+  },
+};
+
+// Trucks API (alias for vehiclesAPI, matches web app naming)
+export const trucksAPI = {
+  getAll: async (params?: { status?: string; type?: string; origin?: string; destination?: string }) => {
+    const response = await api.get('/api/trucks', { params });
+    // Handle paginated response
+    const data = response.data;
+    if (data?.trucks) return data;
+    return { trucks: Array.isArray(data) ? data : [] };
+  },
+  
+  getById: async (id: number) => {
+    const response = await api.get(`/api/trucks/${id}`);
+    return response.data;
+  },
+  
+  create: async (data: any) => {
+    const response = await api.post('/api/trucks', data);
+    return response.data;
+  },
+  
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/api/trucks/${id}`, data);
+    return response.data;
+  },
+  
+  delete: async (id: number) => {
+    const response = await api.delete(`/api/trucks/${id}`);
+    return response.data;
+  },
+  
+  requestQuote: async (truckId: number, data: any) => {
+    const response = await api.post(`/api/trucks/${truckId}/quote`, data);
     return response.data;
   },
 };

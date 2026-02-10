@@ -17,6 +17,20 @@ type BidData = {
 const CARGO_TYPES = ['All', 'General', 'Electronics', 'Textiles', 'Machinery', 'Food', 'Chemicals', 'Construction'];
 const VEHICLE_TYPES = ['All', 'Container', 'Flatbed', 'Refrigerated', 'Tanker', 'Box Truck'];
 
+const getTimeAgo = (date: Date): string => {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
 export default function LoadsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -141,6 +155,14 @@ export default function LoadsScreen() {
       style={styles.loadCard}
       onPress={() => router.push(`/loads/${item.id}`)}
     >
+      {/* Posted Time */}
+      <View style={styles.postedTimeContainer}>
+        <Ionicons name="time-outline" size={14} color="#9ca3af" />
+        <Text style={styles.postedTimeText}>
+          {item.createdAt ? getTimeAgo(new Date(item.createdAt)) : 'Recently posted'}
+        </Text>
+      </View>
+
       {/* Header with Route */}
       <View style={styles.loadHeader}>
         <View style={styles.routeContainer}>
@@ -255,7 +277,7 @@ export default function LoadsScreen() {
           style={[styles.filterButton, showFilters && styles.filterButtonActive]}
           onPress={() => setShowFilters(!showFilters)}
         >
-          <Ionicons name="options" size={20} color={showFilters ? '#fff' : '#16a34a'} />
+          <Ionicons name="options" size={20} color={showFilters ? '#fff' : '#14532d'} />
         </TouchableOpacity>
       </View>
 
@@ -444,74 +466,82 @@ const styles = StyleSheet.create({
   },
   searchSection: {
     flexDirection: 'row',
-    padding: 16,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 14,
+    height: 48,
+    borderRadius: 10,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#1f2937',
   },
   filterButton: {
     width: 48,
     height: 48,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#22c55e',
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   filterButtonActive: {
-    backgroundColor: '#22c55e',
+    backgroundColor: '#14532d',
+    borderColor: '#14532d',
   },
   filtersContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
   filterLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
+    color: '#6b7280',
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   filterScroll: {
     flexDirection: 'row',
   },
   filterChip: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   filterChipActive: {
-    backgroundColor: '#22c55e',
+    backgroundColor: '#14532d',
+    borderColor: '#14532d',
   },
   filterChipText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#6b7280',
+    fontWeight: '500',
   },
   filterChipTextActive: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '600',
   },
   resultsHeader: {
@@ -528,6 +558,17 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 16,
     paddingTop: 8,
+  },
+  postedTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
+  },
+  postedTimeText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500',
   },
   loadCard: {
     backgroundColor: '#fff',

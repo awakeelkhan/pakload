@@ -83,13 +83,8 @@ export default function HomeScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22c55e" />
       }
     >
-      {/* Beautiful Gradient Header */}
-      <LinearGradient
-        colors={['#10b981', '#059669', '#047857']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
+      {/* Clean Professional Header - Upwork Style */}
+      <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
             <Text style={styles.greeting}>
@@ -104,7 +99,7 @@ export default function HomeScreen() {
                 style={styles.notifButton}
                 onPress={() => router.push('/notifications')}
               >
-                <Ionicons name="notifications-outline" size={24} color="#fff" />
+                <Ionicons name="notifications-outline" size={24} color="#14532d" />
                 {(notifCount?.count || 0) > 0 && (
                   <View style={styles.notifBadge}>
                     <Text style={styles.notifBadgeText}>
@@ -144,7 +139,7 @@ export default function HomeScreen() {
             <Text style={styles.quickStatLabel}>Delivered</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Main Content */}
       <View style={styles.content}>
@@ -219,18 +214,18 @@ export default function HomeScreen() {
             onPress={() => router.push('/track')}
             activeOpacity={0.8}
           >
-            <Ionicons name="location" size={24} color="#22c55e" />
+            <Ionicons name="location" size={22} color="#14532d" />
             <Text style={styles.secondaryActionText}>Track Shipment</Text>
-            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+            <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.secondaryActionCard}
             onPress={() => router.push('/post')}
             activeOpacity={0.8}
           >
-            <Ionicons name="add-circle" size={24} color="#22c55e" />
+            <Ionicons name="add-circle" size={22} color="#14532d" />
             <Text style={styles.secondaryActionText}>Post a Load</Text>
-            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+            <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
           </TouchableOpacity>
         </View>
 
@@ -257,18 +252,18 @@ export default function HomeScreen() {
                 <View style={styles.routeGradient}>
                   <View style={styles.routeFlags}>
                     <Text style={styles.routeFlag}>{route.flag1}</Text>
-                    <Ionicons name="arrow-forward" size={16} color="rgba(255,255,255,0.7)" />
+                    <Ionicons name="arrow-forward" size={14} color="#14532d" />
                     <Text style={styles.routeFlag}>{route.flag2}</Text>
                   </View>
                   <Text style={styles.routeFrom}>{route.from}</Text>
                   <Text style={styles.routeTo}>to {route.to}</Text>
                   <View style={styles.routeMeta}>
                     <View style={styles.routeMetaItem}>
-                      <Ionicons name="navigate" size={12} color="rgba(255,255,255,0.8)" />
+                      <Ionicons name="navigate" size={12} color="#14532d" />
                       <Text style={styles.routeMetaText}>{route.distance}</Text>
                     </View>
                     <View style={styles.routeMetaItem}>
-                      <Ionicons name="time" size={12} color="rgba(255,255,255,0.8)" />
+                      <Ionicons name="time" size={12} color="#14532d" />
                       <Text style={styles.routeMetaText}>{route.time}</Text>
                     </View>
                   </View>
@@ -380,12 +375,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   header: {
-    backgroundColor: '#22c55e',
+    backgroundColor: '#ffffff',
     paddingTop: 60,
     paddingBottom: 24,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   headerTop: {
     flexDirection: 'row',
@@ -395,18 +390,18 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    color: '#6b7280',
     fontWeight: '500',
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#fff',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#14532d',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#6b7280',
     marginTop: 4,
   },
   headerActions: {
@@ -417,22 +412,24 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   notifBadge: {
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: '#ef4444',
+    backgroundColor: '#14532d',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#22c55e',
+    borderColor: '#fff',
   },
   notifBadgeText: {
     color: '#fff',
@@ -442,16 +439,13 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   searchPlaceholder: {
     flex: 1,
@@ -461,9 +455,11 @@ const styles = StyleSheet.create({
   quickStats: {
     flexDirection: 'row',
     marginTop: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 16,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 12,
     padding: 16,
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   quickStatItem: {
     flex: 1,
@@ -472,21 +468,21 @@ const styles = StyleSheet.create({
   quickStatValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#fff',
+    color: '#14532d',
   },
   quickStatLabel: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#6b7280',
     marginTop: 4,
   },
   quickStatDivider: {
     width: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#dcfce7',
     marginHorizontal: 8,
   },
   content: {
     flex: 1,
-    marginTop: -12,
+    marginTop: 0,
   },
   sectionLabel: {
     fontSize: 18,
@@ -500,40 +496,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 8,
     gap: 12,
   },
   actionCard: {
     width: (width - 44) / 2,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 18,
+    alignItems: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
+    borderColor: '#e5e7eb',
   },
   actionIconBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   actionTitle: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: 2,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
   },
   actionSubtitle: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#6b7280',
   },
   sectionContainer: {
     marginTop: 28,
@@ -554,50 +545,53 @@ const styles = StyleSheet.create({
   seeAll: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#22c55e',
+    color: '#14532d',
   },
   routesScroll: {
     paddingRight: 20,
   },
   routeCard: {
     marginRight: 14,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   routeGradient: {
-    backgroundColor: '#22c55e',
-    width: 160,
-    padding: 18,
-    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    width: 180,
+    padding: 16,
+    borderRadius: 16,
   },
   routeFlags: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 10,
+    backgroundColor: '#f0fdf4',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
   },
   routeFlag: {
     fontSize: 20,
   },
   routeFrom: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
+    color: '#1f2937',
   },
   routeTo: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 13,
+    color: '#6b7280',
     marginTop: 2,
   },
   routeMeta: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
+    gap: 10,
+    marginTop: 12,
   },
   routeMetaItem: {
     flexDirection: 'row',
@@ -606,7 +600,7 @@ const styles = StyleSheet.create({
   },
   routeMetaText: {
     fontSize: 11,
-    color: 'rgba(255,255,255,0.8)',
+    color: '#6b7280',
     fontWeight: '500',
   },
   activityCard: {
@@ -747,25 +741,23 @@ const styles = StyleSheet.create({
   },
   secondaryActions: {
     marginTop: 16,
-    gap: 12,
+    paddingHorizontal: 16,
+    gap: 10,
   },
   secondaryActionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   secondaryActionText: {
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#1f2937',
     marginLeft: 12,
   },
 });

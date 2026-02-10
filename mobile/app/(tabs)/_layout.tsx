@@ -6,20 +6,20 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#22c55e',
-        tabBarInactiveTintColor: '#94a3b8',
+        tabBarActiveTintColor: '#14532d',
+        tabBarInactiveTintColor: '#9ca3af',
         tabBarStyle: {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
-          borderTopColor: '#f1f5f9',
+          borderTopColor: '#e5e7eb',
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           paddingTop: 8,
           height: Platform.OS === 'ios' ? 88 : 64,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-          elevation: 8,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+          elevation: 12,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -30,14 +30,17 @@ export default function TabLayout() {
           marginBottom: -2,
         },
         headerStyle: {
-          backgroundColor: '#22c55e',
+          backgroundColor: '#ffffff',
           shadowColor: 'transparent',
           elevation: 0,
+          borderBottomWidth: 1,
+          borderBottomColor: '#e5e7eb',
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#14532d',
         headerTitleStyle: {
           fontWeight: '700',
           fontSize: 18,
+          color: '#14532d',
         },
       }}
     >
@@ -58,6 +61,16 @@ export default function TabLayout() {
           headerTitle: 'Find Loads',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'cube' : 'cube-outline'} size={22} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="trucks"
+        options={{
+          title: 'Trucks',
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'bus' : 'bus-outline'} size={22} color={color} />
           ),
         }}
       />

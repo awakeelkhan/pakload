@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { quotesAPI } from '../src/services/api';
 import { useAuth } from '../src/contexts/AuthContext';
 
@@ -10,9 +10,11 @@ type BidStatus = 'all' | 'pending' | 'confirmed' | 'cancelled';
 
 export default function MyBidsScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<BidStatus>('all');
+  const [withdrawingId, setWithdrawingId] = useState<number | null>(null);
 
   const { data: bids, isLoading, refetch } = useQuery({
     queryKey: ['myBids'],
@@ -33,6 +35,39 @@ export default function MyBidsScreen() {
     },
     enabled: isAuthenticated,
   });
+
+  const withdrawMutation = useMutation({
+    mutationFn: async (bidId: number) => {
+      return await quotesAPI.withdraw(bidId, 'Withdrawn by carrier');
+    },
+    onSuccess: () => {
+      Alert.alert('Success', 'Bid withdrawn successfully');
+      queryClient.invalidateQueries({ queryKey: ['myBids'] });
+      setWithdrawingId(null);
+    },
+    onError: (error: any) => {
+      Alert.alert('Error', error?.response?.data?.error || 'Failed to withdraw bid');
+      setWithdrawingId(null);
+    },
+  });
+
+  const handleWithdrawBid = (bidId: number) => {
+    Alert.alert(
+      'Withdraw Bid',
+      'Are you sure you want to withdraw this bid?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Withdraw', 
+          style: 'destructive',
+          onPress: () => {
+            setWithdrawingId(bidId);
+            withdrawMutation.mutate(bidId);
+          }
+        },
+      ]
+    );
+  };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -146,9 +181,25 @@ export default function MyBidsScreen() {
       {/* Footer */}
       <View style={styles.bidFooter}>
         {item.status === 'pending' && (
-          <View style={styles.pendingInfo}>
-            <Ionicons name="time-outline" size={16} color="#f59e0b" />
-            <Text style={styles.pendingText}>Awaiting shipper response</Text>
+          <View style={styles.pendingActions}>
+            <View style={styles.pendingInfo}>
+              <Ionicons name="time-outline" size={16} color="#f59e0b" />
+              <Text style={styles.pendingText}>Awaiting response</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.withdrawButton}
+              onPress={() => handleWithdrawBid(item.id)}
+              disabled={withdrawingId === item.id}
+            >
+              {withdrawingId === item.id ? (
+                <ActivityIndicator size="small" color="#dc2626" />
+              ) : (
+                <>
+                  <Ionicons name="close-circle-outline" size={16} color="#dc2626" />
+                  <Text style={styles.withdrawButtonText}>Withdraw</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
         )}
         {item.status === 'confirmed' && (
@@ -424,6 +475,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
   },
+  pendingActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   pendingInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -433,6 +489,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#f59e0b',
     fontWeight: '500',
+  },
+  withdrawButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    backgroundColor: '#fef2f2',
+  },
+  withdrawButtonText: {
+    fontSize: 13,
+    color: '#dc2626',
+    fontWeight: '600',
   },
   viewBookingButton: {
     flexDirection: 'row',

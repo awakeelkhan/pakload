@@ -213,7 +213,7 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('My Vehicles', 'Vehicle management will be available in the next update. For now, please use the web version at pakload.com')}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/vehicles')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
               <Ionicons name="car-outline" size={20} color="#2563eb" />
             </View>
@@ -368,13 +368,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   header: {
-    backgroundColor: '#22c55e',
+    backgroundColor: '#ffffff',
     paddingTop: 60,
     paddingBottom: 32,
     paddingHorizontal: 24,
     alignItems: 'center',
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   avatarContainer: {
     position: 'relative',
@@ -384,16 +384,16 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 3,
+    borderColor: '#dcfce7',
   },
   avatarText: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#fff',
+    color: '#14532d',
   },
   verifiedBadge: {
     position: 'absolute',
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#22c55e',
+    backgroundColor: '#14532d',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
@@ -411,35 +411,37 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#fff',
+    color: '#14532d',
     marginBottom: 4,
   },
   email: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    color: '#6b7280',
     marginBottom: 12,
   },
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#f0fdf4',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#dcfce7',
   },
   roleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#fff',
+    color: '#14532d',
     letterSpacing: 0.5,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: '#fef3c7',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -447,11 +449,11 @@ const styles = StyleSheet.create({
   rating: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
+    color: '#92400e',
   },
   ratingCount: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.7)',
+    color: '#92400e',
   },
   statsCard: {
     flexDirection: 'row',

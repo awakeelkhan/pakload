@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, StatusBar, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -10,354 +10,494 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const truckPosition = useRef(new Animated.Value(-100)).current;
-  const loadingWidth = useRef(new Animated.Value(0)).current;
+  // Animation values
+  const logoScale = useRef(new Animated.Value(0)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoRotate = useRef(new Animated.Value(0)).current;
+  const textSlide = useRef(new Animated.Value(40)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
+  const taglineSlide = useRef(new Animated.Value(30)).current;
   const taglineOpacity = useRef(new Animated.Value(0)).current;
+  const progressWidth = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowOpacity = useRef(new Animated.Value(0.3)).current;
+  const dotScale1 = useRef(new Animated.Value(0.5)).current;
+  const dotScale2 = useRef(new Animated.Value(0.5)).current;
+  const dotScale3 = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
-    // Orchestrated animation sequence
-    Animated.sequence([
-      // 1. Fade in and scale up logo
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 600,
+    // Glow animation for logo background
+    const glowLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowOpacity, {
+          toValue: 0.6,
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.spring(scaleAnim, {
+        Animated.timing(glowOpacity, {
+          toValue: 0.3,
+          duration: 1200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Loading dots animation
+    const dotsLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(dotScale1, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dotScale2, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dotScale3, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.delay(200),
+        Animated.parallel([
+          Animated.timing(dotScale1, { toValue: 0.5, duration: 250, useNativeDriver: true }),
+          Animated.timing(dotScale2, { toValue: 0.5, duration: 250, useNativeDriver: true }),
+          Animated.timing(dotScale3, { toValue: 0.5, duration: 250, useNativeDriver: true }),
+        ]),
+      ])
+    );
+
+    // Pulse animation
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.08,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
           toValue: 1,
-          friction: 8,
-          tension: 40,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Main animation sequence
+    Animated.sequence([
+      // 1. Logo appears with bounce and slight rotation
+      Animated.parallel([
+        Animated.spring(logoScale, {
+          toValue: 1,
+          friction: 5,
+          tension: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoRotate, {
+          toValue: 1,
+          duration: 600,
+          easing: Easing.out(Easing.back(1.2)),
           useNativeDriver: true,
         }),
       ]),
-      // 2. Truck drives in
-      Animated.spring(truckPosition, {
-        toValue: 0,
-        friction: 7,
-        tension: 50,
-        useNativeDriver: true,
-      }),
-      // 3. Show tagline
-      Animated.timing(taglineOpacity, {
+      // 2. App name slides up with spring
+      Animated.parallel([
+        Animated.spring(textSlide, {
+          toValue: 0,
+          friction: 6,
+          tension: 80,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 3. Tagline slides up
+      Animated.parallel([
+        Animated.timing(taglineSlide, {
+          toValue: 0,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(taglineOpacity, {
+          toValue: 1,
+          duration: 350,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 4. Progress bar fills smoothly
+      Animated.timing(progressWidth, {
         toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      // 4. Loading bar animation
-      Animated.timing(loadingWidth, {
-        toValue: 1,
-        duration: 1500,
+        duration: 2000,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
         useNativeDriver: false,
       }),
     ]).start(() => {
-      // Animation complete - navigate to main app
-      setTimeout(() => {
-        onFinish?.();
-      }, 300);
+      pulseLoop.stop();
+      glowLoop.stop();
+      dotsLoop.stop();
+      setTimeout(() => onFinish?.(), 150);
     });
+
+    glowLoop.start();
+    pulseLoop.start();
+    dotsLoop.start();
+
+    return () => {
+      pulseLoop.stop();
+      glowLoop.stop();
+      dotsLoop.stop();
+    };
   }, []);
 
+  const rotateInterpolate = logoRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-15deg', '0deg'],
+  });
+
   return (
-    <LinearGradient
-      colors={['#16a34a', '#22c55e', '#15803d']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
-      <StatusBar barStyle="light-content" backgroundColor="#16a34a" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#14532d" translucent />
       
-      {/* Decorative circles */}
-      <View style={[styles.decorativeCircle, styles.circle1]} />
-      <View style={[styles.decorativeCircle, styles.circle2]} />
-      <View style={[styles.decorativeCircle, styles.circle3]} />
-
-      {/* Main content */}
-      <Animated.View
-        style={[
-          styles.logoContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
+      {/* Full screen gradient background */}
+      <LinearGradient
+        colors={['#14532d', '#166534', '#15803d', '#16a34a']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.gradient}
       >
-        {/* Truck Icon with animation */}
-        <Animated.View
-          style={[
-            styles.truckContainer,
-            {
-              transform: [{ translateX: truckPosition }],
-            },
-          ]}
-        >
-          <View style={styles.iconWrapper}>
-            {/* Truck body */}
-            <View style={styles.truckBody}>
-              {/* Packages */}
-              <View style={[styles.package, styles.package1]} />
-              <View style={[styles.package, styles.package2]} />
-              <View style={[styles.package, styles.package3]} />
-            </View>
-            
-            {/* Truck cabin */}
-            <View style={styles.truckCabin}>
-              <View style={styles.cabinWindow} />
-            </View>
-            
-            {/* Wheels */}
-            <View style={[styles.wheel, styles.wheel1]}>
-              <View style={styles.wheelInner} />
-            </View>
-            <View style={[styles.wheel, styles.wheel2]}>
-              <View style={styles.wheelInner} />
-            </View>
-            
-            {/* Speed lines */}
-            <View style={[styles.speedLine, styles.speedLine1]} />
-            <View style={[styles.speedLine, styles.speedLine2]} />
-            <View style={[styles.speedLine, styles.speedLine3]} />
-            
-            {/* Location pin */}
-            <View style={styles.locationPin}>
-              <Ionicons name="location" size={24} color="#16a34a" />
-            </View>
-          </View>
-        </Animated.View>
+        {/* Decorative background elements */}
+        <View style={styles.bgPattern}>
+          <Animated.View style={[styles.bgCircle, styles.bgCircle1, { opacity: glowOpacity }]} />
+          <Animated.View style={[styles.bgCircle, styles.bgCircle2, { opacity: glowOpacity }]} />
+          <Animated.View style={[styles.bgCircle, styles.bgCircle3, { opacity: glowOpacity }]} />
+          <View style={[styles.bgLine, styles.bgLine1]} />
+          <View style={[styles.bgLine, styles.bgLine2]} />
+        </View>
 
-        {/* App name */}
-        <Text style={styles.appName}>PakLoad</Text>
-
-        {/* Tagline */}
-        <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
-          Pakistan's #1 Load Matching Platform
-        </Animated.Text>
-      </Animated.View>
-
-      {/* Loading bar */}
-      <View style={styles.loadingContainer}>
-        <View style={styles.loadingTrack}>
+        {/* Main content */}
+        <View style={styles.content}>
+          {/* Logo container with glow effect */}
           <Animated.View
             style={[
-              styles.loadingBar,
+              styles.logoWrapper,
               {
-                width: loadingWidth.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['0%', '100%'],
-                }),
+                opacity: logoOpacity,
+                transform: [
+                  { scale: Animated.multiply(logoScale, pulseAnim) },
+                  { rotate: rotateInterpolate },
+                ],
               },
             ]}
-          />
-        </View>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+          >
+            {/* Glow effect behind logo */}
+            <Animated.View style={[styles.logoGlow, { opacity: glowOpacity }]} />
+            
+            {/* Logo icon container */}
+            <View style={styles.logoContainer}>
+              <View style={styles.logoInner}>
+                <Ionicons name="cube" size={36} color="#fff" />
+                <View style={styles.truckIcon}>
+                  <Ionicons name="car-sport" size={22} color="#22c55e" />
+                </View>
+              </View>
+            </View>
+          </Animated.View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Connecting Shippers & Carriers</Text>
-        <Text style={styles.versionText}>v1.0.0</Text>
-      </View>
-    </LinearGradient>
+          {/* App name */}
+          <Animated.View
+            style={[
+              styles.textContainer,
+              {
+                opacity: textOpacity,
+                transform: [{ translateY: textSlide }],
+              },
+            ]}
+          >
+            <Text style={styles.appName}>Pak</Text>
+            <Text style={styles.appNameHighlight}>Load</Text>
+          </Animated.View>
+
+          {/* Tagline */}
+          <Animated.Text
+            style={[
+              styles.tagline,
+              {
+                opacity: taglineOpacity,
+                transform: [{ translateY: taglineSlide }],
+              },
+            ]}
+          >
+            Pakistan's Premier Freight Platform
+          </Animated.Text>
+
+          {/* Features badges */}
+          <Animated.View
+            style={[
+              styles.featuresRow,
+              {
+                opacity: taglineOpacity,
+                transform: [{ translateY: taglineSlide }],
+              },
+            ]}
+          >
+            <View style={styles.featureBadge}>
+              <Ionicons name="shield-checkmark" size={14} color="#86efac" />
+              <Text style={styles.featureText}>Verified</Text>
+            </View>
+            <View style={styles.featureBadge}>
+              <Ionicons name="flash" size={14} color="#86efac" />
+              <Text style={styles.featureText}>Fast</Text>
+            </View>
+            <View style={styles.featureBadge}>
+              <Ionicons name="lock-closed" size={14} color="#86efac" />
+              <Text style={styles.featureText}>Secure</Text>
+            </View>
+          </Animated.View>
+        </View>
+
+        {/* Bottom section */}
+        <View style={styles.bottomSection}>
+          {/* Progress bar */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressTrack}>
+              <Animated.View
+                style={[
+                  styles.progressBar,
+                  {
+                    width: progressWidth.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0%', '100%'],
+                    }),
+                  },
+                ]}
+              />
+            </View>
+          </View>
+
+          {/* Loading dots */}
+          <View style={styles.loadingDots}>
+            <Animated.View style={[styles.dot, { transform: [{ scale: dotScale1 }] }]} />
+            <Animated.View style={[styles.dot, { transform: [{ scale: dotScale2 }] }]} />
+            <Animated.View style={[styles.dot, { transform: [{ scale: dotScale3 }] }]} />
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Connecting Shippers & Carriers</Text>
+            <View style={styles.footerDivider} />
+            <Text style={styles.versionText}>v1.0.0</Text>
+          </View>
+        </View>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  decorativeCircle: {
+  gradient: {
+    flex: 1,
+    width: width,
+    height: height,
+  },
+  bgPattern: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  bgCircle: {
     position: 'absolute',
     borderRadius: 1000,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
-  circle1: {
-    width: 200,
-    height: 200,
-    top: 50,
-    left: -50,
+  bgCircle1: {
+    width: width * 0.8,
+    height: width * 0.8,
+    top: -width * 0.3,
+    right: -width * 0.2,
   },
-  circle2: {
-    width: 300,
-    height: 300,
-    top: 150,
-    right: -100,
+  bgCircle2: {
+    width: width * 0.6,
+    height: width * 0.6,
+    bottom: height * 0.15,
+    left: -width * 0.3,
   },
-  circle3: {
-    width: 250,
-    height: 250,
-    bottom: 100,
-    left: -80,
+  bgCircle3: {
+    width: width * 0.4,
+    height: width * 0.4,
+    top: height * 0.35,
+    right: -width * 0.15,
+  },
+  bgLine: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    transform: [{ rotate: '-35deg' }],
+  },
+  bgLine1: {
+    width: width * 2,
+    height: 80,
+    top: height * 0.2,
+    left: -width * 0.5,
+  },
+  bgLine2: {
+    width: width * 2,
+    height: 40,
+    top: height * 0.6,
+    left: -width * 0.3,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  logoWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  logoGlow: {
+    position: 'absolute',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(134, 239, 172, 0.3)',
   },
   logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  truckContainer: {
-    marginBottom: 30,
-  },
-  iconWrapper: {
-    width: 200,
+    width: 120,
     height: 120,
-    position: 'relative',
-  },
-  truckBody: {
-    position: 'absolute',
-    left: 10,
-    top: 30,
-    width: 100,
-    height: 50,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-around',
-    paddingBottom: 5,
-    paddingHorizontal: 5,
-  },
-  package: {
-    borderRadius: 3,
-  },
-  package1: {
-    width: 25,
-    height: 20,
-    backgroundColor: '#fbbf24',
-  },
-  package2: {
-    width: 20,
-    height: 15,
-    backgroundColor: '#f97316',
-  },
-  package3: {
-    width: 30,
-    height: 25,
-    backgroundColor: '#3b82f6',
-  },
-  truckCabin: {
-    position: 'absolute',
-    left: 110,
-    top: 40,
-    width: 45,
-    height: 40,
-    backgroundColor: 'white',
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 4,
-  },
-  cabinWindow: {
-    position: 'absolute',
-    top: 5,
-    left: 8,
-    right: 5,
-    height: 20,
-    backgroundColor: 'rgba(22, 163, 74, 0.6)',
-    borderTopRightRadius: 8,
-  },
-  wheel: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    backgroundColor: '#1f2937',
-    borderRadius: 14,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
-  wheel1: {
-    left: 25,
-    bottom: 15,
+  logoInner: {
+    width: 90,
+    height: 90,
+    borderRadius: 24,
+    backgroundColor: '#22c55e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  wheel2: {
-    left: 120,
-    bottom: 15,
-  },
-  wheelInner: {
-    width: 14,
-    height: 14,
-    backgroundColor: '#6b7280',
-    borderRadius: 7,
-  },
-  speedLine: {
+  truckIcon: {
     position: 'absolute',
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 2,
-  },
-  speedLine1: {
-    width: 25,
-    left: -15,
-    top: 40,
-  },
-  speedLine2: {
-    width: 35,
-    left: -25,
-    top: 52,
-  },
-  speedLine3: {
-    width: 20,
-    left: -10,
-    top: 64,
-  },
-  locationPin: {
-    position: 'absolute',
-    right: 25,
-    top: 0,
+    bottom: -4,
+    right: -4,
     width: 32,
     height: 32,
-    backgroundColor: 'white',
     borderRadius: 16,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  textContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   appName: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    fontWeight: '300',
+    color: '#fff',
+    letterSpacing: -1,
+  },
+  appNameHighlight: {
+    fontSize: 48,
+    fontWeight: '800',
+    color: '#fff',
+    letterSpacing: -1,
   },
   tagline: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    marginBottom: 24,
   },
-  loadingContainer: {
-    position: 'absolute',
-    bottom: 150,
+  featuresRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  featureBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  featureText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '600',
+  },
+  bottomSection: {
+    paddingHorizontal: 40,
+    paddingBottom: 60,
     alignItems: 'center',
   },
-  loadingTrack: {
-    width: 200,
+  progressContainer: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  progressTrack: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 2,
     overflow: 'hidden',
   },
-  loadingBar: {
+  progressBar: {
     height: '100%',
-    backgroundColor: 'white',
+    backgroundColor: '#86efac',
     borderRadius: 2,
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+  loadingDots: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   footer: {
-    position: 'absolute',
-    bottom: 50,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 4,
+    fontWeight: '500',
+  },
+  footerDivider: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
   },
   versionText: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.5)',
+    fontWeight: '500',
   },
 });

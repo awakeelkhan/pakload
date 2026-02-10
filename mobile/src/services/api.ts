@@ -183,12 +183,26 @@ export const authAPI = {
   },
   
   updateProfile: async (data: { fullName?: string; phone?: string; companyName?: string; address?: string }) => {
-    const response = await api.patch('/api/v1/auth/profile', data);
+    // Split fullName into firstName and lastName for server compatibility
+    let firstName = '';
+    let lastName = '';
+    if (data.fullName) {
+      const nameParts = data.fullName.trim().split(' ');
+      firstName = nameParts[0] || '';
+      lastName = nameParts.slice(1).join(' ') || '';
+    }
+    
+    const response = await api.put('/api/users/me', {
+      firstName,
+      lastName,
+      phone: data.phone,
+      companyName: data.companyName,
+    });
     return response.data;
   },
   
   changePassword: async (currentPassword: string, newPassword: string) => {
-    const response = await api.post('/api/v1/auth/change-password', { currentPassword, newPassword });
+    const response = await api.post('/api/users/change-password', { currentPassword, newPassword });
     return response.data;
   },
   

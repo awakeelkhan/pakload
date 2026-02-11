@@ -173,17 +173,17 @@ export default function ProfileScreen() {
 
       {/* Quick Actions - 4 items in a grid */}
       <View style={styles.quickActions}>
-        <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/bookings')}>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/my-loads')}>
           <View style={[styles.quickActionIcon, { backgroundColor: '#dcfce7' }]}>
-            <Ionicons name="list" size={20} color="#22c55e" />
+            <Ionicons name="cube" size={20} color="#22c55e" />
+          </View>
+          <Text style={styles.quickActionText}>My Loads</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/bookings')}>
+          <View style={[styles.quickActionIcon, { backgroundColor: '#dbeafe' }]}>
+            <Ionicons name="list" size={20} color="#2563eb" />
           </View>
           <Text style={styles.quickActionText}>Bookings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/requests')}>
-          <View style={[styles.quickActionIcon, { backgroundColor: '#dbeafe' }]}>
-            <Ionicons name="briefcase" size={20} color="#2563eb" />
-          </View>
-          <Text style={styles.quickActionText}>Requests</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.quickActionButton} onPress={() => router.push('/bids')}>
           <View style={[styles.quickActionIcon, { backgroundColor: '#fef3c7' }]}>
@@ -223,13 +223,23 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/documents')}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/documents')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#fefce8' }]}>
               <Ionicons name="document-text-outline" size={20} color="#d97706" />
             </View>
             <View style={styles.menuContent}>
               <Text style={styles.menuText}>Documents</Text>
               <Text style={styles.menuSubtext}>Licenses & certifications</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/payment-methods')}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#fef2f2' }]}>
+              <Ionicons name="card-outline" size={20} color="#dc2626" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>Payment Methods</Text>
+              <Text style={styles.menuSubtext}>Bank accounts & cards</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>

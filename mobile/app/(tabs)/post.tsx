@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image, Platform, Modal } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { loadsAPI, marketRequestsAPI, uploadAPI } from '../../src/services/api';
 import { useAuth } from '../../src/contexts/AuthContext';
 
@@ -62,6 +63,11 @@ export default function PostScreen() {
   const [equipmentType, setEquipmentType] = useState<ContainerType>('');
   const [images, setImages] = useState<PickedFile[]>([]);
   const [documents, setDocuments] = useState<PickedFile[]>([]);
+  const [showPickupDatePicker, setShowPickupDatePicker] = useState(false);
+  const [showDeliveryDatePicker, setShowDeliveryDatePicker] = useState(false);
+  const [pickupDateObj, setPickupDateObj] = useState<Date | null>(null);
+  const [deliveryDateObj, setDeliveryDateObj] = useState<Date | null>(null);
+  const [currency, setCurrency] = useState<'PKR' | 'USD'>('PKR');
 
   // Market request form state
   const [reqTitle, setReqTitle] = useState('');
@@ -76,6 +82,27 @@ export default function PostScreen() {
     setOrigin(''); setDestination(''); setPickupDate(''); setDeliveryDate('');
     setCargoType(''); setCargoWeight(''); setPrice(''); setDescription('');
     setEquipmentType(''); setImages([]); setDocuments([]);
+    setPickupDateObj(null); setDeliveryDateObj(null);
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  };
+
+  const handlePickupDateChange = (event: any, selectedDate?: Date) => {
+    setShowPickupDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setPickupDateObj(selectedDate);
+      setPickupDate(formatDate(selectedDate));
+    }
+  };
+
+  const handleDeliveryDateChange = (event: any, selectedDate?: Date) => {
+    setShowDeliveryDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setDeliveryDateObj(selectedDate);
+      setDeliveryDate(formatDate(selectedDate));
+    }
   };
 
   const resetRequestForm = () => {
@@ -333,14 +360,44 @@ export default function PostScreen() {
           <View style={styles.row}>
             <View style={styles.flex}>
               <Text style={styles.label}>Pickup Date *</Text>
-              <TextInput style={styles.input} value={pickupDate} onChangeText={setPickupDate} placeholder="YYYY-MM-DD" placeholderTextColor="#9ca3af" />
+              <TouchableOpacity style={styles.dateInput} onPress={() => setShowPickupDatePicker(true)}>
+                <Ionicons name="calendar-outline" size={18} color="#6b7280" />
+                <Text style={pickupDate ? styles.dateText : styles.datePlaceholder}>
+                  {pickupDate || 'Select date'}
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.flex}>
               <Text style={styles.label}>Delivery Date *</Text>
-              <TextInput style={styles.input} value={deliveryDate} onChangeText={setDeliveryDate} placeholder="YYYY-MM-DD" placeholderTextColor="#9ca3af" />
+              <TouchableOpacity style={styles.dateInput} onPress={() => setShowDeliveryDatePicker(true)}>
+                <Ionicons name="calendar-outline" size={18} color="#6b7280" />
+                <Text style={deliveryDate ? styles.dateText : styles.datePlaceholder}>
+                  {deliveryDate || 'Select date'}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {/* Date Pickers */}
+        {showPickupDatePicker && (
+          <DateTimePicker
+            value={pickupDateObj || new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handlePickupDateChange}
+            minimumDate={new Date()}
+          />
+        )}
+        {showDeliveryDatePicker && (
+          <DateTimePicker
+            value={deliveryDateObj || new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleDeliveryDateChange}
+            minimumDate={pickupDateObj || new Date()}
+          />
+        )}
 
         {/* Cargo */}
         <View style={styles.card}>
@@ -588,4 +645,7 @@ const styles = StyleSheet.create({
   submitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: '#22c55e', paddingVertical: 16, borderRadius: 14, marginTop: 10 },
   submitBtnDisabled: { opacity: 0.6 },
   submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  dateInput: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14 },
+  dateText: { fontSize: 15, color: '#0f172a' },
+  datePlaceholder: { fontSize: 15, color: '#9ca3af' },
 });

@@ -263,6 +263,24 @@ export const loadsAPI = {
       loads: loadsAPI._normalizeLoadsResponse(response.data),
     };
   },
+
+  getMyLoads: async () => {
+    const response = await api.get('/api/v2/loads/my-loads');
+    return {
+      ...response.data,
+      loads: loadsAPI._normalizeLoadsResponse(response.data),
+    };
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/api/v2/loads/${id}`, data);
+    return response.data;
+  },
+
+  deleteLoad: async (id: number) => {
+    const response = await api.delete(`/api/v2/loads/${id}`);
+    return response.data;
+  },
 };
 
 // Bookings API

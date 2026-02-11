@@ -11,17 +11,14 @@ export default function SettingsScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
+  const [currentLanguage, setCurrentLanguage] = useState('English');
 
   const handleChangePassword = () => {
     router.push('/change-password');
   };
 
   const handleTwoFactor = () => {
-    Alert.alert(
-      'Two-Factor Authentication',
-      'Two-factor authentication will be available in the next update.',
-      [{ text: 'OK' }]
-    );
+    router.push('/two-factor-auth');
   };
 
   const handleLanguage = () => {
@@ -29,9 +26,15 @@ export default function SettingsScreen() {
       'Select Language',
       'Choose your preferred language',
       [
-        { text: 'English', onPress: () => {} },
-        { text: 'اردو (Urdu)', onPress: () => {} },
-        { text: '中文 (Chinese)', onPress: () => {} },
+        { text: 'English', onPress: () => setCurrentLanguage('English') },
+        { text: 'اردو (Urdu)', onPress: () => {
+          setCurrentLanguage('اردو');
+          Alert.alert('Language Changed', 'App language set to Urdu. Full translation support coming soon.');
+        }},
+        { text: '中文 (Chinese)', onPress: () => {
+          setCurrentLanguage('中文');
+          Alert.alert('Language Changed', 'App language set to Chinese. Full translation support coming soon.');
+        }},
         { text: 'Cancel', style: 'cancel' },
       ]
     );
@@ -153,7 +156,7 @@ export default function SettingsScreen() {
                 <Ionicons name="language-outline" size={22} color="#22c55e" />
                 <View style={styles.menuText}>
                   <Text style={styles.menuTitle}>Language</Text>
-                  <Text style={styles.menuSubtitle}>English</Text>
+                  <Text style={styles.menuSubtitle}>{currentLanguage}</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />

@@ -222,6 +222,99 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
+// Get user's own loads
+router.get('/my-loads', requireAuth, async (req, res) => {
+  try {
+    const userLoads = await db.select({
+      load: loads,
+    })
+    .from(loads)
+    .where(eq(loads.shipperId, req.user!.id))
+    .orderBy(desc(loads.createdAt));
+
+    // Remove platform fee details from response
+    const publicLoads = userLoads.map(({ load }) => {
+      const { platformFeePercent, platformFeeAmount, ...publicLoad } = load;
+      return publicLoad;
+    });
+
+    res.json({ loads: publicLoads });
+  } catch (error) {
+    console.error('Get my loads error:', error);
+    res.status(500).json({ error: 'Failed to fetch your loads' });
+  }
+});
+
+// Delete a load
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const loadId = parseInt(req.params.id);
+    
+    // Check if load exists and belongs to user
+    const [existingLoad] = await db.select().from(loads).where(eq(loads.id, loadId));
+    
+    if (!existingLoad) {
+      return res.status(404).json({ error: 'Load not found' });
+    }
+    
+    if (existingLoad.shipperId !== req.user!.id && req.user!.role !== 'admin') {
+      return res.status(403).json({ error: 'You can only delete your own loads' });
+    }
+    
+    await db.delete(loads).where(eq(loads.id, loadId));
+    
+    res.json({ message: 'Load deleted successfully' });
+  } catch (error) {
+    console.error('Delete load error:', error);
+    res.status(500).json({ error: 'Failed to delete load' });
+  }
+});
+
+// Update a load
+router.put('/:id', requireAuth, async (req, res) => {
+  try {
+    const loadId = parseInt(req.params.id);
+    
+    // Check if load exists and belongs to user
+    const [existingLoad] = await db.select().from(loads).where(eq(loads.id, loadId));
+    
+    if (!existingLoad) {
+      return res.status(404).json({ error: 'Load not found' });
+    }
+    
+    if (existingLoad.shipperId !== req.user!.id && req.user!.role !== 'admin') {
+      return res.status(403).json({ error: 'You can only edit your own loads' });
+    }
+    
+    const {
+      origin, destination, pickupDate, deliveryDate,
+      cargoType, cargoWeight, description, price,
+    } = req.body;
+    
+    const [updatedLoad] = await db.update(loads)
+      .set({
+        origin: origin || existingLoad.origin,
+        destination: destination || existingLoad.destination,
+        pickupDate: pickupDate ? new Date(pickupDate) : existingLoad.pickupDate,
+        deliveryDate: deliveryDate ? new Date(deliveryDate) : existingLoad.deliveryDate,
+        cargoType: cargoType || existingLoad.cargoType,
+        cargoWeight: cargoWeight ? String(cargoWeight) : existingLoad.cargoWeight,
+        description: description !== undefined ? description : existingLoad.description,
+        price: price ? String(price) : existingLoad.price,
+        updatedAt: new Date(),
+      })
+      .where(eq(loads.id, loadId))
+      .returning();
+    
+    const { platformFeePercent, platformFeeAmount, ...publicLoad } = updatedLoad;
+    
+    res.json({ message: 'Load updated successfully', load: publicLoad });
+  } catch (error) {
+    console.error('Update load error:', error);
+    res.status(500).json({ error: 'Failed to update load' });
+  }
+});
+
 // Get all loads with enhanced filters
 router.get('/', async (req, res) => {
   try {

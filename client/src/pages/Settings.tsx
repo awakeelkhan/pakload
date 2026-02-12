@@ -419,52 +419,92 @@ export default function Settings() {
         {/* Add Payment Modal */}
         {showPaymentModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div className="bg-white rounded-xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{t('settings.addPaymentMethod', 'Add Payment Method')}</h3>
                 <button onClick={() => setShowPaymentModal(false)}><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4">
+                {/* Payment Method Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Card Number</label>
-                  <input
-                    type="text"
-                    placeholder="1234 5678 9012 3456"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Expiry Date</label>
-                    <input
-                      type="text"
-                      placeholder="MM/YY"
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
+                  <label className="block text-sm font-medium text-slate-700 mb-3">Select Payment Method</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button className="p-4 border-2 border-green-500 bg-green-50 rounded-xl text-center hover:bg-green-100 transition-colors">
+                      <CreditCard className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                      <span className="font-medium text-green-700">Credit/Debit Card</span>
+                    </button>
+                    <button className="p-4 border-2 border-slate-200 rounded-xl text-center hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <div className="w-8 h-8 mx-auto mb-2 bg-green-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-xs">EP</span>
+                      </div>
+                      <span className="font-medium text-slate-700">EasyPaisa</span>
+                    </button>
+                    <button className="p-4 border-2 border-slate-200 rounded-xl text-center hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <div className="w-8 h-8 mx-auto mb-2 bg-red-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-xs">JC</span>
+                      </div>
+                      <span className="font-medium text-slate-700">JazzCash</span>
+                    </button>
+                    <button className="p-4 border-2 border-slate-200 rounded-xl text-center hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <Building className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                      <span className="font-medium text-slate-700">Bank Transfer</span>
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">CVV</label>
-                    <input
-                      type="text"
-                      placeholder="123"
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    />
+                </div>
+
+                <div className="border-t pt-4">
+                  <p className="text-sm font-medium text-slate-700 mb-3">Card Details</p>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm text-slate-600 mb-1">Card Number</label>
+                      <input
+                        type="text"
+                        placeholder="1234 5678 9012 3456"
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-slate-600 mb-1">Expiry Date</label>
+                        <input
+                          type="text"
+                          placeholder="MM/YY"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-slate-600 mb-1">CVV</label>
+                        <input
+                          type="text"
+                          placeholder="123"
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-slate-600 mb-1">Cardholder Name</label>
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Cardholder Name</label>
-                  <input
-                    type="text"
-                    placeholder="John Doe"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  />
+
+                <div className="bg-slate-50 p-3 rounded-lg">
+                  <p className="text-xs text-slate-500 flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Your payment information is encrypted and secure
+                  </p>
                 </div>
+
                 <button
                   onClick={() => {
                     setSuccessMessage('Payment method added successfully!');
                     setShowPaymentModal(false);
                   }}
-                  className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-medium"
                 >
                   Add Payment Method
                 </button>

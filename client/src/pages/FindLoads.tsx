@@ -1231,12 +1231,25 @@ export default function FindLoads() {
                         </a>
                         <button 
                           onClick={() => {
+                            if (!user) {
+                              window.location.href = '/signin?redirect=/loads';
+                              return;
+                            }
+                            if (user.role === 'shipper') {
+                              alert('Only carriers can place bids. Shippers can post loads instead.');
+                              return;
+                            }
                             setSelectedLoad(load);
                             setShowBidModal(true);
                           }}
-                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                          className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium ${
+                            user?.role === 'shipper' 
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                          disabled={user?.role === 'shipper'}
                         >
-                          Place Bid
+                          {user?.role === 'shipper' ? 'Carriers Only' : 'Place Bid'}
                         </button>
                       </div>
                     </div>

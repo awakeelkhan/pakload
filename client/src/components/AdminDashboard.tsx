@@ -1,4 +1,4 @@
-import { Users, Package, Truck, DollarSign, TrendingUp, Activity, AlertTriangle, CheckCircle, Clock, BarChart3, Settings, Shield, FileText, Bell, X, Edit2, Trash2, Ban, CheckSquare, Plus, RefreshCw, MapPin, Database } from 'lucide-react';
+import { Users, Package, Truck, DollarSign, TrendingUp, Activity, AlertTriangle, CheckCircle, Clock, BarChart3, Settings, Shield, FileText, Bell, X, Edit2, Trash2, Ban, CheckSquare, Plus, RefreshCw, MapPin, Database, ShoppingBag, Eye, MessageSquare } from 'lucide-react';
 import { Link } from 'wouter';
 import { useState, useEffect } from 'react';
 import ConfirmModal from './ConfirmModal';
@@ -13,6 +13,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
+  const [marketRequests, setMarketRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userActionConfirm, setUserActionConfirm] = useState<{ show: boolean; userId: number | null; action: string; title: string; message: string }>({
     show: false,
@@ -78,6 +79,22 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         verified: u.verified,
       }));
       setUsers(transformedUsers);
+
+      // Fetch market requests (goods requests)
+      try {
+        const token = localStorage.getItem('access_token');
+        const requestsRes = await fetch('/api/market-requests/admin/all', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+          },
+        });
+        if (requestsRes.ok) {
+          const requestsData = await requestsRes.json();
+          setMarketRequests(requestsData.requests || []);
+        }
+      } catch (reqError) {
+        console.error('Error fetching market requests:', reqError);
+      }
     } catch (error) {
       console.error('Error fetching admin dashboard data:', error);
     } finally {
@@ -384,6 +401,88 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Market Requests - Goods Needed */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-blue-600" />
+                  Market Requests
+                </h2>
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                  {marketRequests.length} requests
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Users requesting goods/services - "I need goods, can you find and deliver?"
+              </p>
+              <div className="space-y-3">
+                {marketRequests.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                    <p>No market requests yet</p>
+                  </div>
+                ) : (
+                  marketRequests.slice(0, 5).map((req: any) => (
+                    <div key={req.request?.id || req.id} className="p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-slate-900">{req.request?.title || req.title || 'Untitled Request'}</h3>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                              (req.request?.fulfillmentStatus || req.fulfillmentStatus) === 'pending' ? 'bg-amber-100 text-amber-700' :
+                              (req.request?.fulfillmentStatus || req.fulfillmentStatus) === 'searching' ? 'bg-blue-100 text-blue-700' :
+                              (req.request?.fulfillmentStatus || req.fulfillmentStatus) === 'fulfilled' ? 'bg-green-100 text-green-700' :
+                              'bg-slate-100 text-slate-700'
+                            }`}>
+                              {req.request?.fulfillmentStatus || req.fulfillmentStatus || 'pending'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">{req.request?.description || req.description || 'No description'}</p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span className="flex items-center gap-1">
+                              <Package className="w-3 h-3" />
+                              {req.request?.goodsType || req.goodsType || 'General'}
+                            </span>
+                            {(req.request?.originCity || req.originCity) && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {req.request?.originCity || req.originCity}
+                                {(req.request?.destinationCity || req.destinationCity) && ` → ${req.request?.destinationCity || req.destinationCity}`}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(req.request?.createdAt || req.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {req.shipper && (
+                            <div className="mt-2 text-xs text-slate-500">
+                              From: {req.shipper.firstName} {req.shipper.lastName} ({req.shipper.email})
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          <button className="p-1.5 hover:bg-blue-100 rounded transition-colors" title="View Details">
+                            <Eye className="w-4 h-4 text-blue-600" />
+                          </button>
+                          <button className="p-1.5 hover:bg-green-100 rounded transition-colors" title="Respond">
+                            <MessageSquare className="w-4 h-4 text-green-600" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              {marketRequests.length > 5 && (
+                <Link href="/market-requests">
+                  <a className="block mt-4 text-center text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    View All {marketRequests.length} Requests →
+                  </a>
+                </Link>
+              )}
             </div>
           </div>
 

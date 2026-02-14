@@ -233,13 +233,59 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/payment-methods')}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/payment-methods')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#fef2f2' }]}>
               <Ionicons name="card-outline" size={20} color="#dc2626" />
             </View>
             <View style={styles.menuContent}>
               <Text style={styles.menuText}>Payment Methods</Text>
               <Text style={styles.menuSubtext}>Bank accounts & cards</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/kyc')}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#faf5ff' }]}>
+              <Ionicons name="shield-checkmark-outline" size={20} color="#8B5CF6" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>KYC Verification</Text>
+              <Text style={styles.menuSubtext}>Verify your identity</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.menuSection}>
+        <Text style={styles.menuSectionTitle}>Tools & Analytics</Text>
+        <View style={styles.menuCard}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/routes')}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
+              <Ionicons name="calculator-outline" size={20} color="#16a34a" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>Route Calculator</Text>
+              <Text style={styles.menuSubtext}>Calculate freight costs</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/analytics')}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
+              <Ionicons name="bar-chart-outline" size={20} color="#3B82F6" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>Analytics</Text>
+              <Text style={styles.menuSubtext}>Performance overview</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/payments')}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#fef3c7' }]}>
+              <Ionicons name="cash-outline" size={20} color="#F59E0B" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>Payments</Text>
+              <Text style={styles.menuSubtext}>Payment options & history</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>

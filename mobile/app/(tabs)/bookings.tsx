@@ -187,15 +187,35 @@ export default function BookingsScreen() {
         <View style={styles.bookingFooter}>
           <View style={styles.priceInfo}>
             <Text style={styles.priceLabel}>Total Amount</Text>
-            <Text style={styles.priceAmount}>${Number(totalAmount).toLocaleString()}</Text>
+            <Text style={styles.priceAmount}>PKR {Number(totalAmount).toLocaleString()}</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.trackButton}
-            onPress={() => router.push(`/bookings/${item.id}`)}
-          >
-            <Ionicons name="navigate" size={16} color="#fff" />
-            <Text style={styles.trackButtonText}>Track</Text>
-          </TouchableOpacity>
+          <View style={styles.footerActions}>
+            {status === 'delivered' || status === 'confirmed' ? (
+              <TouchableOpacity 
+                style={styles.biltyButton}
+                onPress={() => router.push({
+                  pathname: '/bilty',
+                  params: { 
+                    bookingId: item.id,
+                    trackingNumber: item.trackingNumber || `PL-${String(item.id).padStart(6, '0')}`,
+                    origin,
+                    destination,
+                    price: totalAmount
+                  }
+                })}
+              >
+                <Ionicons name="document-text" size={16} color="#16a34a" />
+                <Text style={styles.biltyButtonText}>Bilty</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity 
+              style={styles.trackButton}
+              onPress={() => router.push(`/bookings/${item.id}`)}
+            >
+              <Ionicons name="navigate" size={16} color="#fff" />
+              <Text style={styles.trackButtonText}>Track</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -519,6 +539,27 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#22c55e',
+  },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  biltyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f0fdf4',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#16a34a',
+  },
+  biltyButtonText: {
+    color: '#16a34a',
+    fontSize: 14,
+    fontWeight: '600',
   },
   trackButton: {
     flexDirection: 'row',

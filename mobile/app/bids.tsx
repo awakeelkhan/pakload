@@ -203,13 +203,29 @@ export default function MyBidsScreen() {
           </View>
         )}
         {item.status === 'confirmed' && (
-          <TouchableOpacity 
-            style={styles.viewBookingButton}
-            onPress={() => router.push('/bookings')}
-          >
-            <Ionicons name="eye" size={16} color="#fff" />
-            <Text style={styles.viewBookingText}>View Booking</Text>
-          </TouchableOpacity>
+          <View style={styles.confirmedActions}>
+            <TouchableOpacity 
+              style={styles.viewBookingButton}
+              onPress={() => router.push('/bookings')}
+            >
+              <Ionicons name="eye" size={16} color="#fff" />
+              <Text style={styles.viewBookingText}>View Booking</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.startTrackingButton}
+              onPress={() => router.push({
+                pathname: '/driver-tracking',
+                params: { 
+                  loadId: item.loadId || item.id,
+                  origin: item.origin || item.load?.origin || 'Origin',
+                  destination: item.destination || item.load?.destination || 'Destination'
+                }
+              })}
+            >
+              <Ionicons name="navigate" size={16} color="#fff" />
+              <Text style={styles.viewBookingText}>Start Tracking</Text>
+            </TouchableOpacity>
+          </View>
         )}
         {(item.status === 'cancelled' || item.status === 'rejected') && (
           <View style={styles.rejectedInfo}>
@@ -506,12 +522,27 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     fontWeight: '600',
   },
+  confirmedActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
   viewBookingButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: '#16a34a',
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  startTrackingButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#3b82f6',
     paddingVertical: 12,
     borderRadius: 10,
   },

@@ -122,13 +122,18 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
 
         {showSuccess ? (
           <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Bid Submitted Successfully!</h3>
-            <p className="text-slate-600">The shipper will review your bid and contact you soon.</p>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Bid Submitted for Approval!</h3>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <p className="text-amber-800 text-sm">
+                <strong>Pending Admin Approval:</strong> Your bid will be reviewed by our admin team before being sent to the shipper. This usually takes 1-2 hours during business hours.
+              </p>
+            </div>
+            <p className="text-slate-600">You will be notified once your bid is approved.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6">

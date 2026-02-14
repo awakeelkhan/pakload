@@ -2,8 +2,9 @@ import { useState, useRef } from 'react';
 import { 
   Package, MapPin, Truck, DollarSign, Send, AlertCircle, Check, Loader2, 
   ChevronRight, ChevronLeft, Calendar, Clock, User, Phone, Box, Scale,
-  FileText, Image, Upload, X, File, Camera
+  FileText, Image, Upload, X, File, Camera, Map
 } from 'lucide-react';
+import { LocationPicker } from './LocationPicker';
 
 interface LoadPostingFormProps {
   onSuccess?: (load: any) => void;
@@ -43,6 +44,19 @@ const EQUIPMENT_TYPES = [
   { value: 'lowbed', label: 'Low Bed', capacity: 'Heavy', weight: '50,000 kg' },
 ];
 
+const WEIGHT_UNITS = [
+  { value: 'kg', label: 'KG (Kilograms)' },
+  { value: 'tonnes', label: 'Tonnes' },
+  { value: 'cbm', label: 'CBM (Cubic Meters)' },
+  { value: 'units', label: 'Units/Pieces' },
+];
+
+const CURRENCY_OPTIONS = [
+  { value: 'PKR', label: 'PKR (Pakistani Rupee)', symbol: 'Rs' },
+  { value: 'USD', label: 'USD (US Dollar)', symbol: '$' },
+  { value: 'CNY', label: 'CNY (Chinese Yuan)', symbol: '¥' },
+];
+
 export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,11 +85,19 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
     deliveryContactPhone: '',
     cargoType: '',
     weight: '',
+    weightUnit: 'kg',
     description: '',
     equipmentType: '',
     price: '',
+    currency: 'PKR',
     specialRequirements: '',
+    originPinLocation: '',
+    destinationPinLocation: '',
+    termsAccepted: false,
   });
+
+  const [showOriginMap, setShowOriginMap] = useState(false);
+  const [showDestinationMap, setShowDestinationMap] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -155,6 +177,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
         return true;
       case 4:
         if (!formData.price) { setError('Please enter your rate'); return false; }
+        if (!formData.termsAccepted) { setError('Please accept the Terms & Conditions to continue'); return false; }
         return true;
       default:
         return true;
@@ -229,15 +252,20 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
   if (success && createdLoad) {
     return (
       <div className="text-center py-12">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Check className="h-10 w-10 text-green-600" />
+        <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Clock className="h-10 w-10 text-amber-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Load Posted Successfully!</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Load Submitted for Approval!</h2>
         <p className="text-gray-600 mb-2">
           Tracking Number: <span className="font-mono font-bold text-green-600">{createdLoad.trackingNumber}</span>
         </p>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+          <p className="text-amber-800 text-sm">
+            <strong>Pending Admin Approval:</strong> Your load will be visible to carriers once approved by our admin team. This usually takes 1-2 hours during business hours.
+          </p>
+        </div>
         <p className="text-gray-500 mb-8">
-          Carriers can now view and bid on your load.
+          You will be notified once your load is approved.
         </p>
         <div className="flex justify-center gap-4">
           <button
@@ -258,8 +286,9 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                 pickupContactName: '', pickupContactPhone: '',
                 destinationCity: '', destinationAddress: '', deliveryDate: '', deliveryTimeWindow: '',
                 deliveryContactName: '', deliveryContactPhone: '',
-                cargoType: '', weight: '', description: '',
-                equipmentType: '', price: '', specialRequirements: '',
+                cargoType: '', weight: '', weightUnit: 'kg', description: '',
+                equipmentType: '', price: '', currency: 'PKR', specialRequirements: '',
+                originPinLocation: '', destinationPinLocation: '', termsAccepted: false,
               });
             }}
             className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
@@ -359,6 +388,31 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                 placeholder="e.g., SITE Industrial Area, Block 5"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <MapPin className="h-4 w-4 inline mr-1" />
+                Pin Location / Google Maps Link
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={formData.originPinLocation}
+                  onChange={(e) => handleChange('originPinLocation', e.target.value)}
+                  placeholder="e.g., https://maps.google.com/... or GPS coordinates"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOriginMap(true)}
+                  className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                >
+                  <Map className="h-4 w-4" />
+                  Select on Map
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Paste Google Maps link, enter GPS coordinates, or select on map</p>
             </div>
 
             <div>
@@ -477,6 +531,31 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               />
             </div>
 
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <MapPin className="h-4 w-4 inline mr-1" />
+                Pin Location / Google Maps Link
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={formData.destinationPinLocation}
+                  onChange={(e) => handleChange('destinationPinLocation', e.target.value)}
+                  placeholder="e.g., https://maps.google.com/... or GPS coordinates"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowDestinationMap(true)}
+                  className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                >
+                  <Map className="h-4 w-4" />
+                  Select on Map
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Paste Google Maps link, enter GPS coordinates, or select on map</p>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="h-4 w-4 inline mr-1" />
@@ -585,15 +664,26 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Scale className="h-4 w-4 inline mr-1" />
-                Weight (kg) <span className="text-red-500">*</span>
+                Weight <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                value={formData.weight}
-                onChange={(e) => handleChange('weight', e.target.value)}
-                placeholder="e.g., 15000"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => handleChange('weight', e.target.value)}
+                  placeholder="e.g., 15000"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+                <select
+                  value={formData.weightUnit}
+                  onChange={(e) => handleChange('weightUnit', e.target.value)}
+                  className="w-32 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  {WEIGHT_UNITS.map(unit => (
+                    <option key={unit.value} value={unit.value}>{unit.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -657,17 +747,30 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div className="bg-gray-50 p-6 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <DollarSign className="h-4 w-4 inline mr-1" />
-              Your Rate (PKR) <span className="text-red-500">*</span>
+              Your Rate <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rs</span>
-              <input
-                type="number"
-                value={formData.price}
-                onChange={(e) => handleChange('price', e.target.value)}
-                placeholder="125,000"
-                className="w-full pl-12 pr-4 py-4 text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
+            <div className="flex gap-2">
+              <select
+                value={formData.currency}
+                onChange={(e) => handleChange('currency', e.target.value)}
+                className="w-28 px-3 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium"
+              >
+                {CURRENCY_OPTIONS.map(curr => (
+                  <option key={curr.value} value={curr.value}>{curr.value}</option>
+                ))}
+              </select>
+              <div className="relative flex-1">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                  {CURRENCY_OPTIONS.find(c => c.value === formData.currency)?.symbol || 'Rs'}
+                </span>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => handleChange('price', e.target.value)}
+                  placeholder="125,000"
+                  className="w-full pl-12 pr-4 py-4 text-xl font-semibold border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
             </div>
             {/* Currency Conversion Display */}
             {formData.price && parseFloat(formData.price) > 0 && (
@@ -802,6 +905,36 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             </div>
             <p className="text-xs text-gray-400 mt-2">Max 5 documents, 10MB each (PDF, DOC, XLS)</p>
           </div>
+
+          {/* Terms & Conditions */}
+          <div className="border-t pt-6">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.termsAccepted}
+                  onChange={(e) => setFormData(prev => ({ ...prev, termsAccepted: e.target.checked }))}
+                  className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    I accept the Terms & Conditions <span className="text-red-500">*</span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    By posting this load, I agree to the{' '}
+                    <a href="/terms" target="_blank" className="text-green-600 hover:underline font-medium">
+                      Terms of Service
+                    </a>{' '}
+                    and{' '}
+                    <a href="/privacy" target="_blank" className="text-green-600 hover:underline font-medium">
+                      Privacy Policy
+                    </a>
+                    . I confirm that all information provided is accurate.
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
       )}
 
@@ -860,6 +993,56 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           )}
         </div>
       </div>
+
+      {/* Origin Map Modal */}
+      {showOriginMap && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-bold">Select Pickup Location</h3>
+              <button onClick={() => setShowOriginMap(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <LocationPicker
+                label="Pickup Location"
+                placeholder="Search for pickup location..."
+                onChange={(location) => {
+                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+                  handleChange('originPinLocation', location.address || coords);
+                  setShowOriginMap(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Destination Map Modal */}
+      {showDestinationMap && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-bold">Select Delivery Location</h3>
+              <button onClick={() => setShowDestinationMap(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <LocationPicker
+                label="Delivery Location"
+                placeholder="Search for delivery location..."
+                onChange={(location) => {
+                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+                  handleChange('destinationPinLocation', location.address || coords);
+                  setShowDestinationMap(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

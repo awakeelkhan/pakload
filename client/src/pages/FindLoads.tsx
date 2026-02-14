@@ -103,6 +103,16 @@ export default function FindLoads() {
     setMenuOpenId(null);
   };
 
+  // Currency symbol helper
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'PKR': return 'PKR';
+      case 'CNY': return '¥';
+      case 'USD': return '$';
+      default: return 'PKR';
+    }
+  };
+
   // Convert database loads to display format
   const allLoads = loads.map(load => ({
     id: load.id,
@@ -112,8 +122,9 @@ export default function FindLoads() {
     weight: load.weight || 0,
     volume: parseInt(load.volume || '0') || 0,
     vehicle: '40ft Container',
-    rateUsd: parseFloat(load.price || '0') || 0,
-    ratePkr: (parseFloat(load.price || '0') || 0) * 278,
+    price: parseFloat(load.price || '0') || 0,
+    currency: load.currency || 'PKR',
+    currencySymbol: getCurrencySymbol(load.currency || 'PKR'),
     ratePerKm: 3.5,
     distance: 1200,
     pickupDate: load.pickupDate?.split('T')[0] || 'TBD',
@@ -683,8 +694,8 @@ export default function FindLoads() {
     if (filters.minWeight && load.weight < parseInt(filters.minWeight)) return false;
     if (filters.maxWeight && load.weight > parseInt(filters.maxWeight)) return false;
     if (filters.vehicleType && !load.vehicle.toLowerCase().includes(filters.vehicleType.toLowerCase())) return false;
-    if (filters.minRate && load.rateUsd < parseInt(filters.minRate)) return false;
-    if (filters.maxRate && load.rateUsd > parseInt(filters.maxRate)) return false;
+    if (filters.minRate && load.price < parseInt(filters.minRate)) return false;
+    if (filters.maxRate && load.price > parseInt(filters.maxRate)) return false;
     if (filters.pickupDateFrom && load.pickupDate < filters.pickupDateFrom) return false;
     if (filters.pickupDateTo && load.pickupDate > filters.pickupDateTo) return false;
     if (filters.urgentOnly && !load.urgent) return false;
@@ -695,7 +706,7 @@ export default function FindLoads() {
   const sortedLoads = [...filteredLoads].sort((a, b) => {
     switch (sortBy) {
       case 'rate':
-        return b.rateUsd - a.rateUsd;
+        return b.price - a.price;
       case 'distance':
         return a.distance - b.distance;
       case 'date':
@@ -752,7 +763,7 @@ export default function FindLoads() {
             <div className="text-sm text-slate-600">Urgent Loads</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
-            <div className="text-2xl font-bold text-green-600">${avgRate}/km</div>
+            <div className="text-2xl font-bold text-green-600">PKR {avgRate}/km</div>
             <div className="text-sm text-slate-600">Avg Rate</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
@@ -1024,9 +1035,9 @@ export default function FindLoads() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-green-600">${load.rateUsd.toLocaleString()}</div>
-                        <div className="text-sm text-slate-500">PKR {load.ratePkr.toLocaleString()}</div>
-                        <div className="text-xs text-slate-400">${load.ratePerKm}/km</div>
+                        <div className="text-2xl font-bold text-green-600">{load.currencySymbol} {load.price.toLocaleString()}</div>
+                        <div className="text-sm text-slate-500">{load.currency}</div>
+                        <div className="text-xs text-slate-400">{load.currencySymbol} {load.ratePerKm}/km</div>
                       </div>
                       <button
                         onClick={() => toggleSaveLoad(load.id)}
@@ -1191,15 +1202,11 @@ export default function FindLoads() {
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <h4 className="font-semibold text-slate-900 mb-2">Contact Information</h4>
-                          <div className="space-y-2 text-sm">
-                            <a href={`tel:${load.contactPhone}`} className="flex items-center gap-2 text-green-600 hover:text-green-700">
-                              <Phone className="w-4 h-4" />
-                              {load.contactPhone}
-                            </a>
-                            <a href={`mailto:${load.contactEmail}`} className="flex items-center gap-2 text-green-600 hover:text-green-700">
-                              <Mail className="w-4 h-4" />
-                              {load.contactEmail}
-                            </a>
+                          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                            <p className="text-sm text-slate-600">
+                              <Shield className="w-4 h-4 inline mr-1 text-green-600" />
+                              Shipper contact details are protected. Submit a bid to connect with the shipper.
+                            </p>
                           </div>
                         </div>
                         <div>
@@ -1223,12 +1230,6 @@ export default function FindLoads() {
                         </div>
                       </div>
                       <div className="flex gap-2 pt-3">
-                        <a 
-                          href={`mailto:${load.contactEmail}?subject=Inquiry about Load ${load.id}&body=Hello ${load.postedBy},%0D%0A%0D%0AI am interested in your load from ${load.origin} to ${load.destination}.`}
-                          className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center"
-                        >
-                          Contact Shipper
-                        </a>
                         <button 
                           onClick={() => {
                             if (!user) {

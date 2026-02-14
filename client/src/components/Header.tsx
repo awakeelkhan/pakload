@@ -112,6 +112,26 @@ export default function Header() {
                           <Package className="w-4 h-4" />
                           {t('header.adminDashboard', 'Admin Dashboard')}
                         </button>
+                        <button onClick={() => { navigate('/admin/load-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Load Approvals
+                        </button>
+                        <button onClick={() => { navigate('/admin/bid-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Bid Approvals
+                        </button>
+                        <button onClick={() => { navigate('/admin/market-requests'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Market Requests
+                        </button>
+                        <button onClick={() => { navigate('/admin/verification'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Verification & Compliance
+                        </button>
+                        <button onClick={() => { navigate('/admin/payment-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Payment Approvals
+                        </button>
                         <button onClick={() => { navigate('/admin/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Settings className="w-4 h-4" />
                           {t('header.adminSettings', 'Admin Settings')}
@@ -138,6 +158,10 @@ export default function Header() {
                         <button onClick={() => { navigate('/my-requests'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
                           {t('header.myRequests', 'My Requests')}
+                        </button>
+                        <button onClick={() => { navigate('/payments'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                          <Package className="w-4 h-4" />
+                          Payments
                         </button>
                         {user?.role === 'carrier' && (
                           <button onClick={() => { navigate('/vehicles'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">

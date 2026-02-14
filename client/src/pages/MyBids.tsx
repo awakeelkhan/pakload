@@ -3,9 +3,10 @@ import { useLocation } from 'wouter';
 import { 
   Package, MapPin, Calendar, DollarSign, Clock, CheckCircle, XCircle, 
   AlertCircle, User, Truck, MessageSquare, Star, Phone, Mail, 
-  ChevronDown, ChevronUp, Filter, RefreshCw, Bell
+  ChevronDown, ChevronUp, Filter, RefreshCw, Bell, FileText
 } from 'lucide-react';
 import { useToast } from '../components/Toast';
+import BiltyInvoice from '../components/BiltyInvoice';
 
 interface Bid {
   id: number;
@@ -45,6 +46,7 @@ export default function MyBids() {
   const [expandedBid, setExpandedBid] = useState<number | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all');
   const [processingBid, setProcessingBid] = useState<number | null>(null);
+  const [showBilty, setShowBilty] = useState<Bid | null>(null);
 
   useEffect(() => {
     fetchBids();
@@ -375,16 +377,21 @@ export default function MyBids() {
                           </p>
                         </div>
 
-                        {/* Contact Info */}
-                        {bid.carrier && (
-                          <div className="mt-4 space-y-2">
-                            <h4 className="font-semibold text-slate-900">Contact Carrier</h4>
-                            <a href={`tel:${bid.carrier.phone || ''}`} className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700">
-                              <Phone className="w-4 h-4" /> {bid.carrier.phone || 'Not provided'}
-                            </a>
-                            <a href={`mailto:${bid.carrier.email || ''}`} className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700">
-                              <Mail className="w-4 h-4" /> {bid.carrier.email || 'Not provided'}
-                            </a>
+                        {/* Contact Info - Hidden for privacy, only shown after booking confirmed */}
+                        {bid.carrier && bid.status === 'confirmed' && (
+                          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <h4 className="font-semibold text-green-800 mb-2">Carrier Contact (Booking Confirmed)</h4>
+                            <p className="text-sm text-green-700">
+                              Contact details are shared via in-app messaging for your security.
+                            </p>
+                          </div>
+                        )}
+                        {bid.carrier && bid.status === 'pending' && (
+                          <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                            <h4 className="font-semibold text-slate-700 mb-1">Contact Information</h4>
+                            <p className="text-sm text-slate-600">
+                              Carrier contact details will be available after you accept this bid.
+                            </p>
                           </div>
                         )}
                       </div>
@@ -418,11 +425,20 @@ export default function MyBids() {
 
                     {bid.status === 'confirmed' && (
                       <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-700">
-                          <CheckCircle className="w-5 h-5" />
-                          <span className="font-medium">Bid Accepted - Booking Confirmed</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-green-700">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="font-medium">Bid Accepted - Booking Confirmed</span>
+                          </div>
+                          <button
+                            onClick={() => setShowBilty(bid)}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm font-medium"
+                          >
+                            <FileText className="w-4 h-4" />
+                            View Bilty / Invoice
+                          </button>
                         </div>
-                        <p className="text-sm text-green-600 mt-1">
+                        <p className="text-sm text-green-600 mt-2">
                           The carrier has been notified and will contact you to arrange pickup.
                         </p>
                       </div>
@@ -434,6 +450,41 @@ export default function MyBids() {
           </div>
         )}
       </div>
+
+      {/* Bilty Invoice Modal */}
+      {showBilty && showBilty.load && showBilty.carrier && (
+        <BiltyInvoice
+          booking={{
+            id: showBilty.id,
+            trackingNumber: showBilty.load.trackingNumber || `LP-${showBilty.id.toString().padStart(6, '0')}`,
+            loadId: showBilty.loadId,
+            status: showBilty.status,
+            createdAt: showBilty.createdAt,
+            price: parseFloat(showBilty.price) || 0,
+            currency: 'PKR',
+          }}
+          load={{
+            origin: showBilty.load.origin || 'N/A',
+            destination: showBilty.load.destination || 'N/A',
+            cargoType: showBilty.load.cargoType || 'General',
+            weight: showBilty.load.cargoWeight || 'N/A',
+            pickupDate: showBilty.pickupDate?.split('T')[0] || 'TBD',
+            deliveryDate: showBilty.deliveryDate?.split('T')[0] || 'TBD',
+          }}
+          shipper={{
+            name: 'Shipper',
+            phone: 'Contact via platform',
+            email: 'Contact via platform',
+          }}
+          carrier={{
+            name: `${showBilty.carrier.firstName || ''} ${showBilty.carrier.lastName || ''}`.trim() || 'Carrier',
+            company: showBilty.carrier.companyName,
+            phone: 'Contact via platform',
+            email: 'Contact via platform',
+          }}
+          onClose={() => setShowBilty(null)}
+        />
+      )}
     </div>
   );
 }

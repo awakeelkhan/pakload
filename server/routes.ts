@@ -17,6 +17,7 @@ import builtyRoutes from './routes/builty.js';
 import adminSettingsRoutes from './routes/admin-settings.js';
 import loadsEnhancedRoutes from './routes/loads-enhanced.js';
 import uploadRoutes from './routes/upload.js';
+import trackingRoutes from './routes/tracking.js';
 
 const userRepo = new UserRepository();
 const loadRepo = new LoadRepository();
@@ -59,6 +60,9 @@ export function registerRoutes(app: Express) {
 
   // File upload routes
   app.use('/api/upload', uploadRoutes);
+
+  // Tracking routes (driver location and status updates)
+  app.use('/api/tracking', trackingRoutes);
 
   // Authentication endpoints
   app.post('/api/v1/auth/register', async (req, res) => {
@@ -792,6 +796,25 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get all quotes with optional status filter (admin)
+  app.get('/api/quotes', requireAuth, async (req, res) => {
+    try {
+      const { status } = req.query;
+      
+      // Only admin can view all quotes
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admin can view all quotes' });
+      }
+      
+      const allBookings = await bookingRepo.findAll({ status: status as string });
+      
+      res.json({ quotes: allBookings });
+    } catch (error) {
+      console.error('Error fetching quotes:', error);
+      res.status(500).json({ error: 'Failed to fetch quotes' });
+    }
+  });
+
   app.get('/api/quotes/load/:loadId', async (req, res) => {
     try {
       const bookings = await bookingRepo.findByLoad(parseInt(req.params.loadId));
@@ -1147,6 +1170,40 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error rejecting quote:', error);
       res.status(500).json({ error: 'Failed to reject quote' });
+    }
+  });
+
+  // Update quote/bid status (admin only)
+  app.put('/api/quotes/:id', requireAuth, async (req, res) => {
+    try {
+      const quoteId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      // Only admin can update quote status directly
+      if (req.user!.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admin can update quote status' });
+      }
+      
+      const existingBooking = await bookingRepo.findById(quoteId);
+      
+      if (!existingBooking) {
+        return res.status(404).json({ error: 'Quote not found' });
+      }
+      
+      // Map status values to valid enum values
+      let bookingStatus = status;
+      if (status === 'approved' || status === 'confirmed') {
+        bookingStatus = 'confirmed';
+      } else if (status === 'rejected' || status === 'cancelled') {
+        bookingStatus = 'cancelled';
+      }
+      
+      const updatedBooking = await bookingRepo.update(quoteId, { status: bookingStatus });
+      
+      res.json({ message: 'Quote updated successfully', booking: updatedBooking });
+    } catch (error) {
+      console.error('Error updating quote:', error);
+      res.status(500).json({ error: 'Failed to update quote' });
     }
   });
 

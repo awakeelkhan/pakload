@@ -35,6 +35,11 @@ import PricingRules from './pages/admin/PricingRules';
 import RoutePricing from './pages/admin/RoutePricing';
 import AuditLogs from './pages/admin/AuditLogs';
 import UserManagement from './pages/admin/UserManagement';
+import LoadApprovals from './pages/admin/LoadApprovals';
+import BidApprovals from './pages/admin/BidApprovals';
+import MarketRequestsAdmin from './pages/admin/MarketRequestsAdmin';
+import VerificationDocuments from './pages/admin/VerificationDocuments';
+import PaymentApprovals from './pages/admin/PaymentApprovals';
 import Documentation from './pages/Documentation';
 import HelpCenter from './pages/HelpCenter';
 import OAuthCallback from './pages/OAuthCallback';
@@ -44,6 +49,7 @@ import Analytics from './pages/Analytics';
 import MarketRequests from './pages/MarketRequests';
 import MyRequests from './pages/MyRequests';
 import ForgotPassword from './pages/ForgotPassword';
+import Payments from './pages/Payments';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,6 +92,11 @@ function App() {
               <Route path="/admin/settings/route-pricing" component={RoutePricing} />
               <Route path="/admin/settings/audit-logs" component={AuditLogs} />
               <Route path="/admin/settings/users" component={UserManagement} />
+              <Route path="/admin/load-approvals" component={LoadApprovals} />
+              <Route path="/admin/bid-approvals" component={BidApprovals} />
+              <Route path="/admin/market-requests" component={MarketRequestsAdmin} />
+              <Route path="/admin/verification" component={VerificationDocuments} />
+              <Route path="/admin/payment-approvals" component={PaymentApprovals} />
               <Route path="/loads" component={FindLoads} />
               <Route path="/trucks" component={FindTrucks} />
               <Route path="/post-load" component={PostLoad} />
@@ -106,6 +117,7 @@ function App() {
               <Route path="/analytics" component={Analytics} />
               <Route path="/market-requests" component={MarketRequests} />
               <Route path="/my-requests" component={MyRequests} />
+              <Route path="/payments" component={Payments} />
               <Route component={NotFound} />
             </Switch>
           </main>

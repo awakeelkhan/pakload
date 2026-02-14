@@ -1,8 +1,11 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-// Production API URL - change this to your EC2 instance
-export const API_BASE_URL = 'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com';
+// Production API URL - supports both HTTPS (preferred) and HTTP fallback
+export const API_BASE_URL = 'https://loadspak.com';
+
+// Fallback URL if HTTPS fails (for testing/development)
+export const API_BASE_URL_HTTP = 'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -1,5 +1,5 @@
 import { Users, Package, Truck, DollarSign, TrendingUp, Activity, AlertTriangle, CheckCircle, Clock, BarChart3, Settings, Shield, FileText, Bell, X, Edit2, Trash2, Ban, CheckSquare, Plus, RefreshCw, MapPin, Database, ShoppingBag, Eye, MessageSquare } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
 import ConfirmModal from './ConfirmModal';
 
@@ -14,6 +14,8 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [marketRequests, setMarketRequests] = useState<any[]>([]);
+  const [pendingLoads, setPendingLoads] = useState<any[]>([]);
+  const [pendingBids, setPendingBids] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userActionConfirm, setUserActionConfirm] = useState<{ show: boolean; userId: number | null; action: string; title: string; message: string }>({
     show: false,
@@ -95,6 +97,38 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
       } catch (reqError) {
         console.error('Error fetching market requests:', reqError);
       }
+
+      // Fetch pending loads for approval
+      try {
+        const token = localStorage.getItem('access_token');
+        const loadsRes = await fetch('/api/loads?status=pending', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+          },
+        });
+        if (loadsRes.ok) {
+          const loadsData = await loadsRes.json();
+          setPendingLoads(loadsData.loads || loadsData || []);
+        }
+      } catch (loadError) {
+        console.error('Error fetching pending loads:', loadError);
+      }
+
+      // Fetch pending bids for approval
+      try {
+        const token = localStorage.getItem('access_token');
+        const bidsRes = await fetch('/api/quotes?status=pending', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+          },
+        });
+        if (bidsRes.ok) {
+          const bidsData = await bidsRes.json();
+          setPendingBids(bidsData.quotes || bidsData || []);
+        }
+      } catch (bidError) {
+        console.error('Error fetching pending bids:', bidError);
+      }
     } catch (error) {
       console.error('Error fetching admin dashboard data:', error);
     } finally {
@@ -154,6 +188,54 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     setShowConfigModal(false);
   };
 
+  const handleLoadApproval = async (loadId: number, action: 'approve' | 'reject') => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const newStatus = action === 'approve' ? 'active' : 'rejected';
+      const response = await fetch(`/api/loads/${loadId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (response.ok) {
+        setPendingLoads(pendingLoads.filter(l => l.id !== loadId));
+        alert(`Load ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
+      } else {
+        alert('Failed to update load status');
+      }
+    } catch (error) {
+      console.error('Error updating load:', error);
+      alert('Failed to update load status');
+    }
+  };
+
+  const handleBidApproval = async (bidId: number, action: 'approve' | 'reject') => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const newStatus = action === 'approve' ? 'approved' : 'rejected';
+      const response = await fetch(`/api/quotes/${bidId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (response.ok) {
+        setPendingBids(pendingBids.filter(b => b.id !== bidId));
+        alert(`Bid ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
+      } else {
+        alert('Failed to update bid status');
+      }
+    } catch (error) {
+      console.error('Error updating bid:', error);
+      alert('Failed to update bid status');
+    }
+  };
+
   const recentActivity = [
     { id: 1, type: 'load_posted', user: 'Khan Logistics', description: 'Posted new load: Kashgar → Islamabad', time: '5 min ago', status: 'success' },
     { id: 2, type: 'booking_confirmed', user: 'CPEC Express', description: 'Booking confirmed for $4,200', time: '15 min ago', status: 'success' },
@@ -179,17 +261,31 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     { month: 'Dec', revenue: 156780, fees: 24560 },
   ];
 
+  const [, navigate] = useLocation();
+
+  const adminMenuItems = [
+    { id: 'overview', label: 'Dashboard', icon: BarChart3, badge: null, path: '/dashboard' },
+    { id: 'load-approvals', label: 'Load Approvals', icon: Package, badge: pendingLoads.length, path: '/admin/load-approvals' },
+    { id: 'bid-approvals', label: 'Bid Approvals', icon: DollarSign, badge: pendingBids.length, path: '/admin/bid-approvals' },
+    { id: 'market-requests', label: 'Market Requests', icon: ShoppingBag, badge: marketRequests.length, path: '/admin/market-requests' },
+    { id: 'users', label: 'User Management', icon: Users, badge: null, path: '/admin/settings/users' },
+    { id: 'settings', label: 'Settings', icon: Settings, badge: null, path: '/admin/settings' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Header */}
+        {/* Admin Header with Navigation */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">
-                Admin Dashboard
-              </h1>
-              <p className="text-slate-600 mt-1">Platform overview and management</p>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center">
+                <Shield className="w-6 h-6 text-green-500" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Admin Panel</h1>
+                <p className="text-slate-600 text-sm">LoadsPak Management Console</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <select 
@@ -202,11 +298,36 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                 <option value="30d">Last 30 Days</option>
                 <option value="90d">Last 90 Days</option>
               </select>
-              <Link href="/settings">
-                <a className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                  <Settings className="w-5 h-5 text-slate-600" />
+              <Link href="/">
+                <a className="px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors">
+                  Back to Site
                 </a>
               </Link>
+            </div>
+          </div>
+
+          {/* Admin Navigation Tabs */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2">
+            <div className="flex flex-wrap gap-2">
+              {adminMenuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => navigate(item.path)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
+                    item.id === 'overview' 
+                      ? 'bg-green-600 text-white' 
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                  {item.badge !== null && item.badge > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -305,6 +426,126 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                   </div>
                   <span className="text-sm font-medium text-slate-900">Configuration</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Pending Load Approvals */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                  Pending Load Approvals
+                </h2>
+                <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                  {pendingLoads.length} pending
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Review and approve loads before they become visible to carriers
+              </p>
+              <div className="space-y-3">
+                {pendingLoads.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-300" />
+                    <p>No pending loads to approve</p>
+                  </div>
+                ) : (
+                  pendingLoads.slice(0, 5).map((load: any) => (
+                    <div key={load.id} className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-slate-900">{load.origin} → {load.destination}</h3>
+                            <span className="px-2 py-0.5 bg-amber-200 text-amber-800 rounded-full text-xs font-medium">
+                              Pending
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">
+                            {load.cargoType} • {load.weight} kg • PKR {parseInt(load.price || 0).toLocaleString()}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span>Pickup: {new Date(load.pickupDate).toLocaleDateString()}</span>
+                            <span>Posted: {new Date(load.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          <button 
+                            onClick={() => handleLoadApproval(load.id, 'approve')}
+                            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button 
+                            onClick={() => handleLoadApproval(load.id, 'reject')}
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Pending Bid Approvals */}
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-blue-600" />
+                  Pending Bid Approvals
+                </h2>
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                  {pendingBids.length} pending
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Review and approve bids before they are sent to shippers
+              </p>
+              <div className="space-y-3">
+                {pendingBids.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-300" />
+                    <p>No pending bids to approve</p>
+                  </div>
+                ) : (
+                  pendingBids.slice(0, 5).map((bid: any) => (
+                    <div key={bid.id} className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-slate-900">Bid: PKR {parseInt(bid.quotedPrice || 0).toLocaleString()}</h3>
+                            <span className="px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs font-medium">
+                              Pending
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-600 mb-2">
+                            Load #{bid.loadId} • {bid.estimatedDays} days delivery
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-slate-500">
+                            <span>Carrier ID: {bid.carrierId}</span>
+                            <span>Submitted: {new Date(bid.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          <button 
+                            onClick={() => handleBidApproval(bid.id, 'approve')}
+                            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button 
+                            onClick={() => handleBidApproval(bid.id, 'reject')}
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

@@ -288,7 +288,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     
     const {
       origin, destination, pickupDate, deliveryDate,
-      cargoType, cargoWeight, description, price,
+      cargoType, cargoWeight, description, price, status,
     } = req.body;
     
     const [updatedLoad] = await db.update(loads)
@@ -301,6 +301,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         cargoWeight: cargoWeight ? String(cargoWeight) : existingLoad.cargoWeight,
         description: description !== undefined ? description : existingLoad.description,
         price: price ? String(price) : existingLoad.price,
+        status: status || existingLoad.status,
         updatedAt: new Date(),
       })
       .where(eq(loads.id, loadId))

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Bell, Lock, Globe, CreditCard, Shield, Mail, Phone, User, Home, X, Check, Loader2 } from 'lucide-react';
+import { Bell, Lock, Globe, CreditCard, Shield, Home, X, Check, Loader2, Building } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useTranslation } from 'react-i18next';
 
@@ -84,7 +84,7 @@ export default function Settings() {
     setLoading(true);
     try {
       i18n.changeLanguage(selectedLanguage);
-      document.documentElement.dir = selectedLanguage === 'ur' ? 'rtl' : 'ltr';
+      document.documentElement.dir = (selectedLanguage === 'ur' || selectedLanguage === 'ps') ? 'rtl' : 'ltr';
       await new Promise(resolve => setTimeout(resolve, 500));
       setSuccessMessage('Language settings saved!');
       setShowLanguageModal(false);
@@ -190,7 +190,7 @@ export default function Settings() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-slate-900">{t('settings.language', 'Language')}: {selectedLanguage === 'en' ? 'English' : selectedLanguage === 'ur' ? 'اردو' : '中文'}</p>
+                  <p className="font-medium text-slate-900">{t('settings.language', 'Language')}: {selectedLanguage === 'en' ? 'English' : selectedLanguage === 'ur' ? 'اردو' : selectedLanguage === 'ps' ? 'پښتو' : '中文'}</p>
                   <p className="text-sm text-slate-600">{t('settings.timeZone', 'Time Zone')}: {selectedTimezone === 'PKT' ? 'Pakistan Standard Time' : 'China Standard Time'}</p>
                 </div>
                 <span className="text-slate-400">→</span>
@@ -389,6 +389,7 @@ export default function Settings() {
                   >
                     <option value="en">English</option>
                     <option value="ur">اردو (Urdu)</option>
+                    <option value="ps">پښتو (Pashto)</option>
                     <option value="zh">中文 (Chinese)</option>
                   </select>
                 </div>

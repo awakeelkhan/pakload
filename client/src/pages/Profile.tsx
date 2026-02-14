@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
-import { User, Mail, Phone, Building, Star, Calendar, MapPin, Edit2, Shield, Award, Home, X, Save, Lock, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, Building, Star, Calendar, MapPin, Edit2, Shield, Award, Home, X, Save, Lock, Loader2, FileText, Upload, CheckCircle, Clock, AlertCircle, CreditCard, Briefcase } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 
 export default function Profile() {
@@ -18,6 +18,59 @@ export default function Profile() {
     phone: user?.phone || '',
     companyName: user?.companyName || '',
   });
+
+  // Carrier verification documents state
+  const [verificationDocs, setVerificationDocs] = useState<{
+    nic: { file: File | null; preview: string; status: 'pending' | 'uploaded' | 'verified' | 'rejected' };
+    license: { file: File | null; preview: string; status: 'pending' | 'uploaded' | 'verified' | 'rejected' };
+    companyReg: { file: File | null; preview: string; status: 'pending' | 'uploaded' | 'verified' | 'rejected' };
+    vehicleReg: { file: File | null; preview: string; status: 'pending' | 'uploaded' | 'verified' | 'rejected' };
+  }>({
+    nic: { file: null, preview: '', status: 'pending' },
+    license: { file: null, preview: '', status: 'pending' },
+    companyReg: { file: null, preview: '', status: 'pending' },
+    vehicleReg: { file: null, preview: '', status: 'pending' },
+  });
+  const [businessLocation, setBusinessLocation] = useState('');
+  const [savingDocs, setSavingDocs] = useState(false);
+
+  const handleDocUpload = (docType: 'nic' | 'license' | 'companyReg' | 'vehicleReg', e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      addToast('error', 'File size must be less than 5MB');
+      return;
+    }
+    
+    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      addToast('error', 'Only PDF, JPG, and PNG files are allowed');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      setVerificationDocs(prev => ({
+        ...prev,
+        [docType]: { file, preview: reader.result as string, status: 'uploaded' }
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveDocuments = async () => {
+    setSavingDocs(true);
+    try {
+      // In a real app, upload files to server
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      addToast('success', 'Documents submitted for verification. Admin will review within 24-48 hours.');
+    } catch (error) {
+      addToast('error', 'Failed to save documents');
+    } finally {
+      setSavingDocs(false);
+    }
+  };
   
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -283,6 +336,212 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Verification Documents Section - For Carriers */}
+        {user.role === 'carrier' && (
+          <div className="mt-6 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  Verification Documents
+                </h2>
+                <p className="text-sm text-slate-600 mt-1">Upload your documents for KYC verification</p>
+              </div>
+              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Pending Verification
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* NIC / CNIC - Required for Pakistan */}
+              <div className={`border rounded-lg p-4 transition-colors ${verificationDocs.nic.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-green-300'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">NIC / CNIC</h3>
+                      <p className="text-xs text-slate-500">National Identity Card (Pakistan)</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
+                </div>
+                <label className="block">
+                  {verificationDocs.nic.status === 'uploaded' ? (
+                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                      <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.nic.file?.name}</p>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Click to upload</p>
+                      <p className="text-xs text-slate-400 mt-1">PDF or JPG (max 5MB)</p>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleDocUpload('nic', e)} />
+                </label>
+              </div>
+
+              {/* Driving License - Required */}
+              <div className={`border rounded-lg p-4 transition-colors ${verificationDocs.license.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-green-300'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">Driving License</h3>
+                      <p className="text-xs text-slate-500">Valid commercial driving license</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
+                </div>
+                <label className="block">
+                  {verificationDocs.license.status === 'uploaded' ? (
+                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                      <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.license.file?.name}</p>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Click to upload</p>
+                      <p className="text-xs text-slate-400 mt-1">PDF or JPG (max 5MB)</p>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleDocUpload('license', e)} />
+                </label>
+              </div>
+
+              {/* Vehicle Registration - Required */}
+              <div className={`border rounded-lg p-4 transition-colors ${verificationDocs.vehicleReg.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-green-300'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">Vehicle Registration</h3>
+                      <p className="text-xs text-slate-500">Vehicle registration certificate</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
+                </div>
+                <label className="block">
+                  {verificationDocs.vehicleReg.status === 'uploaded' ? (
+                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                      <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.vehicleReg.file?.name}</p>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Click to upload</p>
+                      <p className="text-xs text-slate-400 mt-1">PDF or JPG (max 5MB)</p>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleDocUpload('vehicleReg', e)} />
+                </label>
+              </div>
+
+              {/* Company Registration - Optional */}
+              <div className={`border rounded-lg p-4 transition-colors ${verificationDocs.companyReg.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-green-300'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">Company Registration</h3>
+                      <p className="text-xs text-slate-500">NTN / Business registration (if applicable)</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded text-xs">Optional</span>
+                </div>
+                <label className="block">
+                  {verificationDocs.companyReg.status === 'uploaded' ? (
+                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                      <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.companyReg.file?.name}</p>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+                      <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Click to upload</p>
+                      <p className="text-xs text-slate-400 mt-1">PDF or JPG (max 5MB)</p>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => handleDocUpload('companyReg', e)} />
+                </label>
+              </div>
+
+              {/* Pin Location - Optional */}
+              <div className="border border-slate-200 rounded-lg p-4 hover:border-green-300 transition-colors md:col-span-2">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">Business Location</h3>
+                      <p className="text-xs text-slate-500">Pin your office/yard location for verification</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded text-xs">Optional</span>
+                </div>
+                <input
+                  type="text"
+                  value={businessLocation}
+                  onChange={(e) => setBusinessLocation(e.target.value)}
+                  placeholder="Paste Google Maps link or GPS coordinates"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Required Documents Notice */}
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-amber-800">Required Documents for Pakistan/China Routes</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    To operate on CPEC routes, you must upload: NIC/CNIC, Driving License, and Vehicle Registration.
+                    Company Registration is optional but recommended for business accounts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={handleSaveDocuments}
+                disabled={savingDocs}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {savingDocs ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Submit for Verification
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Profile Modal */}

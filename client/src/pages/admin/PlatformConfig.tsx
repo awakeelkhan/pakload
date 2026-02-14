@@ -118,6 +118,15 @@ export default function PlatformConfig() {
     { key: 'maintenance_mode', label: 'Maintenance Mode', description: 'Enable maintenance mode', defaultValue: 'false' },
   ];
 
+  // Route Calculator Settings
+  const routeCalculatorSettings = [
+    { key: 'toll_tax_per_100km', label: 'Toll Tax per 100 KM (PKR)', description: 'Minimum toll tax charged every 100 kilometers', defaultValue: '3000' },
+    { key: 'driver_accommodation_per_day', label: 'Driver Accommodation & Food per Day (PKR)', description: 'Daily allowance for driver accommodation and food', defaultValue: '7000' },
+    { key: 'trucker_profit_margin', label: 'Trucker Profit Margin (%)', description: 'Profit margin percentage for truckers', defaultValue: '35' },
+    { key: 'fuel_price_per_liter', label: 'Fuel Price per Liter (PKR)', description: 'Current diesel fuel price', defaultValue: '290' },
+    { key: 'avg_fuel_consumption', label: 'Avg Fuel Consumption (km/liter)', description: 'Average truck fuel consumption', defaultValue: '4' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -222,6 +231,84 @@ export default function PlatformConfig() {
                             setEditValue(existingConfig?.value || setting.defaultValue);
                           }}
                           className="text-orange-600 hover:text-orange-800"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Route Calculator Settings */}
+        <div className="mb-8 bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Route Calculator Settings</h2>
+          <p className="text-sm text-gray-500 mb-4">Configure pricing parameters for the route calculator including toll tax, driver expenses, and profit margins.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {routeCalculatorSettings.map((setting) => {
+              const existingConfig = configs.find(c => c.key === setting.key);
+              const isEditing = editingKey === setting.key;
+              
+              return (
+                <div key={setting.key} className="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-green-50 to-white">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{setting.label}</div>
+                      <div className="text-xs text-gray-500">{setting.description}</div>
+                    </div>
+                    {existingConfig && (
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        existingConfig.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {existingConfig.status}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {isEditing ? (
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                      <button
+                        onClick={() => handleUpdate(setting.key)}
+                        className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      >
+                        <Save className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setEditingKey(null)}
+                        className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xl font-bold text-green-700">
+                        {existingConfig?.value || setting.defaultValue}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {existingConfig && existingConfig.status === 'draft' && (
+                          <button
+                            onClick={() => handlePublish(setting.key)}
+                            className="text-xs text-green-600 hover:text-green-800"
+                          >
+                            Publish
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setEditingKey(setting.key);
+                            setEditValue(existingConfig?.value || setting.defaultValue);
+                          }}
+                          className="text-green-600 hover:text-green-800"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>

@@ -276,10 +276,163 @@ export default function Routes() {
                       <p className="text-2xl font-bold text-slate-900">PKR {selectedRoute.tollCost.toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className="mt-4 p-4 bg-white rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">Total Estimated Cost</span>
-                      <span className="text-2xl font-bold text-green-600">PKR {(selectedRoute.fuelCost + selectedRoute.tollCost).toLocaleString()}</span>
+                  {/* Loadboard-Style Cost Breakdown */}
+                  <div className="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3">
+                      <h4 className="font-bold text-white flex items-center gap-2">
+                        <Calculator className="w-5 h-5" />
+                        Route Price Calculator
+                      </h4>
+                      <p className="text-slate-300 text-xs mt-1">Detailed breakdown based on national transport standards</p>
+                    </div>
+                    
+                    <div className="p-4">
+                      {/* Operating Costs Section */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                          <Fuel className="w-4 h-4 text-amber-600" />
+                          Operating Costs
+                        </h5>
+                        <div className="bg-slate-50 rounded-lg p-3 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="text-sm text-slate-700">Fuel Cost</span>
+                              <p className="text-xs text-slate-500">{getFuelConsumption(selectedRoute.distance)} liters × PKR {fuelPrice}/L</p>
+                            </div>
+                            <span className="font-bold text-slate-900">PKR {selectedRoute.fuelCost.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Toll & Taxes Section */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-blue-600" />
+                          Toll Tax & Highway Charges
+                        </h5>
+                        <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="text-sm text-slate-700">Toll Tax</span>
+                              <p className="text-xs text-slate-500">PKR 3,000 per 100 KM × {Math.ceil(selectedRoute.distance / 100)} segments</p>
+                            </div>
+                            <span className="font-bold text-slate-900">PKR {(Math.ceil(selectedRoute.distance / 100) * 3000).toLocaleString()}</span>
+                          </div>
+                          <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                            ℹ️ Minimum toll: PKR 3,000 (applies to routes under 100 KM)
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Driver Expenses Section */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                          <Truck className="w-4 h-4 text-green-600" />
+                          Driver Expenses
+                        </h5>
+                        <div className="bg-green-50 rounded-lg p-3 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="text-sm text-slate-700">Accommodation & Food</span>
+                              <p className="text-xs text-slate-500">PKR 7,000/day × {Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)} days</p>
+                            </div>
+                            <span className="font-bold text-slate-900">PKR {((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000).toLocaleString()}</span>
+                          </div>
+                          <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+                            ℹ️ Includes meals, rest stops, and overnight stays
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Subtotal */}
+                      <div className="border-t border-slate-200 pt-3 mb-3">
+                        <div className="flex justify-between items-center text-slate-700">
+                          <span className="font-medium">Subtotal (Operating Costs)</span>
+                          <span className="font-bold text-lg">PKR {(
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      {/* Profit Margin Section */}
+                      <div className="mb-4">
+                        <h5 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-amber-600" />
+                          Trucker Profit Margin
+                        </h5>
+                        <div className="bg-amber-50 rounded-lg p-3">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="text-sm text-amber-800 font-medium">35% Profit Margin</span>
+                              <p className="text-xs text-amber-600">Standard industry margin for truckers</p>
+                            </div>
+                            <span className="font-bold text-amber-700 text-lg">+ PKR {Math.round((
+                              selectedRoute.fuelCost + 
+                              (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                              ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            ) * 0.35).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Total Price */}
+                    <div className="bg-gradient-to-r from-green-600 to-green-700 px-4 py-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-green-100 text-sm">Total Recommended Price</span>
+                          <p className="text-green-200 text-xs mt-0.5">Fuel + Tolls + Driver Expenses + 35% Margin</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-3xl font-bold text-white">PKR {Math.round((
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ) * 1.35).toLocaleString()}</span>
+                          <p className="text-green-200 text-xs">≈ PKR {Math.round(((
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ) * 1.35) / selectedRoute.distance).toLocaleString()}/km</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Price Breakdown Summary */}
+                    <div className="p-4 bg-slate-50 border-t border-slate-200">
+                      <h5 className="text-xs font-semibold text-slate-600 mb-2">PRICE BREAKDOWN SUMMARY</h5>
+                      <div className="grid grid-cols-4 gap-2 text-center">
+                        <div className="bg-white p-2 rounded border border-slate-200">
+                          <p className="text-xs text-slate-500">Fuel</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round((selectedRoute.fuelCost / ((
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ) * 1.35)) * 100)}%</p>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-slate-200">
+                          <p className="text-xs text-slate-500">Tolls</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round(((Math.ceil(selectedRoute.distance / 100) * 3000) / ((
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ) * 1.35)) * 100)}%</p>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-slate-200">
+                          <p className="text-xs text-slate-500">Driver</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round((((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000) / ((
+                            selectedRoute.fuelCost + 
+                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
+                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                          ) * 1.35)) * 100)}%</p>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-slate-200">
+                          <p className="text-xs text-slate-500">Profit</p>
+                          <p className="font-bold text-sm text-amber-600">26%</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -524,6 +677,52 @@ export default function Routes() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* TIR Member Countries */}
+        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Navigation className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">TIR Member Countries</h2>
+              <p className="text-sm text-slate-600">60+ countries connected through the TIR Convention for international road transport</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            {[
+              'Afghanistan', 'Albania', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus',
+              'Belgium', 'Bosnia & Herzegovina', 'Bulgaria', 'China', 'Croatia', 'Cyprus',
+              'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Georgia',
+              'Germany', 'Greece', 'Hungary', 'India', 'Iran', 'Iraq',
+              'Ireland', 'Italy', 'Jordan', 'Kazakhstan', 'Kuwait', 'Kyrgyzstan',
+              'Latvia', 'Lebanon', 'Lithuania', 'Luxembourg', 'Moldova', 'Mongolia',
+              'Montenegro', 'Morocco', 'Netherlands', 'North Macedonia', 'Norway', 'Pakistan',
+              'Poland', 'Portugal', 'Romania', 'Russia', 'Saudi Arabia', 'Serbia',
+              'Slovakia', 'Slovenia', 'South Korea', 'Spain', 'Sweden', 'Switzerland',
+              'Syria', 'Tajikistan', 'Tunisia', 'Turkey', 'Turkmenistan', 'UAE',
+              'Ukraine', 'United Kingdom', 'Uzbekistan'
+            ].map((country) => (
+              <div 
+                key={country}
+                className={`px-3 py-2 rounded-lg text-sm font-medium text-center transition-colors ${
+                  country === 'Pakistan' || country === 'China' 
+                    ? 'bg-green-100 text-green-700 border border-green-300' 
+                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                {country}
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              <strong>TIR (Transports Internationaux Routiers):</strong> The TIR system allows goods to transit through multiple countries with minimal customs interference. Pakistan and China are both TIR members, enabling seamless cross-border transport along CPEC routes.
+            </p>
+          </div>
         </div>
 
         {/* Route Tips */}

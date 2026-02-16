@@ -10,7 +10,7 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "tsx server/build.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/server.cjs",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx server/db/seed.ts",

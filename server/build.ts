@@ -18,8 +18,8 @@ async function buildServer() {
       bundle: true,
       platform: 'node',
       target: 'node18',
-      outfile: 'dist/server.js',
-      format: 'esm',
+      outfile: 'dist/server.cjs',
+      format: 'cjs',
       external: [
         'pg-native',
         'better-sqlite3',

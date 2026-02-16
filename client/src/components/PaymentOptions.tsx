@@ -57,8 +57,47 @@ const PAYMENT_METHODS = [
     ],
   },
   {
+    id: 'upaisa',
+    name: 'UPaisa',
+    icon: Smartphone,
+    color: 'bg-orange-500',
+    accounts: [
+      {
+        accountTitle: 'LoadsPak',
+        accountNumber: '0333-1234567',
+        type: 'Mobile Account',
+      },
+    ],
+  },
+  {
+    id: 'sadapay',
+    name: 'SadaPay',
+    icon: CreditCard,
+    color: 'bg-pink-500',
+    accounts: [
+      {
+        accountTitle: 'LoadsPak Pvt Ltd',
+        accountNumber: 'SP-1234567890',
+        type: 'Digital Wallet',
+      },
+    ],
+  },
+  {
+    id: 'nayapay',
+    name: 'NayaPay',
+    icon: CreditCard,
+    color: 'bg-teal-500',
+    accounts: [
+      {
+        accountTitle: 'LoadsPak Pvt Ltd',
+        accountNumber: 'NP-9876543210',
+        type: 'Digital Wallet',
+      },
+    ],
+  },
+  {
     id: 'card',
-    name: 'Card Payment',
+    name: 'Card Payment (Visa/Mastercard)',
     icon: CreditCard,
     color: 'bg-purple-500',
     accounts: [],

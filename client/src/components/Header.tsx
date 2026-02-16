@@ -16,6 +16,7 @@ export default function Header() {
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
     { code: 'ur', name: 'اردو', flag: '🇵🇰' },
+    { code: 'ps', name: 'پښتو', flag: '🇦🇫' },
     { code: 'zh', name: '中文', flag: '🇨🇳' },
   ];
 
@@ -24,7 +25,7 @@ export default function Header() {
   const changeLanguage = (code: string) => {
     i18n.changeLanguage(code);
     setLangMenuOpen(false);
-    document.documentElement.dir = code === 'ur' ? 'rtl' : 'ltr';
+    document.documentElement.dir = (code === 'ur' || code === 'ps') ? 'rtl' : 'ltr';
   };
 
   const navItems = [

@@ -401,6 +401,9 @@ export function registerRoutes(app: Express) {
         // Normalize origin/destination fields
         origin: item.load?.origin || item.load?.pickupCity || 'Not specified',
         destination: item.load?.destination || item.load?.deliveryCity || 'Not specified',
+        // Normalize weight field for frontend compatibility
+        weight: parseFloat(item.load?.cargoWeight) || 0,
+        cargo: item.load?.cargoType || 'General',
         shipper: item.shipper,
       }));
       

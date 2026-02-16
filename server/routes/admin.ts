@@ -1296,4 +1296,228 @@ router.get('/users/stats/summary', async (req, res) => {
   }
 });
 
+// ==================== LOAD APPROVAL ====================
+
+// Get loads pending approval
+router.get('/loads/pending-approval', async (req, res) => {
+  try {
+    const { db } = await import('../db/index.js');
+    const { loads, users } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const pendingLoads = await db.select({
+      load: loads,
+      shipper: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        companyName: users.companyName,
+        email: users.email,
+      }
+    })
+    .from(loads)
+    .leftJoin(users, eq(loads.shipperId, users.id))
+    .where(eq(loads.approvalStatus, 'pending'));
+    
+    res.json(pendingLoads);
+  } catch (error) {
+    console.error('Error fetching pending loads:', error);
+    res.status(500).json({ error: 'Failed to fetch pending loads' });
+  }
+});
+
+// Approve load
+router.patch('/loads/:id/approve', async (req, res) => {
+  try {
+    const loadId = parseInt(req.params.id);
+    const { db } = await import('../db/index.js');
+    const { loads } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const [updatedLoad] = await db.update(loads)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: req.user!.id,
+        approvedAt: new Date(),
+        status: 'posted',
+        updatedAt: new Date(),
+      })
+      .where(eq(loads.id, loadId))
+      .returning();
+    
+    if (!updatedLoad) {
+      return res.status(404).json({ error: 'Load not found' });
+    }
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'loads',
+      entityId: loadId,
+      newValues: { approvalStatus: 'approved' },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    
+    res.json(updatedLoad);
+  } catch (error) {
+    console.error('Error approving load:', error);
+    res.status(500).json({ error: 'Failed to approve load' });
+  }
+});
+
+// Reject load
+router.patch('/loads/:id/reject', async (req, res) => {
+  try {
+    const loadId = parseInt(req.params.id);
+    const { reason } = req.body;
+    const { db } = await import('../db/index.js');
+    const { loads } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const [updatedLoad] = await db.update(loads)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: req.user!.id,
+        approvedAt: new Date(),
+        rejectionReason: reason || 'No reason provided',
+        updatedAt: new Date(),
+      })
+      .where(eq(loads.id, loadId))
+      .returning();
+    
+    if (!updatedLoad) {
+      return res.status(404).json({ error: 'Load not found' });
+    }
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'loads',
+      entityId: loadId,
+      newValues: { approvalStatus: 'rejected', rejectionReason: reason },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    
+    res.json(updatedLoad);
+  } catch (error) {
+    console.error('Error rejecting load:', error);
+    res.status(500).json({ error: 'Failed to reject load' });
+  }
+});
+
+// ==================== BID APPROVAL ====================
+
+// Get bids pending approval
+router.get('/bids/pending-approval', async (req, res) => {
+  try {
+    const { db } = await import('../db/index.js');
+    const { bookings, loads, users } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const pendingBids = await db.select({
+      bid: bookings,
+      load: loads,
+      carrier: {
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        companyName: users.companyName,
+      }
+    })
+    .from(bookings)
+    .leftJoin(loads, eq(bookings.loadId, loads.id))
+    .leftJoin(users, eq(bookings.carrierId, users.id))
+    .where(eq(bookings.approvalStatus, 'pending'));
+    
+    res.json(pendingBids);
+  } catch (error) {
+    console.error('Error fetching pending bids:', error);
+    res.status(500).json({ error: 'Failed to fetch pending bids' });
+  }
+});
+
+// Approve bid
+router.patch('/bids/:id/approve', async (req, res) => {
+  try {
+    const bidId = parseInt(req.params.id);
+    const { db } = await import('../db/index.js');
+    const { bookings } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const [updatedBid] = await db.update(bookings)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: req.user!.id,
+        approvedAt: new Date(),
+        status: 'confirmed',
+        updatedAt: new Date(),
+      })
+      .where(eq(bookings.id, bidId))
+      .returning();
+    
+    if (!updatedBid) {
+      return res.status(404).json({ error: 'Bid not found' });
+    }
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'bookings',
+      entityId: bidId,
+      newValues: { approvalStatus: 'approved' },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    
+    res.json(updatedBid);
+  } catch (error) {
+    console.error('Error approving bid:', error);
+    res.status(500).json({ error: 'Failed to approve bid' });
+  }
+});
+
+// Reject bid
+router.patch('/bids/:id/reject', async (req, res) => {
+  try {
+    const bidId = parseInt(req.params.id);
+    const { reason } = req.body;
+    const { db } = await import('../db/index.js');
+    const { bookings } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const [updatedBid] = await db.update(bookings)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: req.user!.id,
+        approvedAt: new Date(),
+        rejectionReason: reason || 'No reason provided',
+        status: 'cancelled',
+        updatedAt: new Date(),
+      })
+      .where(eq(bookings.id, bidId))
+      .returning();
+    
+    if (!updatedBid) {
+      return res.status(404).json({ error: 'Bid not found' });
+    }
+    
+    await auditLogRepo.log({
+      userId: req.user!.id,
+      action: 'update',
+      entity: 'bookings',
+      entityId: bidId,
+      newValues: { approvalStatus: 'rejected', rejectionReason: reason },
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+    
+    res.json(updatedBid);
+  } catch (error) {
+    console.error('Error rejecting bid:', error);
+    res.status(500).json({ error: 'Failed to reject bid' });
+  }
+});
+
 export default router;

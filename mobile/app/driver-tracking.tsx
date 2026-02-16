@@ -13,8 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
+import * as SecureStore from 'expo-secure-store';
 
 type LoadStatus = 'assigned' | 'picked' | 'in_transit' | 'at_checkpoint' | 'customs_clearance' | 'delivered' | 'delayed' | 'issue_reported';
 type CheckpointType = 'pickup' | 'checkpoint' | 'border_crossing' | 'customs' | 'rest_stop' | 'fuel_stop' | 'delivery';
@@ -96,8 +95,8 @@ export default function DriverTrackingScreen() {
 
   const checkPendingUpdates = async () => {
     try {
-      const pendingLocations = await AsyncStorage.getItem('pending_location_updates');
-      const pendingStatus = await AsyncStorage.getItem('pending_status_updates');
+      const pendingLocations = await SecureStore.getItemAsync('pending_location_updates');
+      const pendingStatus = await SecureStore.getItemAsync('pending_status_updates');
       
       const locations: LocationUpdate[] = pendingLocations ? JSON.parse(pendingLocations) : [];
       const statuses: StatusUpdate[] = pendingStatus ? JSON.parse(pendingStatus) : [];
@@ -188,11 +187,11 @@ export default function DriverTrackingScreen() {
 
   const storeLocationUpdate = async (update: LocationUpdate) => {
     try {
-      const existing = await AsyncStorage.getItem('pending_location_updates');
+      const existing = await SecureStore.getItemAsync('pending_location_updates');
       const updates: LocationUpdate[] = existing ? JSON.parse(existing) : [];
       updates.push(update);
-      const trimmed = updates.slice(-500);
-      await AsyncStorage.setItem('pending_location_updates', JSON.stringify(trimmed));
+      const trimmed = updates.slice(-50);
+      await SecureStore.setItemAsync('pending_location_updates', JSON.stringify(trimmed));
     } catch (error) {
       console.error('Error storing location update:', error);
     }
@@ -200,10 +199,11 @@ export default function DriverTrackingScreen() {
 
   const storeStatusUpdate = async (update: StatusUpdate) => {
     try {
-      const existing = await AsyncStorage.getItem('pending_status_updates');
+      const existing = await SecureStore.getItemAsync('pending_status_updates');
       const updates: StatusUpdate[] = existing ? JSON.parse(existing) : [];
       updates.push(update);
-      await AsyncStorage.setItem('pending_status_updates', JSON.stringify(updates));
+      const trimmed = updates.slice(-50);
+      await SecureStore.setItemAsync('pending_status_updates', JSON.stringify(trimmed));
     } catch (error) {
       console.error('Error storing status update:', error);
     }
@@ -211,10 +211,7 @@ export default function DriverTrackingScreen() {
 
   const syncLocationUpdate = async (update: LocationUpdate) => {
     try {
-      const netInfo = await NetInfo.fetch();
-      if (!netInfo.isConnected) return false;
-
-      const token = await AsyncStorage.getItem('access_token');
+      const token = await SecureStore.getItemAsync('access_token');
       const response = await fetch(`${API_URL}/api/tracking/location`, {
         method: 'POST',
         headers: {
@@ -237,10 +234,7 @@ export default function DriverTrackingScreen() {
 
   const syncStatusUpdate = async (update: StatusUpdate) => {
     try {
-      const netInfo = await NetInfo.fetch();
-      if (!netInfo.isConnected) return false;
-
-      const token = await AsyncStorage.getItem('access_token');
+      const token = await SecureStore.getItemAsync('access_token');
       const response = await fetch(`${API_URL}/api/tracking/status`, {
         method: 'POST',
         headers: {
@@ -263,11 +257,11 @@ export default function DriverTrackingScreen() {
 
   const markLocationSynced = async (id: string) => {
     try {
-      const existing = await AsyncStorage.getItem('pending_location_updates');
+      const existing = await SecureStore.getItemAsync('pending_location_updates');
       if (existing) {
         const updates: LocationUpdate[] = JSON.parse(existing);
         const updated = updates.map(u => u.id === id ? { ...u, synced: true } : u);
-        await AsyncStorage.setItem('pending_location_updates', JSON.stringify(updated));
+        await SecureStore.setItemAsync('pending_location_updates', JSON.stringify(updated));
       }
     } catch (error) {
       console.error('Error marking location synced:', error);
@@ -276,11 +270,11 @@ export default function DriverTrackingScreen() {
 
   const markStatusSynced = async (id: string) => {
     try {
-      const existing = await AsyncStorage.getItem('pending_status_updates');
+      const existing = await SecureStore.getItemAsync('pending_status_updates');
       if (existing) {
         const updates: StatusUpdate[] = JSON.parse(existing);
         const updated = updates.map(u => u.id === id ? { ...u, synced: true } : u);
-        await AsyncStorage.setItem('pending_status_updates', JSON.stringify(updated));
+        await SecureStore.setItemAsync('pending_status_updates', JSON.stringify(updated));
       }
     } catch (error) {
       console.error('Error marking status synced:', error);
@@ -350,16 +344,10 @@ export default function DriverTrackingScreen() {
   };
 
   const handleSyncNow = async () => {
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
-      Alert.alert('No Connection', 'Please connect to the internet to sync.');
-      return;
-    }
-
     Alert.alert('Syncing', 'Syncing pending updates...');
 
     try {
-      const pendingLocations = await AsyncStorage.getItem('pending_location_updates');
+      const pendingLocations = await SecureStore.getItemAsync('pending_location_updates');
       if (pendingLocations) {
         const locations: LocationUpdate[] = JSON.parse(pendingLocations);
         for (const loc of locations.filter(l => !l.synced)) {
@@ -367,7 +355,7 @@ export default function DriverTrackingScreen() {
         }
       }
 
-      const pendingStatus = await AsyncStorage.getItem('pending_status_updates');
+      const pendingStatus = await SecureStore.getItemAsync('pending_status_updates');
       if (pendingStatus) {
         const statuses: StatusUpdate[] = JSON.parse(pendingStatus);
         for (const status of statuses.filter(s => !s.synced)) {

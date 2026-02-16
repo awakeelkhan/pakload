@@ -87,7 +87,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    // Use shorter path for CMake builds to avoid Windows 260 char limit
+    // Fix for Windows long path names - use shorter build directory
     externalNativeBuild {
         cmake {
             buildStagingDirectory "C:/tmp/cmake"

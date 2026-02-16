@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -70,6 +71,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
       <AuthProvider>
         <ToastProvider>
         <div className="min-h-screen flex flex-col">
@@ -125,6 +127,7 @@ function App() {
         </div>
         </ToastProvider>
       </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

@@ -250,6 +250,12 @@ export const loads = pgTable('loads', {
   estimatedDays: varchar('estimated_days', { length: 20 }),
   specialRequirements: text('special_requirements'),
   
+  // Admin approval workflow
+  approvalStatus: varchar('approval_status', { length: 20 }).default('pending'), // pending, approved, rejected
+  approvedBy: integer('approved_by').references(() => users.id),
+  approvedAt: timestamp('approved_at'),
+  rejectionReason: text('rejection_reason'),
+  
   // Source tracking (from goods request or direct post)
   sourceRequestId: integer('source_request_id'), // References goodsRequests.id (no FK to avoid circular ref)
   
@@ -291,6 +297,13 @@ export const bookings = pgTable('bookings', {
   progress: integer('progress').default(0),
   currentLocation: varchar('current_location', { length: 255 }),
   notes: text('notes'),
+  
+  // Admin approval workflow for bids
+  approvalStatus: varchar('approval_status', { length: 20 }).default('pending'), // pending, approved, rejected
+  approvedBy: integer('approved_by').references(() => users.id),
+  approvedAt: timestamp('approved_at'),
+  rejectionReason: text('rejection_reason'),
+  
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

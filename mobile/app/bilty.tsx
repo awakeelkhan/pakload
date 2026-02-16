@@ -7,12 +7,11 @@ import {
   TouchableOpacity,
   Share,
   Alert,
+  Linking,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 
 interface BiltyData {
   biltyNumber: string;
@@ -174,32 +173,20 @@ export default function BiltyScreen() {
   };
 
   const handlePrint = async () => {
-    try {
-      const html = await generatePDF();
-      await Print.printAsync({ html });
-    } catch (error) {
-      Alert.alert('Error', 'Failed to print bilty');
-    }
+    Alert.alert(
+      'Print Bilty',
+      'To print this bilty, please take a screenshot or use the Share option to send it to a printer-enabled app.',
+      [{ text: 'OK' }]
+    );
   };
 
   const handleShare = async () => {
     setSharing(true);
     try {
-      const html = await generatePDF();
-      const { uri } = await Print.printToFileAsync({ html });
-      
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Share Bilty',
-          UTI: 'com.adobe.pdf',
-        });
-      } else {
-        await Share.share({
-          message: `Bilty ${biltyData.biltyNumber} - ${biltyData.origin} to ${biltyData.destination}`,
-          url: uri,
-        });
-      }
+      await Share.share({
+        message: `Bilty ${biltyData.biltyNumber}\n\nRoute: ${biltyData.origin} → ${biltyData.destination}\nTracking: ${biltyData.trackingNumber}\nAmount: ${biltyData.currency} ${biltyData.price.toLocaleString()}\n\nView on PakLoad app for full details.`,
+        title: `Bilty ${biltyData.biltyNumber}`,
+      });
     } catch (error) {
       Alert.alert('Error', 'Failed to share bilty');
     } finally {

@@ -1,19 +1,31 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl, ActivityIndicator, Dimensions, Modal } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { useLanguage, Language } from '../../src/contexts/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
 import { bookingsAPI, quotesAPI } from '../../src/services/api';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const LANGUAGES: { code: Language; name: string; nativeName: string; flag: string }[] = [
+  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
+  { code: 'ur', name: 'Urdu', nativeName: 'اردو', flag: '🇵🇰' },
+  { code: 'ps', name: 'Pashto', nativeName: 'پښتو', flag: '🇦🇫' },
+  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
+];
 
 const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, isAuthenticated, logout, isLoading: authLoading } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [refreshing, setRefreshing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [langModalVisible, setLangModalVisible] = useState(false);
+
+  const currentLang = LANGUAGES.find(l => l.code === language);
 
   const { data: bookings, refetch: refetchBookings } = useQuery({
     queryKey: ['userBookings'],
@@ -305,6 +317,16 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => setLangModalVisible(true)}>
+            <View style={[styles.menuIconBg, { backgroundColor: '#e0f2fe' }]}>
+              <Ionicons name="globe-outline" size={20} color="#0284c7" />
+            </View>
+            <View style={styles.menuContent}>
+              <Text style={styles.menuText}>{t('lang.select')}</Text>
+              <Text style={styles.menuSubtext}>{currentLang?.flag} {currentLang?.nativeName}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#f0fdf4' }]}>
               <Ionicons name="settings-outline" size={20} color="#059669" />
@@ -346,6 +368,49 @@ export default function ProfileScreen() {
       </View>
 
       <View style={{ height: 100 }} />
+
+      {/* Language Selection Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={langModalVisible}
+        onRequestClose={() => setLangModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('lang.select')}</Text>
+              <TouchableOpacity onPress={() => setLangModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+            {LANGUAGES.map((lang) => (
+              <TouchableOpacity
+                key={lang.code}
+                style={[
+                  styles.langOption,
+                  language === lang.code && styles.langOptionActive
+                ]}
+                onPress={() => {
+                  setLanguage(lang.code);
+                  setLangModalVisible(false);
+                }}
+              >
+                <Text style={styles.langFlag}>{lang.flag}</Text>
+                <View style={styles.langInfo}>
+                  <Text style={[styles.langNative, language === lang.code && styles.langActiveText]}>
+                    {lang.nativeName}
+                  </Text>
+                  <Text style={styles.langEnglish}>{lang.name}</Text>
+                </View>
+                {language === lang.code && (
+                  <Ionicons name="checkmark-circle" size={24} color="#16a34a" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -663,5 +728,64 @@ const styles = StyleSheet.create({
   appCopyright: {
     fontSize: 12,
     color: '#cbd5e1',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  langOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    backgroundColor: '#f8fafc',
+  },
+  langOptionActive: {
+    backgroundColor: '#dcfce7',
+    borderWidth: 1,
+    borderColor: '#16a34a',
+  },
+  langFlag: {
+    fontSize: 28,
+    marginRight: 12,
+  },
+  langInfo: {
+    flex: 1,
+  },
+  langNative: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  langActiveText: {
+    color: '#16a34a',
+  },
+  langEnglish: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
   },
 });

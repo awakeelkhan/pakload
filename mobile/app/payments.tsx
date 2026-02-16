@@ -77,6 +77,39 @@ const PAYMENT_METHODS: PaymentMethod[] = [
     ],
   },
   {
+    id: 'upaisa',
+    name: 'UPaisa',
+    type: 'mobile',
+    icon: 'phone-portrait',
+    color: '#FF6B00',
+    details: [
+      { label: 'Account Title', value: 'PakLoad Logistics', copyable: true },
+      { label: 'Mobile Number', value: '0333-1234567', copyable: true },
+    ],
+  },
+  {
+    id: 'sadapay',
+    name: 'SadaPay',
+    type: 'mobile',
+    icon: 'card',
+    color: '#FF1493',
+    details: [
+      { label: 'Account Title', value: 'PakLoad Logistics Pvt Ltd', copyable: true },
+      { label: 'Account Number', value: 'SP-1234567890', copyable: true },
+    ],
+  },
+  {
+    id: 'nayapay',
+    name: 'NayaPay',
+    type: 'mobile',
+    icon: 'card',
+    color: '#00CED1',
+    details: [
+      { label: 'Account Title', value: 'PakLoad Logistics Pvt Ltd', copyable: true },
+      { label: 'Account Number', value: 'NP-9876543210', copyable: true },
+    ],
+  },
+  {
     id: 'wise',
     name: 'Wise (International)',
     type: 'international',

@@ -6,12 +6,10 @@ import session from 'express-session';
 import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { registerRoutes } from './routes';
 import { passport } from './routes/oauth.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// __dirname is available in CJS build
 
 const app = express();
 const httpServer = createServer(app);

@@ -817,8 +817,9 @@ export function registerRoutes(app: Express) {
       // Notify the shipper about the new bid
       try {
         const loadData = await loadRepo.findById(loadId);
+        const trackingNumber = loadData?.load?.trackingNumber || `LP-${loadId}`;
+        
         if (loadData?.load?.shipperId) {
-          const trackingNumber = loadData.load.trackingNumber || `LP-${loadId}`;
           await notificationService.notifyBidReceived(
             loadData.load.shipperId,
             carrierId,
@@ -828,9 +829,10 @@ export function registerRoutes(app: Express) {
           );
         }
         // Also notify admins about the new bid for approval
+        const formattedBidAmount = bidAmount ? bidAmount.toLocaleString() : '0';
         await notificationService.notifyAllAdmins(
           'New Bid Pending Approval',
-          `A new bid of $${bidAmount.toLocaleString()} was submitted for load ${trackingNumber}.`,
+          `A new bid of $${formattedBidAmount} was submitted for load ${trackingNumber}.`,
           '/admin/bids',
           { loadId, carrierId, bidAmount, bookingId: newBooking.id }
         );

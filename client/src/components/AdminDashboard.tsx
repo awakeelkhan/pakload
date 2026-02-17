@@ -215,7 +215,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   const handleBidApproval = async (bidId: number, action: 'approve' | 'reject') => {
     try {
       const token = localStorage.getItem('access_token');
-      const newStatus = action === 'approve' ? 'approved' : 'rejected';
+      const newStatus = action === 'approve' ? 'confirmed' : 'cancelled';
       const response = await fetch(`/api/quotes/${bidId}`, {
         method: 'PUT',
         headers: {
@@ -228,7 +228,9 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         setPendingBids(pendingBids.filter(b => b.id !== bidId));
         alert(`Bid ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
       } else {
-        alert('Failed to update bid status');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Bid approval error:', response.status, errorData);
+        alert(errorData.error || 'Failed to update bid status');
       }
     } catch (error) {
       console.error('Error updating bid:', error);

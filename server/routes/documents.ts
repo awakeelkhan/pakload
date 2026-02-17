@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
-import { userDocuments, companyProfiles, driverProfiles } from '../db/schema.js';
+import { userDocuments, companyProfiles, driverProfiles, users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { requireAuth, requireRole } from '../middleware/auth.js';
+import { notificationService } from '../repositories/notificationRepository.js';
 
 const router = Router();
 
@@ -32,6 +33,22 @@ router.post('/upload', requireAuth, async (req, res) => {
       issuingAuthority,
       status: 'pending',
     }).returning();
+    
+    // Notify all admins about the new document
+    const userName = `${req.user!.firstName} ${req.user!.lastName}`.trim() || req.user!.email;
+    const docTypeName = documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document';
+    
+    try {
+      await notificationService.notifyAllAdmins(
+        'New Document Submitted',
+        `${userName} has submitted a ${docTypeName} for verification.`,
+        '/admin/verification',
+        { userId: req.user!.id, documentType, documentId: newDoc.id }
+      );
+    } catch (notifyError) {
+      console.error('Error sending admin notification:', notifyError);
+      // Don't fail the request if notification fails
+    }
     
     res.status(201).json(newDoc);
   } catch (error) {
@@ -160,6 +177,62 @@ router.post('/driver-profile', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error saving driver profile:', error);
     res.status(500).json({ error: 'Failed to save driver profile' });
+  }
+});
+
+// Admin: Get all documents for a specific user (carrier verification)
+router.get('/user/:userId', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const documents = await db.select().from(userDocuments).where(eq(userDocuments.userId, userId));
+    res.json(documents);
+  } catch (error) {
+    console.error('Error fetching user documents:', error);
+    res.status(500).json({ error: 'Failed to fetch user documents' });
+  }
+});
+
+// Admin: Get all pending documents for verification
+router.get('/pending', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const documents = await db.select().from(userDocuments).where(eq(userDocuments.status, 'pending'));
+    res.json(documents);
+  } catch (error) {
+    console.error('Error fetching pending documents:', error);
+    res.status(500).json({ error: 'Failed to fetch pending documents' });
+  }
+});
+
+// Admin: Get all documents (for admin dashboard)
+router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const documents = await db.select().from(userDocuments);
+    res.json(documents);
+  } catch (error) {
+    console.error('Error fetching all documents:', error);
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// Get a specific document by ID (for viewing/downloading)
+router.get('/:id', requireAuth, async (req, res) => {
+  try {
+    const docId = parseInt(req.params.id);
+    const [document] = await db.select().from(userDocuments).where(eq(userDocuments.id, docId));
+    
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    // Allow access if admin or document owner
+    if (req.user!.role !== 'admin' && document.userId !== req.user!.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    res.status(500).json({ error: 'Failed to fetch document' });
   }
 });
 

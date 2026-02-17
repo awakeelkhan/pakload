@@ -10,10 +10,13 @@ interface BidModalProps {
     id: number;
     origin: string;
     destination: string;
-    cargo: string;
+    cargoType?: string;
+    cargo?: string;
     weight: number;
-    distance: number;
-    rateUsd: number;
+    distance?: number;
+    rateUsd?: number;
+    price?: string;
+    currency?: string;
     pickupDate: string;
   };
 }
@@ -101,7 +104,8 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
     }
   };
 
-  const suggestedBid = load.rateUsd * 0.95; // 5% below asking price
+  const rateValue = load.rateUsd || (load.price ? parseFloat(load.price) : 0);
+  const suggestedBid = rateValue * 0.95; // 5% below asking price
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -147,19 +151,19 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
                 </div>
                 <div>
                   <span className="text-slate-600">Distance:</span>
-                  <p className="font-medium text-slate-900">{load.distance} km</p>
+                  <p className="font-medium text-slate-900">{load.distance || 'N/A'} km</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Cargo:</span>
-                  <p className="font-medium text-slate-900">{load.cargo}</p>
+                  <p className="font-medium text-slate-900">{load.cargo || load.cargoType || 'N/A'}</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Weight:</span>
-                  <p className="font-medium text-slate-900">{load.weight.toLocaleString()} kg</p>
+                  <p className="font-medium text-slate-900">{load.weight?.toLocaleString() || 0} kg</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Asking Rate:</span>
-                  <p className="font-medium text-green-600">${load.rateUsd.toLocaleString()}</p>
+                  <p className="font-medium text-green-600">{load.currency || '$'}{rateValue.toLocaleString()}</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Pickup Date:</span>

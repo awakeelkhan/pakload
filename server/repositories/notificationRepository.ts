@@ -355,6 +355,87 @@ export class NotificationService {
       link: '/settings',
     });
   }
+
+  // === ADMIN NOTIFICATIONS ===
+
+  async notifyAdminNewDocument(adminId: number, userId: number, userName: string, documentType: string) {
+    return this.repo.create({
+      userId: adminId,
+      type: 'document_required',
+      priority: 'high',
+      title: 'New Document Submitted',
+      message: `${userName} has submitted a ${documentType} for verification.`,
+      link: '/admin/verification',
+      relatedUserId: userId,
+      metadata: { documentType, userName },
+    });
+  }
+
+  async notifyAdminNewBid(adminId: number, carrierId: number, carrierName: string, loadId: number, bidAmount: number) {
+    return this.repo.create({
+      userId: adminId,
+      type: 'bid_received',
+      priority: 'high',
+      title: 'New Bid Pending Approval',
+      message: `${carrierName} submitted a bid of $${bidAmount.toLocaleString()} requiring approval.`,
+      link: '/admin/bids',
+      relatedLoadId: loadId,
+      relatedUserId: carrierId,
+      metadata: { bidAmount, carrierName },
+    });
+  }
+
+  async notifyAdminNewLoad(adminId: number, shipperId: number, shipperName: string, loadId: number, origin: string, destination: string) {
+    return this.repo.create({
+      userId: adminId,
+      type: 'load_posted',
+      priority: 'normal',
+      title: 'New Load Posted',
+      message: `${shipperName} posted a new load: ${origin} → ${destination}`,
+      link: '/admin/loads',
+      relatedLoadId: loadId,
+      relatedUserId: shipperId,
+      metadata: { origin, destination, shipperName },
+    });
+  }
+
+  async notifyAdminNewUser(adminId: number, userId: number, userName: string, userRole: string) {
+    return this.repo.create({
+      userId: adminId,
+      type: 'account_alert',
+      priority: 'normal',
+      title: 'New User Registration',
+      message: `${userName} registered as a ${userRole}.`,
+      link: '/admin/users',
+      relatedUserId: userId,
+      metadata: { userName, userRole },
+    });
+  }
+
+  // Notify all admins helper
+  async notifyAllAdmins(title: string, message: string, link: string, metadata?: Record<string, any>) {
+    const { db } = await import('../db/index.js');
+    const { users } = await import('../db/schema.js');
+    const { eq } = await import('drizzle-orm');
+    
+    const admins = await db.select().from(users).where(eq(users.role, 'admin'));
+    
+    const notifications = await Promise.all(
+      admins.map(admin => 
+        this.repo.create({
+          userId: admin.id,
+          type: 'system',
+          priority: 'high',
+          title,
+          message,
+          link,
+          metadata,
+        })
+      )
+    );
+    
+    return notifications;
+  }
 }
 
 export const notificationRepo = new NotificationRepository();

@@ -37,18 +37,43 @@ export default function MyRequests() {
       // Fetch from API - for now using mock data
       const token = localStorage.getItem('access_token');
       
-      // Try to fetch real bookings/bids
-      const [bookingsRes, bidsRes] = await Promise.all([
+      // Try to fetch real data from all request types
+      const [bookingsRes, bidsRes, goodsRequestsRes] = await Promise.all([
         fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
-        fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
+        fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
       ]);
 
       let allRequests: Request[] = [];
 
+      // Fetch goods requests (user's submitted requests)
+      if (goodsRequestsRes?.ok) {
+        const goodsRequests = await goodsRequestsRes.json();
+        const goodsReqs = (goodsRequests || []).map((r: any) => ({
+          id: r.id,
+          type: 'quote' as const,
+          title: r.title || `Request #${r.requestNumber || r.id}`,
+          description: `${r.originCity || 'Origin'} → ${r.destinationCity || 'Destination'} - ${r.goodsType || 'Goods'}`,
+          status: r.status === 'open' ? 'pending' : r.status === 'matched' ? 'in_progress' : r.status === 'closed' ? 'completed' : r.status,
+          createdAt: r.createdAt || new Date().toISOString(),
+          updatedAt: r.updatedAt || new Date().toISOString(),
+          details: {
+            requestNumber: r.requestNumber,
+            goodsType: r.goodsType,
+            weight: r.weight ? `${r.weight} ${r.weightUnit || 'kg'}` : 'N/A',
+            budget: r.budgetMin && r.budgetMax ? `${r.currency || 'PKR'} ${r.budgetMin} - ${r.budgetMax}` : 'Negotiable',
+            origin: r.originCity,
+            destination: r.destinationCity,
+            requiredDate: r.requiredDate ? new Date(r.requiredDate).toLocaleDateString() : 'Flexible'
+          }
+        }));
+        allRequests = [...allRequests, ...goodsReqs];
+      }
+
       if (bookingsRes?.ok) {
         const bookings = await bookingsRes.json();
         const bookingRequests = (bookings || []).map((b: any) => ({
-          id: b.id,
+          id: b.id + 10000,
           type: 'booking' as const,
           title: `Booking #${b.id}`,
           description: `${b.origin || 'Origin'} → ${b.destination || 'Destination'}`,
@@ -63,10 +88,10 @@ export default function MyRequests() {
       if (bidsRes?.ok) {
         const bids = await bidsRes.json();
         const bidRequests = (bids || []).map((b: any) => ({
-          id: b.id + 1000,
+          id: b.id + 20000,
           type: 'quote' as const,
-          title: `Quote Request #${b.id}`,
-          description: `Bid amount: $${b.amount || 0}`,
+          title: `Bid #${b.id}`,
+          description: `Bid amount: PKR ${b.amount || b.quotedPrice || 0}`,
           status: b.status || 'pending',
           createdAt: b.createdAt || new Date().toISOString(),
           updatedAt: b.updatedAt || new Date().toISOString(),

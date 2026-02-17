@@ -317,21 +317,28 @@ export default function Profile() {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Preferences</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Activity</h2>
             <div className="space-y-3">
               <button 
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/my-requests')}
                 className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
               >
-                <p className="font-medium text-slate-900">Notification Settings</p>
-                <p className="text-sm text-slate-600 mt-1">Manage email and SMS alerts</p>
+                <p className="font-medium text-slate-900">My Requests</p>
+                <p className="text-sm text-slate-600 mt-1">View all your submitted requests and their status</p>
               </button>
               <button 
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/my-loads')}
                 className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
               >
-                <p className="font-medium text-slate-900">Language & Region</p>
-                <p className="text-sm text-slate-600 mt-1">English (Pakistan)</p>
+                <p className="font-medium text-slate-900">My Loads</p>
+                <p className="text-sm text-slate-600 mt-1">Manage your posted loads</p>
+              </button>
+              <button 
+                onClick={() => navigate('/my-bids')}
+                className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <p className="font-medium text-slate-900">My Bids</p>
+                <p className="text-sm text-slate-600 mt-1">Track your submitted bids</p>
               </button>
             </div>
           </div>

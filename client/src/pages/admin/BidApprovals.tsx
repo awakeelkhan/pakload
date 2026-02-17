@@ -67,7 +67,9 @@ export default function BidApprovals() {
         setPendingBids(pendingBids.filter(b => b.id !== bidId));
         alert(`Bid ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
       } else {
-        alert('Failed to update bid status');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Bid approval error:', response.status, errorData);
+        alert(errorData.error || 'Failed to update bid status');
       }
     } catch (error) {
       console.error('Error updating bid:', error);

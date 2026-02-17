@@ -114,14 +114,10 @@ export default function SignIn() {
   };
 
   const handleSocialSignIn = (provider: string) => {
-    console.log('handleSocialSignIn called with provider:', provider, 'type:', typeof provider);
     if (provider === 'google') {
-      console.log('Google condition matched, redirecting...');
       window.location.href = '/api/v1/auth/google';
     } else if (provider === 'facebook') {
-      setErrors({ submit: 'Facebook login coming soon. Please use Google or email login.' });
-    } else {
-      console.log('No condition matched for provider:', provider);
+      window.location.href = '/api/v1/auth/facebook';
     }
   };
 

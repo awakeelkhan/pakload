@@ -558,6 +558,17 @@ export function registerRoutes(app: Express) {
 
   app.post('/api/loads', optionalAuth, async (req, res) => {
     try {
+      // Validate required fields
+      const requiredFields = ['origin', 'destination', 'pickupDate', 'cargoType'];
+      const missingFields = requiredFields.filter(field => !req.body[field]);
+      
+      if (missingFields.length > 0) {
+        return res.status(400).json({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          missingFields 
+        });
+      }
+      
       // Generate tracking number
       const trackingNumber = await loadRepo.generateTrackingNumber();
       
@@ -565,7 +576,18 @@ export function registerRoutes(app: Express) {
       const shipperId = req.user?.id || req.body.shipperId || req.body.userId;
       
       if (!shipperId) {
-        return res.status(400).json({ error: 'Shipper ID is required' });
+        return res.status(400).json({ error: 'Authentication required. Please sign in to post a load.' });
+      }
+      
+      // Validate dates
+      const pickupDate = new Date(req.body.pickupDate);
+      if (isNaN(pickupDate.getTime())) {
+        return res.status(400).json({ error: 'Invalid pickup date format' });
+      }
+      
+      const deliveryDate = req.body.deliveryDate ? new Date(req.body.deliveryDate) : pickupDate;
+      if (isNaN(deliveryDate.getTime())) {
+        return res.status(400).json({ error: 'Invalid delivery date format' });
       }
       
       const loadData = {
@@ -573,8 +595,8 @@ export function registerRoutes(app: Express) {
         trackingNumber,
         origin: req.body.origin,
         destination: req.body.destination,
-        pickupDate: new Date(req.body.pickupDate),
-        deliveryDate: new Date(req.body.deliveryDate || req.body.pickupDate),
+        pickupDate,
+        deliveryDate,
         cargoType: req.body.cargoType,
         cargoWeight: req.body.weight?.toString() || req.body.cargoWeight?.toString() || '0',
         cargoVolume: req.body.volume?.toString() || null,
@@ -588,9 +610,21 @@ export function registerRoutes(app: Express) {
       
       const newLoad = await loadRepo.create(loadData);
       res.status(201).json(newLoad);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating load:', error);
-      res.status(500).json({ error: 'Failed to create load' });
+      
+      // Provide specific error messages based on error type
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'A load with this tracking number already exists. Please try again.' });
+      }
+      if (error.code === '23503') {
+        return res.status(400).json({ error: 'Invalid shipper account. Please ensure you are logged in.' });
+      }
+      if (error.message?.includes('invalid input syntax')) {
+        return res.status(400).json({ error: 'Invalid data format. Please check your input values.' });
+      }
+      
+      res.status(500).json({ error: 'Failed to create load. Please try again or contact support.' });
     }
   });
 
@@ -786,6 +820,13 @@ export function registerRoutes(app: Express) {
             trackingNumber
           );
         }
+        // Also notify admins about the new bid for approval
+        await notificationService.notifyAllAdmins(
+          'New Bid Pending Approval',
+          `A new bid of $${bidAmount.toLocaleString()} was submitted for load ${trackingNumber}.`,
+          '/admin/bids',
+          { loadId, carrierId, bidAmount, bookingId: newBooking.id }
+        );
       } catch (notifError) {
         console.error('Error sending bid notification:', notifError);
         // Don't fail the bid creation if notification fails

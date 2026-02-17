@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { UserRepository } from '../repositories/userRepository.js';
 import { generateToken, generateRefreshToken } from '../middleware/auth.js';
 import bcrypt from 'bcryptjs';
@@ -8,8 +9,9 @@ import bcrypt from 'bcryptjs';
 const router = Router();
 const userRepo = new UserRepository();
 
-// Initialize Google OAuth Strategy (called after env vars are loaded)
+// Initialize OAuth Strategies (called after env vars are loaded)
 let googleStrategyInitialized = false;
+let facebookStrategyInitialized = false;
 
 function initializeGoogleStrategy() {
   if (googleStrategyInitialized) return;
@@ -60,6 +62,57 @@ function initializeGoogleStrategy() {
     }));
     googleStrategyInitialized = true;
     console.log('✅ Google OAuth strategy initialized');
+  }
+}
+
+function initializeFacebookStrategy() {
+  if (facebookStrategyInitialized) return;
+  
+  const appId = process.env.FACEBOOK_APP_ID;
+  const appSecret = process.env.FACEBOOK_APP_SECRET;
+  const callbackUrl = process.env.FACEBOOK_CALLBACK_URL || 'http://localhost:5000/api/v1/auth/facebook/callback';
+
+  if (appId && appSecret) {
+    passport.use(new FacebookStrategy({
+      clientID: appId,
+      clientSecret: appSecret,
+      callbackURL: callbackUrl,
+      profileFields: ['id', 'emails', 'name', 'displayName'],
+    }, async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0]?.value;
+        if (!email) {
+          return done(new Error('No email found in Facebook profile. Please ensure your Facebook account has a verified email.'), undefined);
+        }
+
+        // Check if user exists
+        let user = await userRepo.findByEmail(email);
+        let isNewUser = false;
+
+        if (!user) {
+          // Create new user from Facebook profile
+          isNewUser = true;
+          const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+          user = await userRepo.create({
+            email,
+            password: randomPassword,
+            firstName: profile.name?.givenName || profile.displayName?.split(' ')[0] || 'User',
+            lastName: profile.name?.familyName || profile.displayName?.split(' ').slice(1).join(' ') || '',
+            phone: '',
+            companyName: '',
+            role: 'shipper',
+            status: 'active',
+            verified: true,
+          });
+        }
+
+        return done(null, { ...user, isNewUser });
+      } catch (error) {
+        return done(error as Error, undefined);
+      }
+    }));
+    facebookStrategyInitialized = true;
+    console.log('✅ Facebook OAuth strategy initialized');
   }
 }
 
@@ -132,6 +185,120 @@ router.get('/google/callback', (req, res, next) => {
       res.redirect(`${frontendUrl}/signin?error=oauth_error`);
     }
   })(req, res, next);
+});
+
+// Facebook OAuth routes
+router.get('/facebook', (req, res, next) => {
+  console.log('FACEBOOK_APP_ID exists:', !!process.env.FACEBOOK_APP_ID);
+  console.log('FACEBOOK_APP_SECRET exists:', !!process.env.FACEBOOK_APP_SECRET);
+  
+  initializeFacebookStrategy();
+  
+  if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET) {
+    return res.status(503).json({ 
+      error: 'Facebook OAuth not configured',
+      message: 'Please set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET environment variables'
+    });
+  }
+  passport.authenticate('facebook', { scope: ['email', 'public_profile'] })(req, res, next);
+});
+
+router.get('/facebook/callback', (req, res, next) => {
+  console.log('📥 Facebook OAuth callback received');
+  initializeFacebookStrategy();
+  passport.authenticate('facebook', (err: any, user: any, info: any) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    console.log('🔐 Facebook OAuth result:', { err: err?.message, user: !!user, info });
+    
+    if (err) {
+      console.error('❌ Facebook OAuth error:', err.message);
+      if (err.message?.includes('No email found')) {
+        return res.redirect(`${frontendUrl}/signin?error=facebook_no_email`);
+      }
+      return res.redirect(`${frontendUrl}/signin?error=oauth_failed`);
+    }
+    
+    if (!user) {
+      console.error('❌ Facebook OAuth: No user returned', info);
+      return res.redirect(`${frontendUrl}/signin?error=no_user`);
+    }
+
+    try {
+      const accessToken = generateToken({ id: user.id, email: user.email, role: user.role });
+      const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+      const redirectPath = user.isNewUser ? '/select-role' : '/oauth/callback';
+      res.redirect(`${frontendUrl}${redirectPath}?access_token=${accessToken}&refresh_token=${refreshToken}`);
+    } catch (error) {
+      console.error('Facebook OAuth token generation error:', error);
+      res.redirect(`${frontendUrl}/signin?error=oauth_error`);
+    }
+  })(req, res, next);
+});
+
+// Facebook token verification for mobile apps
+router.post('/facebook', async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Access token is required' });
+    }
+
+    // Verify Facebook token and get user info
+    const fbResponse = await fetch(
+      `https://graph.facebook.com/me?fields=id,email,first_name,last_name,name&access_token=${accessToken}`
+    );
+
+    if (!fbResponse.ok) {
+      return res.status(401).json({ error: 'Invalid Facebook token' });
+    }
+
+    const fbUser = await fbResponse.json();
+    const email = fbUser.email;
+
+    if (!email) {
+      return res.status(400).json({ error: 'No email found in Facebook profile' });
+    }
+
+    let user = await userRepo.findByEmail(email);
+
+    if (!user) {
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await userRepo.create({
+        email,
+        password: randomPassword,
+        firstName: fbUser.first_name || 'User',
+        lastName: fbUser.last_name || '',
+        phone: '',
+        companyName: '',
+        role: 'carrier',
+        status: 'active',
+        verified: true,
+      });
+    }
+
+    const jwtAccessToken = generateToken({ id: user.id, email: user.email, role: user.role });
+    const jwtRefreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+    res.json({
+      accessToken: jwtAccessToken,
+      refreshToken: jwtRefreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: `${user.firstName} ${user.lastName}`.trim(),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        status: user.status,
+        verified: user.verified,
+      },
+    });
+  } catch (error) {
+    console.error('Facebook mobile login error:', error);
+    res.status(500).json({ error: 'Facebook login failed' });
+  }
 });
 
 // Google token verification for mobile apps

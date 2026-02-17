@@ -49,89 +49,55 @@ export default function VerificationDocuments() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Mock data - in production, fetch from API
-      const mockDocuments: VerificationDocument[] = [
-        {
-          id: 1,
-          userId: 101,
-          userName: 'Ahmed Khan',
-          userEmail: 'ahmed@carrier.pk',
-          userRole: 'carrier',
-          documentType: 'NIC / CNIC',
-          documentName: 'cnic_front_back.pdf',
-          status: 'pending',
-          submittedAt: '2024-01-20T10:30:00Z',
-        },
-        {
-          id: 2,
-          userId: 101,
-          userName: 'Ahmed Khan',
-          userEmail: 'ahmed@carrier.pk',
-          userRole: 'carrier',
-          documentType: 'Driving License',
-          documentName: 'driving_license.jpg',
-          status: 'verified',
-          submittedAt: '2024-01-18T14:20:00Z',
-          reviewedAt: '2024-01-19T09:00:00Z',
-          reviewedBy: 'Admin User',
-        },
-        {
-          id: 3,
-          userId: 102,
-          userName: 'Ali Transport Co.',
-          userEmail: 'ali@transport.pk',
-          userRole: 'carrier',
-          documentType: 'Company Registration',
-          documentName: 'ntn_certificate.pdf',
-          status: 'rejected',
-          submittedAt: '2024-01-15T11:00:00Z',
-          reviewedAt: '2024-01-16T15:30:00Z',
-          reviewedBy: 'Admin User',
-          rejectionReason: 'Document is expired. Please upload current NTN certificate.',
-        },
-        {
-          id: 4,
-          userId: 103,
-          userName: 'Karachi Logistics',
-          userEmail: 'info@karachilogistics.pk',
-          userRole: 'carrier',
-          documentType: 'Vehicle Registration',
-          documentName: 'vehicle_reg_ABC123.pdf',
-          status: 'pending',
-          submittedAt: '2024-01-21T08:45:00Z',
-        },
-        {
-          id: 5,
-          userId: 201,
-          userName: 'Tech Imports Ltd',
-          userEmail: 'imports@techltd.pk',
-          userRole: 'shipper',
-          documentType: 'Company Registration',
-          documentName: 'secp_registration.pdf',
-          status: 'verified',
-          submittedAt: '2024-01-10T09:00:00Z',
-          reviewedAt: '2024-01-11T10:00:00Z',
-          reviewedBy: 'Admin User',
-        },
-      ];
+      const token = localStorage.getItem('access_token');
+      
+      // Fetch real documents from API
+      const docsResponse = await fetch('/api/documents/all', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (docsResponse.ok) {
+        const docsData = await docsResponse.json();
+        // Transform API data to match interface
+        const transformedDocs: VerificationDocument[] = (docsData || []).map((doc: any) => ({
+          id: doc.id,
+          userId: doc.userId,
+          userName: doc.userName || `User #${doc.userId}`,
+          userEmail: doc.userEmail || '',
+          userRole: doc.userRole || 'carrier',
+          documentType: doc.documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document',
+          documentName: doc.documentUrl?.split('/').pop() || 'document.pdf',
+          status: doc.status || 'pending',
+          submittedAt: doc.createdAt || new Date().toISOString(),
+          reviewedAt: doc.verifiedAt,
+          reviewedBy: doc.verifiedBy ? `Admin #${doc.verifiedBy}` : undefined,
+          rejectionReason: doc.rejectionReason,
+          fileUrl: doc.documentUrl,
+        }));
+        setDocuments(transformedDocs);
+      } else {
+        // Fallback to empty array if API fails
+        setDocuments([]);
+      }
 
-      const mockCompliance: ComplianceItem[] = [
+      // Static compliance items (these would typically come from a config)
+      const complianceData: ComplianceItem[] = [
         {
           id: 1,
           category: 'Data Protection',
           title: 'GDPR Compliance',
           description: 'User data handling and privacy policy compliance',
           status: 'compliant',
-          lastChecked: '2024-01-15',
+          lastChecked: new Date().toISOString().split('T')[0],
         },
         {
           id: 2,
           category: 'Transport Regulations',
           title: 'NHA Transport License',
           description: 'National Highway Authority transport license renewal',
-          status: 'pending_review',
-          dueDate: '2024-02-28',
-          lastChecked: '2024-01-10',
+          status: 'compliant',
+          dueDate: '2025-12-31',
+          lastChecked: new Date().toISOString().split('T')[0],
         },
         {
           id: 3,
@@ -139,50 +105,93 @@ export default function VerificationDocuments() {
           title: 'FBR Tax Registration',
           description: 'Federal Board of Revenue tax compliance',
           status: 'compliant',
-          lastChecked: '2024-01-20',
-        },
-        {
-          id: 4,
-          category: 'Insurance',
-          title: 'Cargo Insurance Policy',
-          description: 'Platform cargo insurance coverage',
-          status: 'compliant',
-          dueDate: '2024-06-30',
-          lastChecked: '2024-01-05',
-        },
-        {
-          id: 5,
-          category: 'International',
-          title: 'TIR Carnet Authorization',
-          description: 'TIR Convention compliance for cross-border transport',
-          status: 'non_compliant',
-          lastChecked: '2024-01-18',
+          lastChecked: new Date().toISOString().split('T')[0],
         },
       ];
-
-      setDocuments(mockDocuments);
-      setComplianceItems(mockCompliance);
+      setComplianceItems(complianceData);
     } catch (error) {
       console.error('Error fetching data:', error);
+      setDocuments([]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerify = async (docId: number) => {
-    setDocuments(docs => docs.map(d => 
-      d.id === docId ? { ...d, status: 'verified' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin' } : d
-    ));
-    alert('Document verified successfully!');
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/documents/${docId}/verify`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: 'verified' })
+      });
+      
+      if (response.ok) {
+        setDocuments(docs => docs.map(d => 
+          d.id === docId ? { ...d, status: 'verified' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin' } : d
+        ));
+        alert('Document verified successfully!');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to verify document');
+      }
+    } catch (error) {
+      console.error('Error verifying document:', error);
+      alert('Failed to verify document');
+    }
   };
 
   const handleReject = async (docId: number) => {
     const reason = prompt('Enter rejection reason:');
     if (reason) {
-      setDocuments(docs => docs.map(d => 
-        d.id === docId ? { ...d, status: 'rejected' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin', rejectionReason: reason } : d
-      ));
-      alert('Document rejected.');
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`/api/documents/${docId}/verify`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'rejected', rejectionReason: reason })
+        });
+        
+        if (response.ok) {
+          setDocuments(docs => docs.map(d => 
+            d.id === docId ? { ...d, status: 'rejected' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin', rejectionReason: reason } : d
+          ));
+          alert('Document rejected.');
+        } else {
+          const error = await response.json();
+          alert(error.error || 'Failed to reject document');
+        }
+      } catch (error) {
+        console.error('Error rejecting document:', error);
+        alert('Failed to reject document');
+      }
+    }
+  };
+  
+  const handleViewDocument = (doc: VerificationDocument) => {
+    if (doc.fileUrl) {
+      window.open(doc.fileUrl, '_blank');
+    } else {
+      alert('Document URL not available');
+    }
+  };
+  
+  const handleDownloadDocument = (doc: VerificationDocument) => {
+    if (doc.fileUrl) {
+      const link = document.createElement('a');
+      link.href = doc.fileUrl;
+      link.download = doc.documentName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert('Document URL not available');
     }
   };
 
@@ -450,11 +459,17 @@ export default function VerificationDocuments() {
                             </div>
                           )}
                           <div className="flex gap-2 mt-4">
-                            <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleViewDocument(doc); }}
+                              className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2"
+                            >
                               <Eye className="w-4 h-4" />
                               View Document
                             </button>
-                            <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleDownloadDocument(doc); }}
+                              className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2"
+                            >
                               <Download className="w-4 h-4" />
                               Download
                             </button>

@@ -206,8 +206,38 @@ router.get('/pending', requireAuth, requireRole('admin'), async (req, res) => {
 // Admin: Get all documents (for admin dashboard)
 router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
   try {
-    const documents = await db.select().from(userDocuments);
-    res.json(documents);
+    // Join with users table to get user info
+    const documents = await db
+      .select({
+        id: userDocuments.id,
+        userId: userDocuments.userId,
+        documentType: userDocuments.documentType,
+        documentNumber: userDocuments.documentNumber,
+        documentUrl: userDocuments.documentUrl,
+        status: userDocuments.status,
+        issueDate: userDocuments.issueDate,
+        expiryDate: userDocuments.expiryDate,
+        issuingAuthority: userDocuments.issuingAuthority,
+        verifiedBy: userDocuments.verifiedBy,
+        verifiedAt: userDocuments.verifiedAt,
+        rejectionReason: userDocuments.rejectionReason,
+        createdAt: userDocuments.createdAt,
+        updatedAt: userDocuments.updatedAt,
+        userName: users.firstName,
+        userLastName: users.lastName,
+        userEmail: users.email,
+        userRole: users.role,
+      })
+      .from(userDocuments)
+      .leftJoin(users, eq(userDocuments.userId, users.id));
+    
+    // Transform to include full userName
+    const transformedDocs = documents.map(doc => ({
+      ...doc,
+      userName: `${doc.userName || ''} ${doc.userLastName || ''}`.trim() || `User #${doc.userId}`,
+    }));
+    
+    res.json(transformedDocs);
   } catch (error) {
     console.error('Error fetching all documents:', error);
     res.status(500).json({ error: 'Failed to fetch documents' });

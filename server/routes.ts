@@ -765,9 +765,10 @@ export function registerRoutes(app: Express) {
   });
 
   // Quotes endpoints - using quotes table
-  app.post('/api/quotes', async (req, res) => {
+  app.post('/api/quotes', optionalAuth, async (req, res) => {
     try {
       console.log('Creating quote with data:', req.body);
+      console.log('User from auth:', req.user);
       
       // Validate required fields
       if (!req.body.loadId) {
@@ -780,7 +781,13 @@ export function registerRoutes(app: Express) {
       deliveryDate.setDate(deliveryDate.getDate() + (parseInt(req.body.estimatedDays) || 7));
       
       const loadId = parseInt(req.body.loadId);
-      const carrierId = parseInt(req.body.carrierId) || 1;
+      // Get carrierId from authenticated user or request body
+      const carrierId = req.user?.id || parseInt(req.body.carrierId) || null;
+      
+      if (!carrierId) {
+        return res.status(401).json({ error: 'Authentication required to place a bid. Please sign in.' });
+      }
+      
       const bidAmount = parseFloat(req.body.quotedPrice || req.body.price || 0);
       
       if (isNaN(loadId) || loadId <= 0) {

@@ -104,8 +104,9 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
     }
   };
 
-  const rateValue = load.rateUsd || (load.price ? parseFloat(load.price) : 0);
-  const suggestedBid = rateValue * 0.95; // 5% below asking price
+  const rateValue = load.rateUsd || (load.price ? parseFloat(load.price) : 0) || 0;
+  const suggestedBid = (rateValue || 0) * 0.95; // 5% below asking price
+  const weightValue = load.weight || 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -159,7 +160,7 @@ export default function BidModal({ isOpen, onClose, load }: BidModalProps) {
                 </div>
                 <div>
                   <span className="text-slate-600">Weight:</span>
-                  <p className="font-medium text-slate-900">{load.weight?.toLocaleString() || 0} kg</p>
+                  <p className="font-medium text-slate-900">{weightValue.toLocaleString()} kg</p>
                 </div>
                 <div>
                   <span className="text-slate-600">Asking Rate:</span>

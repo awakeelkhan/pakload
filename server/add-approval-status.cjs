@@ -12,6 +12,11 @@ async function addColumns() {
       `ALTER TABLE loads ADD COLUMN IF NOT EXISTS approved_by INTEGER`,
       `ALTER TABLE loads ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP`,
       `ALTER TABLE loads ADD COLUMN IF NOT EXISTS rejection_reason TEXT`,
+      // Add columns for bookings table (used for bids/quotes)
+      `ALTER TABLE bookings ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) DEFAULT 'pending'`,
+      `ALTER TABLE bookings ADD COLUMN IF NOT EXISTS approved_by INTEGER`,
+      `ALTER TABLE bookings ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP`,
+      `ALTER TABLE bookings ADD COLUMN IF NOT EXISTS rejection_reason TEXT`,
     ];
     
     for (const sql of columns) {

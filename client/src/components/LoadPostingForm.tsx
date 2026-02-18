@@ -215,6 +215,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
         cargoType: formData.cargoType,
         weight: parseFloat(formData.weight),
         price: formData.price,
+        currency: formData.currency,
         equipmentType: formData.equipmentType,
         description: formData.description,
         specialRequirements: formData.specialRequirements,

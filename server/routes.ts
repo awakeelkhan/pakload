@@ -1232,6 +1232,11 @@ export function registerRoutes(app: Express) {
       const quoteId = parseInt(req.params.id);
       const { status } = req.body;
       
+      // Validate quoteId
+      if (isNaN(quoteId) || quoteId <= 0) {
+        return res.status(400).json({ error: 'Invalid quote ID' });
+      }
+      
       // Only admin can update quote status directly
       if (req.user!.role !== 'admin') {
         return res.status(403).json({ error: 'Only admin can update quote status' });

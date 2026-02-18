@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { MapPin, Navigation, DollarSign, Clock, Fuel, AlertTriangle, Cloud, TrendingUp, Calculator, Route as RouteIcon, Truck, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
@@ -130,6 +130,27 @@ export default function Routes() {
   const getFuelConsumption = (distance: number) => {
     const consumption = vehicleType === 'truck' ? 0.35 : 0.25; // liters per km
     return (distance * consumption).toFixed(0);
+  };
+
+  // Calculate driver days based on distance - short routes (under 400km) don't need overnight stays
+  const getDriverDays = (route: RouteData) => {
+    // If duration contains "hours", it's a same-day trip
+    if (route.duration.toLowerCase().includes('hour')) {
+      return 0; // No overnight stay needed
+    }
+    // For distances under 400km that can be done in a day, no overnight needed
+    if (route.distance < 400) {
+      return 0;
+    }
+    // Parse the duration string (e.g., "2-3 days" -> 2)
+    const daysMatch = route.duration.match(/(\d+)/);
+    return daysMatch ? Math.max(0, parseInt(daysMatch[1]) - 1) : 0; // Subtract 1 because last day doesn't need accommodation
+  };
+
+  // Calculate driver expenses (only for trips requiring overnight stays)
+  const getDriverExpenses = (route: RouteData) => {
+    const days = getDriverDays(route);
+    return days * 7000; // PKR 7,000 per day for accommodation & food
   };
 
   const getStatusColor = (status: string) => {
@@ -334,12 +355,18 @@ export default function Routes() {
                           <div className="flex justify-between items-center">
                             <div>
                               <span className="text-sm text-slate-700">Accommodation & Food</span>
-                              <p className="text-xs text-slate-500">PKR 7,000/day × {Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)} days</p>
+                              <p className="text-xs text-slate-500">
+                                {getDriverDays(selectedRoute) === 0 
+                                  ? 'Same-day trip - no overnight stay needed' 
+                                  : `PKR 7,000/day × ${getDriverDays(selectedRoute)} nights`}
+                              </p>
                             </div>
-                            <span className="font-bold text-slate-900">PKR {((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000).toLocaleString()}</span>
+                            <span className="font-bold text-slate-900">PKR {getDriverExpenses(selectedRoute).toLocaleString()}</span>
                           </div>
                           <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                            ℹ️ Includes meals, rest stops, and overnight stays
+                            {getDriverDays(selectedRoute) === 0 
+                              ? '✓ Short route - driver can return same day'
+                              : 'ℹ️ Includes meals, rest stops, and overnight stays'}
                           </div>
                         </div>
                       </div>
@@ -351,7 +378,7 @@ export default function Routes() {
                           <span className="font-bold text-lg">PKR {(
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ).toLocaleString()}</span>
                         </div>
                       </div>
@@ -371,7 +398,7 @@ export default function Routes() {
                             <span className="font-bold text-amber-700 text-lg">+ PKR {Math.round((
                               selectedRoute.fuelCost + 
                               (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                              ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                              getDriverExpenses(selectedRoute)
                             ) * 0.35).toLocaleString()}</span>
                           </div>
                         </div>
@@ -389,12 +416,12 @@ export default function Routes() {
                           <span className="text-3xl font-bold text-white">PKR {Math.round((
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ) * 1.35).toLocaleString()}</span>
                           <p className="text-green-200 text-xs">≈ PKR {Math.round(((
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ) * 1.35) / selectedRoute.distance).toLocaleString()}/km</p>
                         </div>
                       </div>
@@ -409,7 +436,7 @@ export default function Routes() {
                           <p className="font-bold text-sm text-slate-900">{Math.round((selectedRoute.fuelCost / ((
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ) * 1.35)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">
@@ -417,15 +444,15 @@ export default function Routes() {
                           <p className="font-bold text-sm text-slate-900">{Math.round(((Math.ceil(selectedRoute.distance / 100) * 3000) / ((
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ) * 1.35)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">
                           <p className="text-xs text-slate-500">Driver</p>
-                          <p className="font-bold text-sm text-slate-900">{Math.round((((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000) / ((
+                          <p className="font-bold text-sm text-slate-900">{Math.round((getDriverExpenses(selectedRoute) / ((
                             selectedRoute.fuelCost + 
                             (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            ((Math.ceil(parseInt(selectedRoute.duration.split('-')[0]) || 1)) * 7000)
+                            getDriverExpenses(selectedRoute)
                           ) * 1.35)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">

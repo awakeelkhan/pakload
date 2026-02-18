@@ -221,7 +221,7 @@ export default function LoadsScreen() {
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Budget</Text>
           <Text style={styles.priceAmount}>
-            ${(item.budget || item.price || 0).toLocaleString()}
+            {item.currency === 'PKR' ? 'PKR ' : item.currency === 'CNY' ? '¥' : '$'}{(item.budget || item.price || 0).toLocaleString()}
           </Text>
           {item.distance && (
             <Text style={styles.distanceText}>{item.distance} km</Text>
@@ -378,14 +378,14 @@ export default function LoadsScreen() {
                   {selectedLoad.cargoType} • {(selectedLoad.weight || 0).toLocaleString()} kg
                 </Text>
                 <Text style={styles.modalBudget}>
-                  Budget: ${(selectedLoad.budget || 0).toLocaleString()}
+                  Budget: {selectedLoad.currency === 'PKR' ? 'PKR ' : selectedLoad.currency === 'CNY' ? '¥' : '$'}{(selectedLoad.budget || selectedLoad.price || 0).toLocaleString()}
                 </Text>
               </View>
             )}
 
             <View style={styles.modalForm}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Your Bid Amount ($) *</Text>
+                <Text style={styles.inputLabel}>Your Bid Amount ({selectedLoad?.currency || 'PKR'}) *</Text>
                 <View style={styles.inputContainer}>
                   <Ionicons name="cash-outline" size={20} color="#6b7280" />
                   <TextInput

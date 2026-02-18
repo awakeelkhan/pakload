@@ -818,6 +818,9 @@ export function registerRoutes(app: Express) {
       try {
         const loadData = await loadRepo.findById(loadId);
         const trackingNumber = loadData?.load?.trackingNumber || `LP-${loadId}`;
+        const origin = loadData?.load?.origin || loadData?.load?.originCity || '';
+        const destination = loadData?.load?.destination || loadData?.load?.destinationCity || '';
+        const currency = (loadData?.load as any)?.currency || 'PKR';
         
         if (loadData?.load?.shipperId) {
           await notificationService.notifyBidReceived(
@@ -825,16 +828,21 @@ export function registerRoutes(app: Express) {
             carrierId,
             loadId,
             bidAmount,
-            trackingNumber
+            trackingNumber,
+            origin,
+            destination,
+            currency
           );
         }
         // Also notify admins about the new bid for approval
         const formattedBidAmount = bidAmount ? bidAmount.toLocaleString() : '0';
+        const currencySymbol = currency === 'PKR' ? 'PKR ' : currency === 'CNY' ? '¥' : '$';
+        const routeInfo = origin && destination ? ` (${origin} → ${destination})` : '';
         await notificationService.notifyAllAdmins(
           'New Bid Pending Approval',
-          `A new bid of $${formattedBidAmount} was submitted for load ${trackingNumber}.`,
+          `A new bid of ${currencySymbol}${formattedBidAmount} was submitted for load ${trackingNumber}${routeInfo}.`,
           '/admin/bids',
-          { loadId, carrierId, bidAmount, bookingId: newBooking.id }
+          { loadId, carrierId, bidAmount, bookingId: newBooking.id, origin, destination, currency }
         );
       } catch (notifError) {
         console.error('Error sending bid notification:', notifError);

@@ -155,17 +155,19 @@ export class NotificationService {
 
   // === BID NOTIFICATIONS ===
   
-  async notifyBidReceived(shipperId: number, carrierId: number, loadId: number, bidAmount: number, trackingNumber: string) {
+  async notifyBidReceived(shipperId: number, carrierId: number, loadId: number, bidAmount: number, trackingNumber: string, origin?: string, destination?: string, currency?: string) {
+    const currencySymbol = currency === 'PKR' ? 'PKR ' : currency === 'CNY' ? '¥' : '$';
+    const routeInfo = origin && destination ? ` (${origin} → ${destination})` : '';
     return this.repo.create({
       userId: shipperId,
       type: 'bid_received',
       priority: 'high',
       title: 'New Bid Received',
-      message: `You received a new bid of $${bidAmount.toLocaleString()} on load ${trackingNumber}`,
+      message: `You received a new bid of ${currencySymbol}${bidAmount.toLocaleString()} on load ${trackingNumber}${routeInfo}`,
       link: '/bids',
       relatedLoadId: loadId,
       relatedUserId: carrierId,
-      metadata: { bidAmount, trackingNumber },
+      metadata: { bidAmount, trackingNumber, origin, destination, currency },
     });
   }
 

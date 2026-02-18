@@ -355,6 +355,10 @@ router.get('/', async (req, res) => {
 
     const conditions = [];
 
+    // By default, only show approved loads (unless admin or specific status requested)
+    // This ensures mobile app only sees approved loads
+    conditions.push(eq(loads.approvalStatus, 'approved'));
+
     if (status) {
       conditions.push(eq(loads.status, status as any));
     }

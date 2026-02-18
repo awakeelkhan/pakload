@@ -158,11 +158,17 @@ export default function MyBidsScreen() {
       <View style={styles.detailsGrid}>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Your Bid</Text>
-          <Text style={styles.bidAmount}>${(item.price || item.quotedPrice || 0).toLocaleString()}</Text>
+          <Text style={styles.bidAmount}>
+            {(item.currency || item.load?.currency) === 'PKR' ? 'PKR ' : (item.currency || item.load?.currency) === 'CNY' ? '¥' : '$'}
+            {(item.price || item.quotedPrice || 0).toLocaleString()}
+          </Text>
         </View>
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Load Budget</Text>
-          <Text style={styles.budgetAmount}>${(item.loadBudget || item.load?.budget || 0).toLocaleString()}</Text>
+          <Text style={styles.budgetAmount}>
+            {(item.currency || item.load?.currency) === 'PKR' ? 'PKR ' : (item.currency || item.load?.currency) === 'CNY' ? '¥' : '$'}
+            {(item.loadBudget || item.load?.budget || item.load?.price || 0).toLocaleString()}
+          </Text>
         </View>
       </View>
 
@@ -183,8 +189,8 @@ export default function MyBidsScreen() {
         {item.status === 'pending' && (
           <View style={styles.pendingActions}>
             <View style={styles.pendingInfo}>
-              <Ionicons name="time-outline" size={16} color="#f59e0b" />
-              <Text style={styles.pendingText}>Awaiting response</Text>
+              <Ionicons name="hourglass-outline" size={16} color="#f59e0b" />
+              <Text style={styles.pendingText}>Awaiting Admin Approval</Text>
             </View>
             <TouchableOpacity 
               style={styles.withdrawButton}

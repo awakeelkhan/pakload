@@ -192,6 +192,7 @@ export default function PostScreen() {
         cargoType,
         cargoWeight: Number(cargoWeight),
         price: Number(price),
+        currency,
         description: description || undefined,
         containerType: equipmentType || undefined,
         images: uploadedImageUrls.length ? uploadedImageUrls : undefined,

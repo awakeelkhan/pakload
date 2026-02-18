@@ -107,6 +107,8 @@ export default function BookingsScreen() {
     const cargoType = item.cargoType || load.cargoType || 'General';
     const weight = item.weight || load.weight || 0;
     const totalAmount = item.totalAmount || item.price || load.price || item.agreedPrice || 0;
+    const currency = item.currency || load.currency || 'PKR';
+    const currencySymbol = currency === 'PKR' ? 'PKR ' : currency === 'CNY' ? '¥' : '$';
     const status = item.status || 'pending';
     const progress = item.progress || (status === 'delivered' ? 100 : status === 'in_transit' ? 50 : 0);
     
@@ -187,7 +189,7 @@ export default function BookingsScreen() {
         <View style={styles.bookingFooter}>
           <View style={styles.priceInfo}>
             <Text style={styles.priceLabel}>Total Amount</Text>
-            <Text style={styles.priceAmount}>PKR {Number(totalAmount).toLocaleString()}</Text>
+            <Text style={styles.priceAmount}>{currencySymbol}{Number(totalAmount).toLocaleString()}</Text>
           </View>
           <View style={styles.footerActions}>
             {status === 'delivered' || status === 'confirmed' ? (

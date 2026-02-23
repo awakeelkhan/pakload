@@ -14,6 +14,9 @@ import { passport } from './routes/oauth.js';
 const app = express();
 const httpServer = createServer(app);
 
+// Trust proxy for rate limiting behind nginx/load balancer
+app.set('trust proxy', 1);
+
 // Rate limiting
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

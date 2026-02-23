@@ -8,6 +8,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { loadsAPI, marketRequestsAPI, uploadAPI } from '../../src/services/api';
 import { useAuth } from '../../src/contexts/AuthContext';
+import LocationPickerModal from '../../src/components/LocationPickerModal';
 
 type Mode = 'select' | 'post-load' | 'market-request' | 'post-availability';
 
@@ -68,6 +69,12 @@ export default function PostScreen() {
   const [pickupDateObj, setPickupDateObj] = useState<Date | null>(null);
   const [deliveryDateObj, setDeliveryDateObj] = useState<Date | null>(null);
   const [currency, setCurrency] = useState<'PKR' | 'USD'>('PKR');
+  
+  // Location picker modal state
+  const [showOriginPicker, setShowOriginPicker] = useState(false);
+  const [showDestinationPicker, setShowDestinationPicker] = useState(false);
+  const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [destinationCoords, setDestinationCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   // Market request form state
   const [reqTitle, setReqTitle] = useState('');
@@ -441,11 +448,27 @@ export default function PostScreen() {
           <View style={styles.row}>
             <View style={styles.flex}>
               <Text style={styles.label}>Origin *</Text>
-              <TextInput style={styles.input} value={origin} onChangeText={setOrigin} placeholder="e.g., Lahore" placeholderTextColor="#9ca3af" />
+              <View style={styles.locationInputRow}>
+                <TextInput style={[styles.input, styles.locationInput]} value={origin} onChangeText={setOrigin} placeholder="e.g., Lahore" placeholderTextColor="#9ca3af" />
+                <TouchableOpacity style={styles.pinButton} onPress={() => setShowOriginPicker(true)}>
+                  <Ionicons name="location" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              {originCoords && (
+                <Text style={styles.coordsText}>📍 {originCoords.lat.toFixed(4)}, {originCoords.lon.toFixed(4)}</Text>
+              )}
             </View>
             <View style={styles.flex}>
               <Text style={styles.label}>Destination *</Text>
-              <TextInput style={styles.input} value={destination} onChangeText={setDestination} placeholder="e.g., Karachi" placeholderTextColor="#9ca3af" />
+              <View style={styles.locationInputRow}>
+                <TextInput style={[styles.input, styles.locationInput]} value={destination} onChangeText={setDestination} placeholder="e.g., Karachi" placeholderTextColor="#9ca3af" />
+                <TouchableOpacity style={[styles.pinButton, styles.pinButtonRed]} onPress={() => setShowDestinationPicker(true)}>
+                  <Ionicons name="location" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              {destinationCoords && (
+                <Text style={styles.coordsText}>📍 {destinationCoords.lat.toFixed(4)}, {destinationCoords.lon.toFixed(4)}</Text>
+              )}
             </View>
           </View>
         </View>
@@ -670,7 +693,31 @@ export default function PostScreen() {
     );
   }
 
-  return null;
+  return (
+    <>
+      {/* Location Picker Modals */}
+      <LocationPickerModal
+        visible={showOriginPicker}
+        onClose={() => setShowOriginPicker(false)}
+        onSelectLocation={(location) => {
+          setOrigin(location.address);
+          setOriginCoords({ lat: location.latitude, lon: location.longitude });
+        }}
+        title="Select Pickup Location"
+        markerColor="green"
+      />
+      <LocationPickerModal
+        visible={showDestinationPicker}
+        onClose={() => setShowDestinationPicker(false)}
+        onSelectLocation={(location) => {
+          setDestination(location.address);
+          setDestinationCoords({ lat: location.latitude, lon: location.longitude });
+        }}
+        title="Select Delivery Location"
+        markerColor="red"
+      />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -744,4 +791,9 @@ const styles = StyleSheet.create({
   dateInput: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 14 },
   dateText: { fontSize: 15, color: '#0f172a' },
   datePlaceholder: { fontSize: 15, color: '#9ca3af' },
+  locationInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  locationInput: { flex: 1 },
+  pinButton: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#16a34a', alignItems: 'center', justifyContent: 'center' },
+  pinButtonRed: { backgroundColor: '#dc2626' },
+  coordsText: { fontSize: 11, color: '#16a34a', marginTop: 4, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
 });

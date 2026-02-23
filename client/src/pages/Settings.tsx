@@ -211,6 +211,68 @@ export default function Settings() {
               + {t('settings.addPaymentMethod', 'Add Payment Method')}
             </button>
           </div>
+
+          {/* Business Documents - Shipper Only */}
+          {user?.role === 'shipper' && (
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+              <div className="flex items-center gap-3 mb-4">
+                <Building className="w-5 h-5 text-slate-600" />
+                <h2 className="text-lg font-semibold text-slate-900">Business Documents</h2>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Upload your business registration and tax documents for verification
+              </p>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => navigate('/kyc')}
+                  className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">Company Registration</p>
+                      <p className="text-sm text-slate-600">SECP/SSC registration certificate</p>
+                    </div>
+                    <span className="text-slate-400">→</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => navigate('/kyc')}
+                  className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-green-600" />
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">NTN Certificate</p>
+                      <p className="text-sm text-slate-600">National Tax Number certificate</p>
+                    </div>
+                    <span className="text-slate-400">→</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => navigate('/kyc')}
+                  className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-amber-600" />
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">Sales Tax Registration</p>
+                      <p className="text-sm text-slate-600">Provincial sales tax certificate</p>
+                    </div>
+                    <span className="text-slate-400">→</span>
+                  </div>
+                </button>
+              </div>
+              <div className="mt-4 pt-4 border-t">
+                <button 
+                  onClick={() => navigate('/kyc')}
+                  className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  Upload Business Documents
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Success/Error Messages */}

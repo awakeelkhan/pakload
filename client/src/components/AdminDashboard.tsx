@@ -410,18 +410,22 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                   </div>
                   <span className="text-sm font-medium text-slate-900">Manage Users</span>
                 </button>
-                <button className="flex flex-col items-center gap-2 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                  <div className="p-3 bg-green-600 rounded-lg">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-slate-900">KYC Review</span>
-                </button>
-                <button className="flex flex-col items-center gap-2 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-                  <div className="p-3 bg-purple-600 rounded-lg">
-                    <BarChart3 className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-sm font-medium text-slate-900">Analytics</span>
-                </button>
+                <Link href="/admin/kyc-review">
+                  <button className="flex flex-col items-center gap-2 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors w-full">
+                    <div className="p-3 bg-green-600 rounded-lg">
+                      <Shield className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-900">KYC Review</span>
+                  </button>
+                </Link>
+                <Link href="/admin/analytics">
+                  <button className="flex flex-col items-center gap-2 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors w-full">
+                    <div className="p-3 bg-purple-600 rounded-lg">
+                      <BarChart3 className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-sm font-medium text-slate-900">Analytics</span>
+                  </button>
+                </Link>
                 <button onClick={() => setShowConfigModal(true)} className="flex flex-col items-center gap-2 p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">
                   <div className="p-3 bg-amber-600 rounded-lg">
                     <Settings className="w-5 h-5 text-white" />

@@ -687,9 +687,31 @@ export default function Routes() {
                         {route.trafficLevel.charAt(0).toUpperCase() + route.trafficLevel.slice(1)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-600">Total Cost Estimate</span>
-                      <span className="font-bold text-green-600">PKR {(route.fuelCost + route.tollCost).toLocaleString()}</span>
+                    
+                    {/* Cost Breakdown */}
+                    <div className="bg-slate-50 rounded-lg p-3 space-y-2">
+                      <h4 className="font-medium text-slate-900 text-sm">Cost Breakdown</h4>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-600">Fuel Cost</span>
+                        <span className="font-medium text-slate-900">PKR {route.fuelCost.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-600">Toll Charges</span>
+                        <span className="font-medium text-slate-900">PKR {route.tollCost.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-600">Driver Accommodation & Food</span>
+                        <span className="font-medium text-slate-900">PKR {(Math.ceil(parseInt(route.duration.split('-')[0]) || 1) * 7000).toLocaleString()}</span>
+                      </div>
+                      <div className="text-xs text-slate-500 italic">
+                        (PKR 7,000 per day for driver meals and lodging)
+                      </div>
+                      <div className="border-t pt-2 mt-2 flex items-center justify-between text-sm">
+                        <span className="font-medium text-slate-700">Total Cost Estimate</span>
+                        <span className="font-bold text-green-600">
+                          PKR {(route.fuelCost + route.tollCost + (Math.ceil(parseInt(route.duration.split('-')[0]) || 1) * 7000)).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                     <div className="pt-3 flex gap-2">
                       <button className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors text-sm font-medium">

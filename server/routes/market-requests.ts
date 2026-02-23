@@ -386,4 +386,72 @@ router.get('/admin/stats', requireAuth, requireRole('admin'), async (req, res) =
   }
 });
 
+// Approve market request (admin)
+router.post('/:id/approve', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const existing = await marketRequestRepo.findById(id);
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const updated = await marketRequestRepo.update(id, {
+      status: 'open',
+      fulfillmentStatus: 'searching',
+    });
+
+    // Log the action
+    await marketRequestRepo.logFulfillmentAction({
+      requestId: id,
+      actionType: 'approve',
+      actionBy: req.user!.id,
+      notes: 'Request approved by admin',
+      outcome: 'success',
+    });
+
+    // TODO: Send notification to shipper about approval
+
+    res.json({ message: 'Request approved', request: updated });
+  } catch (error) {
+    console.error('Approve request error:', error);
+    res.status(500).json({ error: 'Failed to approve request' });
+  }
+});
+
+// Reject market request (admin)
+router.post('/:id/reject', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { reason } = req.body;
+    
+    const existing = await marketRequestRepo.findById(id);
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const updated = await marketRequestRepo.update(id, {
+      status: 'closed',
+      fulfillmentStatus: 'cancelled',
+    });
+
+    // Log the action
+    await marketRequestRepo.logFulfillmentAction({
+      requestId: id,
+      actionType: 'reject',
+      actionBy: req.user!.id,
+      notes: reason || 'Request rejected by admin',
+      outcome: 'rejected',
+    });
+
+    // TODO: Send notification to shipper about rejection
+
+    res.json({ message: 'Request rejected', request: updated });
+  } catch (error) {
+    console.error('Reject request error:', error);
+    res.status(500).json({ error: 'Failed to reject request' });
+  }
+});
+
 export default router;

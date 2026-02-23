@@ -2,9 +2,11 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { user, isAuthenticated } = useAuth();
   
   // Calculate safe bottom padding - ensures tab bar doesn't overlap with gesture navigation
   const bottomPadding = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
@@ -67,6 +69,8 @@ export default function TabLayout() {
         options={{
           title: 'Loads',
           headerTitle: 'Find Loads',
+          // Show for carriers and admins, hide for shippers
+          href: user?.role === 'shipper' ? null : '/loads',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'cube' : 'cube-outline'} size={22} color={color} />
           ),
@@ -77,6 +81,8 @@ export default function TabLayout() {
         options={{
           title: 'Trucks',
           headerShown: false,
+          // Show for shippers and admins, hide for carriers
+          href: user?.role === 'carrier' ? null : '/trucks',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'bus' : 'bus-outline'} size={22} color={color} />
           ),

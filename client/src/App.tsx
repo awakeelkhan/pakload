@@ -51,6 +51,8 @@ import MarketRequests from './pages/MarketRequests';
 import MyRequests from './pages/MyRequests';
 import ForgotPassword from './pages/ForgotPassword';
 import Payments from './pages/Payments';
+import AdminKYCReview from './pages/AdminKYCReview';
+import AdminAnalytics from './pages/AdminAnalytics';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +101,8 @@ function App() {
               <Route path="/admin/market-requests" component={MarketRequestsAdmin} />
               <Route path="/admin/verification" component={VerificationDocuments} />
               <Route path="/admin/payment-approvals" component={PaymentApprovals} />
+              <Route path="/admin/kyc-review" component={AdminKYCReview} />
+              <Route path="/admin/analytics" component={AdminAnalytics} />
               <Route path="/loads" component={FindLoads} />
               <Route path="/trucks" component={FindTrucks} />
               <Route path="/post-load" component={PostLoad} />

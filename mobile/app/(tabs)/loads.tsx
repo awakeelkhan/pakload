@@ -110,6 +110,18 @@ export default function LoadsScreen() {
       ]);
       return;
     }
+    
+    // Only carriers can place bids
+    if (user?.role === 'shipper') {
+      Alert.alert('Not Allowed', 'Only carriers can place bids on loads. Shippers can post loads instead.');
+      return;
+    }
+    
+    if (user?.role === 'admin') {
+      Alert.alert('Not Allowed', 'Admins cannot place bids. Only carriers can bid on loads.');
+      return;
+    }
+    
     setSelectedLoad(load);
     setBidAmount(load.budget?.toString() || '');
     setShowBidModal(true);
@@ -234,13 +246,29 @@ export default function LoadsScreen() {
           >
             <Text style={styles.detailsButtonText}>Details</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.bidButton}
-            onPress={() => handlePlaceBid(item)}
-          >
-            <Ionicons name="pricetag" size={16} color="#fff" />
-            <Text style={styles.bidButtonText}>Bid</Text>
-          </TouchableOpacity>
+          {/* Only show bid button for carriers */}
+          {user?.role === 'carrier' ? (
+            <TouchableOpacity 
+              style={styles.bidButton}
+              onPress={() => handlePlaceBid(item)}
+            >
+              <Ionicons name="pricetag" size={16} color="#fff" />
+              <Text style={styles.bidButtonText}>Bid</Text>
+            </TouchableOpacity>
+          ) : user?.role === 'shipper' || user?.role === 'admin' ? (
+            <View style={[styles.bidButton, { backgroundColor: '#9ca3af' }]}>
+              <Ionicons name="lock-closed" size={16} color="#fff" />
+              <Text style={styles.bidButtonText}>Carriers Only</Text>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.bidButton}
+              onPress={() => handlePlaceBid(item)}
+            >
+              <Ionicons name="pricetag" size={16} color="#fff" />
+              <Text style={styles.bidButtonText}>Bid</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 

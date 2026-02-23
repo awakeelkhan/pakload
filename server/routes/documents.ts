@@ -298,4 +298,162 @@ router.get('/required-documents/:role', (req, res) => {
   });
 });
 
+// Admin: Get all documents with user info
+router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const allDocs = await db.select({
+      id: userDocuments.id,
+      userId: userDocuments.userId,
+      documentType: userDocuments.documentType,
+      documentNumber: userDocuments.documentNumber,
+      documentUrl: userDocuments.documentUrl,
+      status: userDocuments.status,
+      createdAt: userDocuments.createdAt,
+      verifiedAt: userDocuments.verifiedAt,
+      verifiedBy: userDocuments.verifiedBy,
+      rejectionReason: userDocuments.rejectionReason,
+      userName: users.firstName,
+      userLastName: users.lastName,
+      userEmail: users.email,
+      userRole: users.role,
+    })
+    .from(userDocuments)
+    .leftJoin(users, eq(userDocuments.userId, users.id))
+    .orderBy(userDocuments.createdAt);
+
+    // Transform to include full user name
+    const transformedDocs = allDocs.map(doc => ({
+      ...doc,
+      userName: `${doc.userName || ''} ${doc.userLastName || ''}`.trim() || `User #${doc.userId}`,
+    }));
+
+    res.json(transformedDocs);
+  } catch (error) {
+    console.error('Error fetching all documents:', error);
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// Admin: Get pending documents for review
+router.get('/admin/pending', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const pendingDocs = await db.select({
+      id: userDocuments.id,
+      userId: userDocuments.userId,
+      documentType: userDocuments.documentType,
+      documentNumber: userDocuments.documentNumber,
+      documentUrl: userDocuments.documentUrl,
+      status: userDocuments.status,
+      createdAt: userDocuments.createdAt,
+      userName: users.firstName,
+      userLastName: users.lastName,
+      userEmail: users.email,
+      userRole: users.role,
+    })
+    .from(userDocuments)
+    .leftJoin(users, eq(userDocuments.userId, users.id))
+    .where(eq(userDocuments.status, 'pending'))
+    .orderBy(userDocuments.createdAt);
+
+    // Transform to match expected format
+    const transformedDocs = pendingDocs.map(doc => ({
+      id: doc.id,
+      userId: doc.userId,
+      userName: `${doc.userName || ''} ${doc.userLastName || ''}`.trim() || `User #${doc.userId}`,
+      userEmail: doc.userEmail,
+      userRole: doc.userRole,
+      documentType: doc.documentType,
+      documentName: doc.documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document',
+      fileUrl: doc.documentUrl,
+      status: doc.status,
+      submittedAt: doc.createdAt,
+    }));
+
+    res.json({ documents: transformedDocs });
+  } catch (error) {
+    console.error('Error fetching pending documents:', error);
+    res.status(500).json({ error: 'Failed to fetch pending documents' });
+  }
+});
+
+// Admin: Approve document
+router.post('/:id/approve', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const docId = parseInt(req.params.id);
+    
+    const [updated] = await db.update(userDocuments)
+      .set({
+        status: 'verified',
+        verifiedBy: req.user!.id,
+        verifiedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(userDocuments.id, docId))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    // Notify user about approval
+    try {
+      const docTypeName = updated.documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document';
+      await notificationService.notifySystemMessage(
+        updated.userId,
+        'Document Approved',
+        `Your ${docTypeName} has been verified and approved.`,
+        '/kyc'
+      );
+    } catch (notifyError) {
+      console.error('Error sending approval notification:', notifyError);
+    }
+
+    res.json({ message: 'Document approved', document: updated });
+  } catch (error) {
+    console.error('Error approving document:', error);
+    res.status(500).json({ error: 'Failed to approve document' });
+  }
+});
+
+// Admin: Reject document
+router.post('/:id/reject', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const docId = parseInt(req.params.id);
+    const { reason } = req.body;
+    
+    const [updated] = await db.update(userDocuments)
+      .set({
+        status: 'rejected',
+        verifiedBy: req.user!.id,
+        verifiedAt: new Date(),
+        rejectionReason: reason || 'Document rejected by admin',
+        updatedAt: new Date(),
+      })
+      .where(eq(userDocuments.id, docId))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    // Notify user about rejection
+    try {
+      const docTypeName = updated.documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document';
+      await notificationService.notifySystemMessage(
+        updated.userId,
+        'Document Rejected',
+        `Your ${docTypeName} has been rejected. Reason: ${reason || 'Please contact support for details.'}`,
+        '/kyc'
+      );
+    } catch (notifyError) {
+      console.error('Error sending rejection notification:', notifyError);
+    }
+
+    res.json({ message: 'Document rejected', document: updated });
+  } catch (error) {
+    console.error('Error rejecting document:', error);
+    res.status(500).json({ error: 'Failed to reject document' });
+  }
+});
+
 export default router;

@@ -157,6 +157,83 @@ export default function MarketRequests() {
 
   const isAdmin = user?.role === 'admin';
 
+  const handleApproveRequest = async (requestId: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/market-requests/${requestId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        alert('Request approved successfully');
+        fetchRequests();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to approve request');
+      }
+    } catch (error) {
+      console.error('Error approving request:', error);
+      alert('Failed to approve request');
+    }
+  };
+
+  const handleRejectRequest = async (requestId: number) => {
+    const reason = prompt('Please enter rejection reason:');
+    if (!reason) return;
+    
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/market-requests/${requestId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason }),
+      });
+      
+      if (response.ok) {
+        alert('Request rejected');
+        fetchRequests();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to reject request');
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      alert('Failed to reject request');
+    }
+  };
+
+  const handleUpdateStatus = async (requestId: number, status: string) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/market-requests/${requestId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (response.ok) {
+        alert('Status updated successfully');
+        fetchRequests();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -383,15 +460,38 @@ export default function MarketRequests() {
 
                         {isAdmin && request.status !== 'completed' && request.status !== 'cancelled' && (
                           <div className="flex gap-2 pt-4 border-t">
-                            <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                              Update Status
-                            </button>
-                            <button className="flex-1 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 text-sm font-medium">
-                              Add Note
-                            </button>
-                            <button className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium">
-                              Cancel
-                            </button>
+                            {request.status === 'pending' && (
+                              <>
+                                <button 
+                                  onClick={() => handleApproveRequest(request.id)}
+                                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                                >
+                                  Accept Request
+                                </button>
+                                <button 
+                                  onClick={() => handleRejectRequest(request.id)}
+                                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
+                                >
+                                  Reject Request
+                                </button>
+                              </>
+                            )}
+                            {request.status !== 'pending' && (
+                              <>
+                                <button 
+                                  onClick={() => handleUpdateStatus(request.id, 'completed')}
+                                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                                >
+                                  Mark Complete
+                                </button>
+                                <button 
+                                  onClick={() => handleUpdateStatus(request.id, 'cancelled')}
+                                  className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>

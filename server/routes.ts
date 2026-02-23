@@ -788,6 +788,14 @@ export function registerRoutes(app: Express) {
         return res.status(401).json({ error: 'Authentication required to place a bid. Please sign in.' });
       }
       
+      // Only carriers can place bids - prevent admin and shippers from bidding
+      if (req.user?.role === 'admin') {
+        return res.status(403).json({ error: 'Admins cannot place bids. Only carriers can bid on loads.' });
+      }
+      if (req.user?.role === 'shipper') {
+        return res.status(403).json({ error: 'Shippers cannot place bids. Only carriers can bid on loads.' });
+      }
+      
       const bidAmount = parseFloat(req.body.quotedPrice || req.body.price || 0);
       
       if (isNaN(loadId) || loadId <= 0) {
@@ -869,7 +877,30 @@ export function registerRoutes(app: Express) {
       
       const allBookings = await bookingRepo.findAll({ status: status as string });
       
-      res.json({ quotes: allBookings });
+      // Flatten the response for frontend compatibility
+      const flattenedQuotes = allBookings.map(item => ({
+        id: item.booking.id,
+        loadId: item.booking.loadId,
+        carrierId: item.booking.carrierId,
+        vehicleId: item.booking.vehicleId,
+        quotedPrice: item.booking.quotedPrice,
+        estimatedDays: item.booking.estimatedDays,
+        message: item.booking.message,
+        status: item.booking.status,
+        createdAt: item.booking.createdAt,
+        updatedAt: item.booking.updatedAt,
+        carrier: item.carrier,
+        load: item.load ? {
+          origin: item.load.origin,
+          destination: item.load.destination,
+          cargoType: item.load.cargoType,
+          weight: item.load.weight,
+          price: item.load.price,
+        } : null,
+        vehicle: item.vehicle,
+      }));
+      
+      res.json({ quotes: flattenedQuotes });
     } catch (error) {
       console.error('Error fetching quotes:', error);
       res.status(500).json({ error: 'Failed to fetch quotes' });

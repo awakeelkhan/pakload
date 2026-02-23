@@ -38,10 +38,11 @@ export default function MyRequests() {
       const token = localStorage.getItem('access_token');
       
       // Try to fetch real data from all request types
-      const [bookingsRes, bidsRes, goodsRequestsRes] = await Promise.all([
+      const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes] = await Promise.all([
         fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
-        fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
+        fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch('/api/market-requests/my-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
       ]);
 
       let allRequests: Request[] = [];
@@ -98,6 +99,32 @@ export default function MyRequests() {
           details: b
         }));
         allRequests = [...allRequests, ...bidRequests];
+      }
+
+      // Fetch market requests (transport/load matching requests)
+      if (marketRequestsRes?.ok) {
+        const marketData = await marketRequestsRes.json();
+        const marketRequests = (marketData.requests || marketData || []).map((r: any) => ({
+          id: r.id + 30000,
+          type: 'quote' as const,
+          title: r.title || `Market Request #${r.id}`,
+          description: `${r.originCity || 'Origin'} → ${r.destinationCity || 'Destination'} - ${r.goodsType || 'Transport'}`,
+          status: r.fulfillmentStatus === 'fulfilled' ? 'completed' : 
+                  r.fulfillmentStatus === 'cancelled' ? 'rejected' :
+                  r.fulfillmentStatus === 'searching' ? 'in_progress' : 'pending',
+          createdAt: r.createdAt || new Date().toISOString(),
+          updatedAt: r.updatedAt || new Date().toISOString(),
+          details: {
+            goodsType: r.goodsType,
+            quantity: r.quantity ? `${r.quantity} ${r.unit || 'units'}` : 'N/A',
+            budget: r.budgetMin && r.budgetMax ? `${r.currency || 'PKR'} ${r.budgetMin} - ${r.budgetMax}` : 'Negotiable',
+            origin: r.originCity,
+            destination: r.destinationCity,
+            requiredDate: r.requiredBy ? new Date(r.requiredBy).toLocaleDateString() : 'Flexible',
+            fulfillmentStatus: r.fulfillmentStatus
+          }
+        }));
+        allRequests = [...allRequests, ...marketRequests];
       }
 
       // Add mock data if no real data

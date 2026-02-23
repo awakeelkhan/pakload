@@ -170,6 +170,50 @@ router.post('/documents', requireAuth, upload.array('documents', 10), (req: Mult
   }
 });
 
+// Payment proof upload
+router.post('/payment-proof', requireAuth, upload.single('file'), async (req: MulterRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { transactionRef, type } = req.body;
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const isImage = req.file.mimetype.startsWith('image/');
+    const folder = isImage ? 'images' : 'documents';
+    const fileUrl = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
+
+    // TODO: Save payment proof record to database
+    // For now, just return success
+    console.log(`Payment proof uploaded by user ${req.user?.id}: ${transactionRef}, ${fileUrl}`);
+
+    // Notify admins about new payment proof
+    try {
+      const { notificationService } = await import('../repositories/notificationRepository.js');
+      await notificationService.notifyAllAdmins(
+        'New Payment Proof Uploaded',
+        `A user has uploaded payment proof for transaction: ${transactionRef}. Please verify and confirm.`,
+        '/admin/payments',
+        { userId: req.user?.id, transactionRef, fileUrl }
+      );
+    } catch (notifError) {
+      console.error('Error sending payment proof notification:', notifError);
+    }
+
+    res.json({
+      success: true,
+      url: fileUrl,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      transactionRef,
+      message: 'Payment proof uploaded successfully. Admin will verify shortly.'
+    });
+  } catch (error: any) {
+    console.error('Payment proof upload error:', error);
+    res.status(500).json({ error: error.message || 'Upload failed' });
+  }
+});
+
 // Mixed upload (images + documents)
 router.post('/mixed', requireAuth, upload.fields([
   { name: 'images', maxCount: 5 },

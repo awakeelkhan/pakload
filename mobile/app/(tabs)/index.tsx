@@ -149,24 +149,135 @@ export default function HomeScreen() {
 
       {/* Main Content */}
       <View style={styles.content}>
-        {/* Quick Actions - World Class Design */}
+        {/* Role Badge */}
+        {isAuthenticated && user?.role && (
+          <View style={styles.roleBadgeContainer}>
+            <View style={[styles.roleBadge, 
+              user.role === 'admin' ? styles.roleBadgeAdmin : 
+              user.role === 'shipper' ? styles.roleBadgeShipper : 
+              styles.roleBadgeCarrier
+            ]}>
+              <Ionicons 
+                name={user.role === 'admin' ? 'shield' : user.role === 'shipper' ? 'business' : 'car'} 
+                size={14} 
+                color="#fff" 
+              />
+              <Text style={styles.roleBadgeText}>
+                {user.role === 'admin' ? 'Admin' : user.role === 'shipper' ? 'Shipper' : 'Carrier'}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Quick Actions - Role Based */}
         <Text style={styles.sectionLabel}>Quick Actions</Text>
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => router.push('/loads')}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#dcfce7', '#bbf7d0']}
-              style={styles.actionIconBg}
-            >
-              <Ionicons name="search" size={28} color="#16a34a" />
-            </LinearGradient>
-            <Text style={styles.actionTitle}>Find Loads</Text>
-            <Text style={styles.actionSubtitle}>Browse available</Text>
-          </TouchableOpacity>
+          {/* Shipper Actions */}
+          {(!isAuthenticated || user?.role === 'shipper') && (
+            <>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/trucks')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#dcfce7', '#bbf7d0']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="car" size={28} color="#16a34a" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>Find Trucks</Text>
+                <Text style={styles.actionSubtitle}>Available carriers</Text>
+              </TouchableOpacity>
 
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/post')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#dbeafe', '#bfdbfe']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="add-circle" size={28} color="#2563eb" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>Post Load</Text>
+                <Text style={styles.actionSubtitle}>Create shipment</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Carrier Actions */}
+          {user?.role === 'carrier' && (
+            <>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/loads')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#dcfce7', '#bbf7d0']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="search" size={28} color="#16a34a" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>Find Loads</Text>
+                <Text style={styles.actionSubtitle}>Browse available</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/bids')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#fef3c7', '#fde68a']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="pricetag" size={28} color="#d97706" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>My Bids</Text>
+                <Text style={styles.actionSubtitle}>View offers</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Admin Actions */}
+          {user?.role === 'admin' && (
+            <>
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/admin/users')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#fce7f3', '#fbcfe8']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="people" size={28} color="#db2777" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>Users</Text>
+                <Text style={styles.actionSubtitle}>Manage users</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.actionCard}
+                onPress={() => router.push('/admin/approvals')}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#dbeafe', '#bfdbfe']}
+                  style={styles.actionIconBg}
+                >
+                  <Ionicons name="checkmark-circle" size={28} color="#2563eb" />
+                </LinearGradient>
+                <Text style={styles.actionTitle}>Approvals</Text>
+                <Text style={styles.actionSubtitle}>Review pending</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Common Actions */}
           <TouchableOpacity 
             style={styles.actionCard}
             onPress={() => router.push('/bookings')}
@@ -184,53 +295,62 @@ export default function HomeScreen() {
 
           <TouchableOpacity 
             style={styles.actionCard}
-            onPress={() => router.push('/bids')}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#fef3c7', '#fde68a']}
-              style={styles.actionIconBg}
-            >
-              <Ionicons name="pricetag" size={28} color="#d97706" />
-            </LinearGradient>
-            <Text style={styles.actionTitle}>My Bids</Text>
-            <Text style={styles.actionSubtitle}>View offers</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.actionCard}
-            onPress={() => router.push('/trucks')}
+            onPress={() => router.push('/track')}
             activeOpacity={0.8}
           >
             <LinearGradient
               colors={['#f3e8ff', '#e9d5ff']}
               style={styles.actionIconBg}
             >
-              <Ionicons name="car" size={28} color="#9333ea" />
+              <Ionicons name="location" size={28} color="#9333ea" />
             </LinearGradient>
-            <Text style={styles.actionTitle}>Find Trucks</Text>
-            <Text style={styles.actionSubtitle}>Available carriers</Text>
+            <Text style={styles.actionTitle}>Track</Text>
+            <Text style={styles.actionSubtitle}>Live tracking</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Secondary Actions */}
+        {/* Secondary Actions - Role Based */}
         <View style={styles.secondaryActions}>
+          {user?.role === 'shipper' && (
+            <TouchableOpacity 
+              style={styles.secondaryActionCard}
+              onPress={() => router.push('/my-loads')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="list" size={22} color="#14532d" />
+              <Text style={styles.secondaryActionText}>My Posted Loads</Text>
+              <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
+          {user?.role === 'carrier' && (
+            <TouchableOpacity 
+              style={styles.secondaryActionCard}
+              onPress={() => router.push('/my-vehicles')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="car-sport" size={22} color="#14532d" />
+              <Text style={styles.secondaryActionText}>My Fleet</Text>
+              <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
+          {user?.role === 'admin' && (
+            <TouchableOpacity 
+              style={styles.secondaryActionCard}
+              onPress={() => router.push('/admin/analytics')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="stats-chart" size={22} color="#14532d" />
+              <Text style={styles.secondaryActionText}>Analytics Dashboard</Text>
+              <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity 
             style={styles.secondaryActionCard}
-            onPress={() => router.push('/track')}
+            onPress={() => router.push('/requests')}
             activeOpacity={0.8}
           >
-            <Ionicons name="location" size={22} color="#14532d" />
-            <Text style={styles.secondaryActionText}>Track Shipment</Text>
-            <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.secondaryActionCard}
-            onPress={() => router.push('/post')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add-circle" size={22} color="#14532d" />
-            <Text style={styles.secondaryActionText}>Post a Load</Text>
+            <Ionicons name="document-text" size={22} color="#14532d" />
+            <Text style={styles.secondaryActionText}>Market Requests</Text>
             <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
           </TouchableOpacity>
         </View>
@@ -775,5 +895,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2937',
     marginLeft: 12,
+  },
+  roleBadgeContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  roleBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  roleBadgeAdmin: {
+    backgroundColor: '#dc2626',
+  },
+  roleBadgeShipper: {
+    backgroundColor: '#2563eb',
+  },
+  roleBadgeCarrier: {
+    backgroundColor: '#16a34a',
+  },
+  roleBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

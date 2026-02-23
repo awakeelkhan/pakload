@@ -9,7 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { loadsAPI, marketRequestsAPI, uploadAPI } from '../../src/services/api';
 import { useAuth } from '../../src/contexts/AuthContext';
 
-type Mode = 'select' | 'post-load' | 'market-request';
+type Mode = 'select' | 'post-load' | 'market-request' | 'post-availability';
 
 type ContainerType =
   | '20ft' | '40ft' | '40ft_hc' | '45ft_hc' | 'flatbed' | 'lowbed'
@@ -281,42 +281,137 @@ export default function PostScreen() {
 
   // ==================== MODE SELECT ====================
   if (mode === 'select') {
+    const isShipper = !isAuthenticated || user?.role === 'shipper';
+    const isCarrier = user?.role === 'carrier';
+    const isAdmin = user?.role === 'admin';
+
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.selectContent}>
         <View style={styles.selectHeader}>
           <Text style={styles.selectTitle}>How can we help you today?</Text>
-          <Text style={styles.selectSubtitle}>Choose the option that best fits your needs</Text>
+          <Text style={styles.selectSubtitle}>
+            {isCarrier ? 'Post your availability or find loads' : 
+             isAdmin ? 'Admin options' : 
+             'Choose the option that best fits your needs'}
+          </Text>
         </View>
 
-        {/* Post Load Option */}
-        <TouchableOpacity style={styles.optionCard} onPress={() => setMode('post-load')} activeOpacity={0.8}>
-          <View style={[styles.optionIcon, { backgroundColor: '#dcfce7' }]}>
-            <Ionicons name="cube" size={28} color="#22c55e" />
-          </View>
-          <Text style={styles.optionTitle}>Post a Load</Text>
-          <Text style={styles.optionDesc}>I have cargo ready and want carriers to bid on it</Text>
-          <View style={styles.optionBullets}>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Select equipment type (20ft, 40ft, flatbed)</Text></View>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Upload product images & documents</Text></View>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Receive bids from verified carriers</Text></View>
-          </View>
-          <Text style={styles.optionCta}>Get Started →</Text>
-        </TouchableOpacity>
+        {/* Shipper Options */}
+        {isShipper && (
+          <>
+            {/* Post Load Option */}
+            <TouchableOpacity style={styles.optionCard} onPress={() => setMode('post-load')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#dcfce7' }]}>
+                <Ionicons name="cube" size={28} color="#22c55e" />
+              </View>
+              <Text style={styles.optionTitle}>Post a Load</Text>
+              <Text style={styles.optionDesc}>I have cargo ready and want carriers to bid on it</Text>
+              <View style={styles.optionBullets}>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Select equipment type (20ft, 40ft, flatbed)</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Upload product images & documents</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Receive bids from verified carriers</Text></View>
+              </View>
+              <Text style={styles.optionCta}>Get Started →</Text>
+            </TouchableOpacity>
 
-        {/* Market Request Option */}
-        <TouchableOpacity style={styles.optionCard} onPress={() => setMode('market-request')} activeOpacity={0.8}>
-          <View style={[styles.optionIcon, { backgroundColor: '#dbeafe' }]}>
-            <Ionicons name="people" size={28} color="#2563eb" />
-          </View>
-          <Text style={styles.optionTitle}>Submit a Request</Text>
-          <Text style={styles.optionDesc}>I need help finding the best transport option</Text>
-          <View style={styles.optionBullets}>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Tell us what you need transported</Text></View>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Our team finds the best options</Text></View>
-            <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>We negotiate on your behalf</Text></View>
-          </View>
-          <Text style={[styles.optionCta, { color: '#2563eb' }]}>Submit Request →</Text>
-        </TouchableOpacity>
+            {/* Market Request Option */}
+            <TouchableOpacity style={styles.optionCard} onPress={() => setMode('market-request')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#dbeafe' }]}>
+                <Ionicons name="people" size={28} color="#2563eb" />
+              </View>
+              <Text style={styles.optionTitle}>Submit Transport Request</Text>
+              <Text style={styles.optionDesc}>I need help finding the best transport option</Text>
+              <View style={styles.optionBullets}>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Tell us what you need transported</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Our team finds the best options</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>We negotiate on your behalf</Text></View>
+              </View>
+              <Text style={[styles.optionCta, { color: '#2563eb' }]}>Submit Request →</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Carrier Options */}
+        {isCarrier && (
+          <>
+            {/* Post Availability Option */}
+            <TouchableOpacity style={styles.optionCard} onPress={() => router.push('/my-vehicles')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#dcfce7' }]}>
+                <Ionicons name="car" size={28} color="#22c55e" />
+              </View>
+              <Text style={styles.optionTitle}>Post Truck Availability</Text>
+              <Text style={styles.optionDesc}>Let shippers know your truck is available</Text>
+              <View style={styles.optionBullets}>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Add your vehicle details</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Set your available routes</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#22c55e' }]} /><Text style={styles.bulletText}>Get contacted by shippers</Text></View>
+              </View>
+              <Text style={styles.optionCta}>Manage Fleet →</Text>
+            </TouchableOpacity>
+
+            {/* Find Loads Option */}
+            <TouchableOpacity style={styles.optionCard} onPress={() => router.push('/loads')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#fef3c7' }]}>
+                <Ionicons name="search" size={28} color="#d97706" />
+              </View>
+              <Text style={styles.optionTitle}>Find Loads</Text>
+              <Text style={styles.optionDesc}>Browse available loads and place bids</Text>
+              <View style={styles.optionBullets}>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#d97706' }]} /><Text style={styles.bulletText}>Search loads by route</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#d97706' }]} /><Text style={styles.bulletText}>Place competitive bids</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#d97706' }]} /><Text style={styles.bulletText}>Win more contracts</Text></View>
+              </View>
+              <Text style={[styles.optionCta, { color: '#d97706' }]}>Browse Loads →</Text>
+            </TouchableOpacity>
+
+            {/* Load Matching Request */}
+            <TouchableOpacity style={styles.optionCard} onPress={() => setMode('market-request')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#dbeafe' }]}>
+                <Ionicons name="people" size={28} color="#2563eb" />
+              </View>
+              <Text style={styles.optionTitle}>Load Matching Request</Text>
+              <Text style={styles.optionDesc}>Let us find loads that match your truck</Text>
+              <View style={styles.optionBullets}>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Tell us your preferred routes</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>We match you with shippers</Text></View>
+                <View style={styles.bullet}><View style={[styles.dot, { backgroundColor: '#2563eb' }]} /><Text style={styles.bulletText}>Get notified of matching loads</Text></View>
+              </View>
+              <Text style={[styles.optionCta, { color: '#2563eb' }]}>Submit Request →</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Admin Options */}
+        {isAdmin && (
+          <>
+            <TouchableOpacity style={styles.optionCard} onPress={() => router.push('/admin/approvals')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#fce7f3' }]}>
+                <Ionicons name="checkmark-circle" size={28} color="#db2777" />
+              </View>
+              <Text style={styles.optionTitle}>Pending Approvals</Text>
+              <Text style={styles.optionDesc}>Review and approve pending loads and bids</Text>
+              <Text style={[styles.optionCta, { color: '#db2777' }]}>View Approvals →</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.optionCard} onPress={() => router.push('/admin/users')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#dbeafe' }]}>
+                <Ionicons name="people" size={28} color="#2563eb" />
+              </View>
+              <Text style={styles.optionTitle}>Manage Users</Text>
+              <Text style={styles.optionDesc}>View and manage platform users</Text>
+              <Text style={[styles.optionCta, { color: '#2563eb' }]}>Manage Users →</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.optionCard} onPress={() => router.push('/admin/analytics')} activeOpacity={0.8}>
+              <View style={[styles.optionIcon, { backgroundColor: '#f3e8ff' }]}>
+                <Ionicons name="stats-chart" size={28} color="#9333ea" />
+              </View>
+              <Text style={styles.optionTitle}>Analytics</Text>
+              <Text style={styles.optionDesc}>View platform statistics and reports</Text>
+              <Text style={[styles.optionCta, { color: '#9333ea' }]}>View Analytics →</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
     );
   }

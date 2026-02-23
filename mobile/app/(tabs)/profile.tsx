@@ -225,16 +225,35 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/vehicles')}>
-            <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
-              <Ionicons name="car-outline" size={20} color="#2563eb" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>My Vehicles</Text>
-              <Text style={styles.menuSubtext}>Manage your fleet</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
-          </TouchableOpacity>
+          
+          {/* Carrier-only: My Vehicles */}
+          {user?.role === 'carrier' && (
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/my-vehicles')}>
+              <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
+                <Ionicons name="car-outline" size={20} color="#2563eb" />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuText}>My Fleet</Text>
+                <Text style={styles.menuSubtext}>Manage your vehicles</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          )}
+          
+          {/* Shipper-only: My Loads */}
+          {user?.role === 'shipper' && (
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/my-loads')}>
+              <View style={[styles.menuIconBg, { backgroundColor: '#eff6ff' }]}>
+                <Ionicons name="cube-outline" size={20} color="#2563eb" />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuText}>My Posted Loads</Text>
+                <Text style={styles.menuSubtext}>Manage your shipments</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          )}
+          
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/documents')}>
             <View style={[styles.menuIconBg, { backgroundColor: '#fefce8' }]}>
               <Ionicons name="document-text-outline" size={20} color="#d97706" />
@@ -267,6 +286,45 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      
+      {/* Admin Section - Only for admins */}
+      {user?.role === 'admin' && (
+        <View style={styles.menuSection}>
+          <Text style={styles.menuSectionTitle}>Admin Tools</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/admin/users')}>
+              <View style={[styles.menuIconBg, { backgroundColor: '#fce7f3' }]}>
+                <Ionicons name="people-outline" size={20} color="#db2777" />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuText}>User Management</Text>
+                <Text style={styles.menuSubtext}>Manage platform users</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/admin/approvals')}>
+              <View style={[styles.menuIconBg, { backgroundColor: '#dbeafe' }]}>
+                <Ionicons name="checkmark-circle-outline" size={20} color="#2563eb" />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuText}>Pending Approvals</Text>
+                <Text style={styles.menuSubtext}>Review loads & bids</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]} onPress={() => router.push('/admin/analytics')}>
+              <View style={[styles.menuIconBg, { backgroundColor: '#f3e8ff' }]}>
+                <Ionicons name="stats-chart-outline" size={20} color="#9333ea" />
+              </View>
+              <View style={styles.menuContent}>
+                <Text style={styles.menuText}>Analytics Dashboard</Text>
+                <Text style={styles.menuSubtext}>Platform statistics</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       <View style={styles.menuSection}>
         <Text style={styles.menuSectionTitle}>Tools & Analytics</Text>

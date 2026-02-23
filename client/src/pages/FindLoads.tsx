@@ -1240,17 +1240,21 @@ export default function FindLoads() {
                               alert('Only carriers can place bids. Shippers can post loads instead.');
                               return;
                             }
+                            if (user.role === 'admin') {
+                              alert('Admins cannot place bids. Only carriers can bid on loads.');
+                              return;
+                            }
                             setSelectedLoad(load);
                             setShowBidModal(true);
                           }}
                           className={`flex-1 px-4 py-2 rounded-lg transition-colors font-medium ${
-                            user?.role === 'shipper' 
+                            user?.role === 'shipper' || user?.role === 'admin'
                               ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                               : 'bg-green-600 text-white hover:bg-green-700'
                           }`}
-                          disabled={user?.role === 'shipper'}
+                          disabled={user?.role === 'shipper' || user?.role === 'admin'}
                         >
-                          {user?.role === 'shipper' ? 'Carriers Only' : 'Place Bid'}
+                          {user?.role === 'shipper' || user?.role === 'admin' ? 'Carriers Only' : 'Place Bid'}
                         </button>
                       </div>
                     </div>

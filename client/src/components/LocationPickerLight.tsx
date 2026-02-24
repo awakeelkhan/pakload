@@ -259,6 +259,29 @@ export function LocationPickerLight({
         </div>
       </div>
 
+      {/* Google Maps Embed */}
+      <div className="relative h-64 bg-gray-100">
+        <iframe
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          loading="lazy"
+          allowFullScreen
+          referrerPolicy="no-referrer-when-downgrade"
+          src={selectedLocation 
+            ? `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedLocation.latitude},${selectedLocation.longitude}&zoom=12`
+            : `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=30.3753,69.3451&zoom=5`
+          }
+        />
+        {!selectedLocation && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg text-sm text-gray-600">
+              Search or select a city to pin location
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Selected Location */}
       {selectedLocation && (
         <div className={`px-5 py-4 bg-${accentColor}-50 border-t border-${accentColor}-100`}>
@@ -277,7 +300,7 @@ export function LocationPickerLight({
               className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
               <ExternalLink className="h-4 w-4" />
-              View Map
+              Open Map
             </button>
           </div>
         </div>

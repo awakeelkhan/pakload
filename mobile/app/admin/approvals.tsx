@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { adminAPI } from '../../src/services/api';
 
 interface PendingItem {
   id: number;
@@ -27,18 +28,52 @@ export default function AdminApprovalsScreen() {
 
   const fetchPendingItems = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockItems: PendingItem[] = [
-        { id: 1, type: 'load', title: 'Load #LP-2026-83819', description: 'Karachi → Lahore • 20ft Container', submittedBy: 'Ahmed Khan', submittedAt: '2 hours ago', status: 'pending' },
-        { id: 2, type: 'load', title: 'Load #LP-2026-83820', description: 'Islamabad → Peshawar • Flatbed', submittedBy: 'Fatima Bibi', submittedAt: '4 hours ago', status: 'pending' },
-        { id: 3, type: 'bid', title: 'Bid on LP-2026-83815', description: 'PKR 150,000 • 3 days delivery', submittedBy: 'Muhammad Ali', submittedAt: '1 hour ago', status: 'pending' },
-        { id: 4, type: 'bid', title: 'Bid on LP-2026-83816', description: 'PKR 200,000 • 5 days delivery', submittedBy: 'Usman Ghani', submittedAt: '3 hours ago', status: 'pending' },
-        { id: 5, type: 'document', title: 'CNIC Verification', description: 'Identity document uploaded', submittedBy: 'Ali Transport', submittedAt: '30 mins ago', status: 'pending' },
-        { id: 6, type: 'document', title: 'Vehicle Registration', description: 'Truck registration document', submittedBy: 'Ghani Trucking', submittedAt: '1 hour ago', status: 'pending' },
-      ];
-      setItems(mockItems);
+      const response = await adminAPI.getPendingApprovals();
+      const allItems: PendingItem[] = [];
+      
+      // Map loads
+      (response?.loads || []).forEach((load: any) => {
+        allItems.push({
+          id: load.id,
+          type: 'load',
+          title: `Load #${load.trackingNumber || load.id}`,
+          description: `${load.origin || 'Origin'} → ${load.destination || 'Destination'} • ${load.vehicleType || 'Any'}`,
+          submittedBy: load.shipper?.fullName || load.shipperName || 'Unknown',
+          submittedAt: load.createdAt ? new Date(load.createdAt).toLocaleDateString() : 'Recently',
+          status: 'pending',
+        });
+      });
+      
+      // Map quotes/bids
+      (response?.quotes || []).forEach((quote: any) => {
+        allItems.push({
+          id: quote.id,
+          type: 'bid',
+          title: `Bid on Load #${quote.loadId}`,
+          description: `PKR ${(quote.quotedPrice || quote.amount || 0).toLocaleString()} • ${quote.estimatedDays || '?'} days`,
+          submittedBy: quote.carrier?.fullName || quote.carrierName || 'Unknown',
+          submittedAt: quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : 'Recently',
+          status: 'pending',
+        });
+      });
+      
+      // Map documents
+      (response?.documents || []).forEach((doc: any) => {
+        allItems.push({
+          id: doc.id,
+          type: 'document',
+          title: doc.documentType || 'Document',
+          description: doc.fileName || 'Uploaded document',
+          submittedBy: doc.user?.fullName || doc.userName || 'Unknown',
+          submittedAt: doc.createdAt ? new Date(doc.createdAt).toLocaleDateString() : 'Recently',
+          status: 'pending',
+        });
+      });
+      
+      setItems(allItems);
     } catch (error) {
       console.error('Error fetching pending items:', error);
+      setItems([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -50,12 +85,28 @@ export default function AdminApprovalsScreen() {
     fetchPendingItems();
   };
 
-  const handleApprove = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
+  const handleApprove = async (item: PendingItem) => {
+    try {
+      if (item.type === 'document') {
+        await adminAPI.approveDocument(item.id);
+      }
+      Alert.alert('Success', 'Item approved successfully');
+      setItems(items.filter(i => i.id !== item.id || i.type !== item.type));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to approve item');
+    }
   };
 
-  const handleReject = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
+  const handleReject = async (item: PendingItem) => {
+    try {
+      if (item.type === 'document') {
+        await adminAPI.rejectDocument(item.id);
+      }
+      Alert.alert('Success', 'Item rejected');
+      setItems(items.filter(i => i.id !== item.id || i.type !== item.type));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to reject item');
+    }
   };
 
   const filteredItems = items.filter(item => {
@@ -166,14 +217,14 @@ export default function AdminApprovalsScreen() {
               <View style={styles.actionButtons}>
                 <TouchableOpacity
                   style={[styles.actionButton, styles.rejectButton]}
-                  onPress={() => handleReject(item.id)}
+                  onPress={() => handleReject(item)}
                 >
                   <Ionicons name="close" size={18} color="#dc2626" />
                   <Text style={styles.rejectButtonText}>Reject</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.actionButton, styles.approveButton]}
-                  onPress={() => handleApprove(item.id)}
+                  onPress={() => handleApprove(item)}
                 >
                   <Ionicons name="checkmark" size={18} color="#fff" />
                   <Text style={styles.approveButtonText}>Approve</Text>

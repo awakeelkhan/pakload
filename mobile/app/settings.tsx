@@ -4,14 +4,22 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../src/contexts/AuthContext';
+import { useLanguage, Language } from '../src/contexts/LanguageContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
-  const [currentLanguage, setCurrentLanguage] = useState('English');
+  
+  const languageLabels: Record<Language, string> = {
+    en: 'English',
+    ur: 'اردو (Urdu)',
+    ps: 'پښتو (Pashto)',
+    zh: '中文 (Chinese)',
+  };
 
   const handleChangePassword = () => {
     router.push('/change-password');
@@ -23,17 +31,24 @@ export default function SettingsScreen() {
 
   const handleLanguage = () => {
     Alert.alert(
-      'Select Language',
+      t('lang.select'),
       'Choose your preferred language',
       [
-        { text: 'English', onPress: () => setCurrentLanguage('English') },
+        { text: 'English', onPress: () => {
+          setLanguage('en');
+          Alert.alert('Language Changed', 'App language set to English.');
+        }},
         { text: 'اردو (Urdu)', onPress: () => {
-          setCurrentLanguage('اردو');
-          Alert.alert('Language Changed', 'App language set to Urdu. Full translation support coming soon.');
+          setLanguage('ur');
+          Alert.alert('Language Changed', 'App language set to Urdu. Some screens may require restart for full RTL support.');
+        }},
+        { text: 'پښتو (Pashto)', onPress: () => {
+          setLanguage('ps');
+          Alert.alert('Language Changed', 'App language set to Pashto.');
         }},
         { text: '中文 (Chinese)', onPress: () => {
-          setCurrentLanguage('中文');
-          Alert.alert('Language Changed', 'App language set to Chinese. Full translation support coming soon.');
+          setLanguage('zh');
+          Alert.alert('Language Changed', 'App language set to Chinese.');
         }},
         { text: 'Cancel', style: 'cancel' },
       ]
@@ -156,7 +171,7 @@ export default function SettingsScreen() {
                 <Ionicons name="language-outline" size={22} color="#22c55e" />
                 <View style={styles.menuText}>
                   <Text style={styles.menuTitle}>Language</Text>
-                  <Text style={styles.menuSubtitle}>{currentLanguage}</Text>
+                  <Text style={styles.menuSubtitle}>{languageLabels[language]}</Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />

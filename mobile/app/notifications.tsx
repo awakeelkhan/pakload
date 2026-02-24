@@ -86,8 +86,33 @@ export default function NotificationsScreen() {
     if (!notification.read) {
       markAsReadMutation.mutate(notification.id);
     }
-    if (notification.link) {
-      router.push(notification.link);
+    
+    // Handle navigation based on notification type
+    const type = notification.type || '';
+    const relatedId = notification.relatedId || notification.entityId;
+    
+    try {
+      if (type.includes('bid') && relatedId) {
+        router.push('/bids');
+      } else if (type.includes('load') && relatedId) {
+        router.push(`/loads/${relatedId}`);
+      } else if (type.includes('shipment') || type.includes('booking')) {
+        router.push('/bookings');
+      } else if (type.includes('payment')) {
+        router.push('/payments');
+      } else if (type.includes('document')) {
+        router.push('/documents');
+      } else if (type.includes('message')) {
+        // Stay on notifications for now
+      } else if (notification.link) {
+        // Only navigate if link looks like a valid route
+        const link = notification.link;
+        if (link.startsWith('/') && !link.includes('://')) {
+          router.push(link as any);
+        }
+      }
+    } catch (error) {
+      console.log('Navigation error:', error);
     }
   };
 

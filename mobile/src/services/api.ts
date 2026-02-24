@@ -460,10 +460,16 @@ export const statsAPI = {
 export const uploadAPI = {
   uploadImage: async (uri: string, filename: string) => {
     const formData = new FormData();
+    
+    // Determine file type from filename
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+    const isPdf = /\.pdf$/i.test(filename);
+    const mimeType = isPdf ? 'application/pdf' : 'image/jpeg';
+    
     formData.append('image', {
       uri,
       name: filename,
-      type: 'image/jpeg',
+      type: mimeType,
     } as any);
     
     const token = await getToken();
@@ -471,12 +477,14 @@ export const uploadAPI = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
+        // Don't set Content-Type for FormData - let fetch set it with boundary
       },
       body: formData,
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('Upload error response:', errorText);
       throw new Error('Upload failed');
     }
     
@@ -498,12 +506,13 @@ export const uploadAPI = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
       },
       body: formData,
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('Upload images error:', errorText);
       throw new Error('Upload failed');
     }
     
@@ -523,12 +532,13 @@ export const uploadAPI = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
       },
       body: formData,
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('Upload document error:', errorText);
       throw new Error('Upload failed');
     }
     
@@ -562,16 +572,45 @@ export const uploadAPI = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
       },
       body: formData,
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log('Upload mixed error:', errorText);
       throw new Error('Upload failed');
     }
     
     return response.json();
+  },
+};
+
+// Admin API
+export const adminAPI = {
+  getUsers: async () => {
+    const response = await api.get('/api/admin/users');
+    return response.data;
+  },
+  
+  getPendingApprovals: async () => {
+    const response = await api.get('/api/admin/pending-approvals');
+    return response.data;
+  },
+  
+  getStats: async () => {
+    const response = await api.get('/api/admin/stats');
+    return response.data;
+  },
+  
+  approveDocument: async (id: number) => {
+    const response = await api.post(`/api/documents/${id}/approve`);
+    return response.data;
+  },
+  
+  rejectDocument: async (id: number, reason?: string) => {
+    const response = await api.post(`/api/documents/${id}/reject`, { reason });
+    return response.data;
   },
 };
 

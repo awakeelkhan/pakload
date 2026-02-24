@@ -722,7 +722,8 @@ export function registerRoutes(app: Express) {
       }
       
       // Ownership check: only owner or admin can update
-      if (req.user && req.user.role !== 'admin' && existingVehicle.vehicle.carrierId !== req.user.id) {
+      const vehicleOwnerId = existingVehicle.vehicle?.carrierId || existingVehicle.carrierId;
+      if (req.user && req.user.role !== 'admin' && vehicleOwnerId !== req.user.id) {
         return res.status(403).json({ error: 'You can only update your own vehicles' });
       }
       
@@ -752,7 +753,8 @@ export function registerRoutes(app: Express) {
       }
       
       // Ownership check: only owner or admin can delete
-      if (req.user && req.user.role !== 'admin' && existingVehicle.vehicle.carrierId !== req.user.id) {
+      const vehicleOwnerId = existingVehicle.vehicle?.carrierId || existingVehicle.carrierId;
+      if (req.user && req.user.role !== 'admin' && vehicleOwnerId !== req.user.id) {
         return res.status(403).json({ error: 'You can only delete your own vehicles' });
       }
       
@@ -761,6 +763,50 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       res.status(500).json({ error: 'Failed to delete vehicle' });
+    }
+  });
+
+  // Truck quote request endpoint
+  app.post('/api/trucks/:id/quote', requireAuth, async (req, res) => {
+    try {
+      const truckId = parseInt(req.params.id);
+      const { pickupLocation, deliveryLocation, message } = req.body;
+      
+      if (!pickupLocation || !deliveryLocation) {
+        return res.status(400).json({ error: 'Pickup and delivery locations are required' });
+      }
+      
+      const truck = await vehicleRepo.findById(truckId);
+      if (!truck) {
+        return res.status(404).json({ error: 'Truck not found' });
+      }
+      
+      // Create notification for truck owner
+      const carrierId = truck.vehicle?.carrierId || truck.carrierId;
+      if (carrierId) {
+        await notificationRepo.create({
+          userId: carrierId,
+          type: 'quote_request',
+          title: 'New Quote Request',
+          message: `Quote request from ${pickupLocation} to ${deliveryLocation}. ${message || ''}`,
+          relatedId: truckId,
+        });
+      }
+      
+      res.json({ 
+        message: 'Quote request sent successfully',
+        request: {
+          truckId,
+          pickupLocation,
+          deliveryLocation,
+          message,
+          requestedBy: req.user!.id,
+          createdAt: new Date(),
+        }
+      });
+    } catch (error) {
+      console.error('Error creating truck quote request:', error);
+      res.status(500).json({ error: 'Failed to send quote request' });
     }
   });
 
@@ -1611,6 +1657,71 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error deleting read notifications:', error);
       res.status(500).json({ error: 'Failed to delete read notifications' });
+    }
+  });
+
+  // Admin endpoints
+  app.get('/api/admin/users', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const users = await userRepo.findAll();
+      res.json({ users });
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
+  app.get('/api/admin/pending-approvals', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      // Get pending loads
+      const pendingLoads = await loadRepo.findAll({ status: 'pending' });
+      
+      // Get pending documents
+      const pendingDocs = await documentRepo.findPending();
+      
+      // Get pending quotes/bids
+      const pendingQuotes = await quoteRepo.findAll({ status: 'pending' });
+      
+      res.json({
+        loads: pendingLoads || [],
+        documents: pendingDocs || [],
+        quotes: pendingQuotes || [],
+      });
+    } catch (error) {
+      console.error('Error fetching pending approvals:', error);
+      res.status(500).json({ error: 'Failed to fetch pending approvals' });
+    }
+  });
+
+  app.get('/api/admin/stats', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const users = await userRepo.findAll();
+      const loads = await loadRepo.findAll({});
+      
+      const stats = {
+        totalUsers: users?.length || 0,
+        totalShippers: users?.filter((u: any) => u.role === 'shipper').length || 0,
+        totalCarriers: users?.filter((u: any) => u.role === 'carrier').length || 0,
+        totalLoads: loads?.length || 0,
+        activeLoads: loads?.filter((l: any) => l.status === 'available' || l.status === 'pending').length || 0,
+        completedLoads: loads?.filter((l: any) => l.status === 'completed' || l.status === 'delivered').length || 0,
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      res.status(500).json({ error: 'Failed to fetch stats' });
     }
   });
 

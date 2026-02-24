@@ -9,10 +9,12 @@ import {
   Alert,
   Linking,
   Clipboard,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as ImagePicker from 'expo-image-picker';
 
 interface PaymentMethod {
   id: string;
@@ -128,6 +130,42 @@ export default function PaymentsScreen() {
   const [transactionId, setTransactionId] = useState('');
   const [amount, setAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [proofImage, setProofImage] = useState<string | null>(null);
+
+  const pickProofImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow access to your photo library to upload payment proof.');
+      return;
+    }
+    
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+    
+    if (!result.canceled && result.assets[0]) {
+      setProofImage(result.assets[0].uri);
+    }
+  };
+
+  const takeProofPhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Please allow camera access to take a photo of payment proof.');
+      return;
+    }
+    
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+    });
+    
+    if (!result.canceled && result.assets[0]) {
+      setProofImage(result.assets[0].uri);
+    }
+  };
 
   const handleCopy = (text: string, label: string) => {
     Clipboard.setString(text);
@@ -258,6 +296,33 @@ export default function PaymentsScreen() {
                 onChangeText={setAmount}
                 keyboardType="numeric"
               />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Payment Proof (Screenshot/Photo)</Text>
+              {proofImage ? (
+                <View style={styles.proofImageContainer}>
+                  <Image source={{ uri: proofImage }} style={styles.proofImage} />
+                  <TouchableOpacity 
+                    style={styles.removeProofButton}
+                    onPress={() => setProofImage(null)}
+                  >
+                    <Ionicons name="close-circle" size={24} color="#dc2626" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.proofButtonsRow}>
+                  <TouchableOpacity style={styles.proofButton} onPress={pickProofImage}>
+                    <Ionicons name="image" size={20} color="#16a34a" />
+                    <Text style={styles.proofButtonText}>Gallery</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.proofButton} onPress={takeProofPhoto}>
+                    <Ionicons name="camera" size={20} color="#16a34a" />
+                    <Text style={styles.proofButtonText}>Camera</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              <Text style={styles.proofHint}>Upload a screenshot of your payment confirmation</Text>
             </View>
 
             <TouchableOpacity
@@ -517,5 +582,50 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  proofImageContainer: {
+    position: 'relative',
+    marginTop: 8,
+  },
+  proofImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: '#f1f5f9',
+  },
+  removeProofButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+  },
+  proofButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  proofButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#16a34a',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    paddingVertical: 16,
+  },
+  proofButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#16a34a',
+  },
+  proofHint: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 8,
   },
 });

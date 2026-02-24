@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { adminAPI } from '../../src/services/api';
 
 interface User {
   id: number;
@@ -29,16 +30,22 @@ export default function AdminUsersScreen() {
 
   const fetchUsers = async () => {
     try {
-      // Mock data for now - replace with actual API call
-      const mockUsers: User[] = [
-        { id: 1, email: 'shipper1@test.com', fullName: 'Ahmed Khan', role: 'shipper', phone: '+92300111222', companyName: 'Khan Logistics', isVerified: true, createdAt: '2024-01-15' },
-        { id: 2, email: 'carrier1@test.com', fullName: 'Muhammad Ali', role: 'carrier', phone: '+92301222333', companyName: 'Ali Transport', isVerified: true, createdAt: '2024-01-20' },
-        { id: 3, email: 'shipper2@test.com', fullName: 'Fatima Bibi', role: 'shipper', phone: '+92302333444', companyName: 'FB Exports', isVerified: false, createdAt: '2024-02-01' },
-        { id: 4, email: 'carrier2@test.com', fullName: 'Usman Ghani', role: 'carrier', phone: '+92303444555', companyName: 'Ghani Trucking', isVerified: true, createdAt: '2024-02-10' },
-      ];
-      setUsers(mockUsers);
+      const response = await adminAPI.getUsers();
+      const usersData = response?.users || response || [];
+      const mappedUsers: User[] = usersData.map((u: any) => ({
+        id: u.id,
+        email: u.email,
+        fullName: u.fullName || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown',
+        role: u.role || 'shipper',
+        phone: u.phone,
+        companyName: u.companyName,
+        isVerified: u.isVerified || u.emailVerified || false,
+        createdAt: u.createdAt,
+      }));
+      setUsers(mappedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
       setRefreshing(false);

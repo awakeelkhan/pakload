@@ -598,6 +598,16 @@ export const adminAPI = {
     return response.data;
   },
   
+  getPendingDocuments: async () => {
+    const response = await api.get('/api/documents/admin/pending');
+    return response.data;
+  },
+  
+  getAllDocuments: async () => {
+    const response = await api.get('/api/documents/all');
+    return response.data;
+  },
+  
   getStats: async () => {
     const response = await api.get('/api/admin/stats');
     return response.data;

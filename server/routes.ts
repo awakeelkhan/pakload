@@ -1708,16 +1708,13 @@ export function registerRoutes(app: Express) {
       // Get pending loads
       const pendingLoads = await loadRepo.findAll({ status: 'pending' });
       
-      // Get pending documents
-      const pendingDocs = await documentRepo.findPending();
-      
-      // Get pending quotes/bids
-      const pendingQuotes = await quoteRepo.findAll({ status: 'pending' });
+      // Get pending bookings (quotes)
+      const pendingBookings = await bookingRepo.findAll({ status: 'pending' });
       
       res.json({
         loads: pendingLoads || [],
-        documents: pendingDocs || [],
-        quotes: pendingQuotes || [],
+        documents: [], // Documents are fetched via /api/documents/admin/pending
+        quotes: pendingBookings || [],
       });
     } catch (error) {
       console.error('Error fetching pending approvals:', error);

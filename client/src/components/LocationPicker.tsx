@@ -274,10 +274,10 @@ export function LocationPicker({ value, onChange, label = 'Select Location', pla
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
         >
-          {/* Use CartoDB Voyager tiles for a cleaner, modern look like Google Maps */}
+          {/* Use OpenStreetMap tiles for reliable loading */}
           <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <LocationMarker position={position} setPosition={setPosition} />
           <MapController center={mapCenter} />

@@ -178,13 +178,15 @@ export default function LoadsScreen() {
       {/* Header with Route */}
       <View style={styles.loadHeader}>
         <View style={styles.routeContainer}>
-          <View style={styles.locationDot}>
-            <View style={styles.dotGreen} />
-          </View>
           <View style={styles.routeInfo}>
-            <Text style={styles.cityText}>{item.origin || 'Origin'}</Text>
-            <View style={styles.routeLine} />
-            <Text style={styles.cityText}>{item.destination || 'Destination'}</Text>
+            <View style={styles.locationRow}>
+              <View style={styles.dotGreen} />
+              <Text style={styles.cityText}>{item.origin || item.originCity || 'Origin'}</Text>
+            </View>
+            <View style={styles.locationRow}>
+              <View style={styles.dotRed} />
+              <Text style={styles.cityText}>{item.destination || item.destinationCity || 'Destination'}</Text>
+            </View>
           </View>
         </View>
         <View style={styles.badgeContainer}>
@@ -233,7 +235,7 @@ export default function LoadsScreen() {
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Budget</Text>
           <Text style={styles.priceAmount}>
-            {item.currency === 'PKR' ? 'PKR ' : item.currency === 'CNY' ? '¥' : '$'}{(item.budget || item.price || 0).toLocaleString()}
+            PKR {(item.budget || item.price || 0).toLocaleString()}
           </Text>
           {item.distance && (
             <Text style={styles.distanceText}>{item.distance} km</Text>
@@ -256,9 +258,9 @@ export default function LoadsScreen() {
               <Text style={styles.bidButtonText}>Bid</Text>
             </TouchableOpacity>
           ) : user?.role === 'shipper' || user?.role === 'admin' ? (
-            <View style={[styles.bidButton, { backgroundColor: '#9ca3af' }]}>
-              <Ionicons name="lock-closed" size={16} color="#fff" />
-              <Text style={styles.bidButtonText}>Carriers Only</Text>
+            <View style={[styles.bidButton, styles.carriersOnlyButton]}>
+              <Ionicons name="lock-closed" size={14} color="#fff" />
+              <Text style={styles.carriersOnlyText}>Carriers</Text>
             </View>
           ) : (
             <TouchableOpacity 
@@ -624,16 +626,29 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   dotGreen: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#22c55e',
+    marginRight: 8,
+  },
+  dotRed: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#ef4444',
+    marginRight: 8,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   routeInfo: {
     flex: 1,
   },
   cityText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#1f2937',
   },
@@ -746,6 +761,15 @@ const styles = StyleSheet.create({
   bidButtonText: {
     color: '#fff',
     fontSize: 14,
+    fontWeight: '600',
+  },
+  carriersOnlyButton: {
+    backgroundColor: '#9ca3af',
+    paddingHorizontal: 12,
+  },
+  carriersOnlyText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: '600',
   },
   trackingContainer: {

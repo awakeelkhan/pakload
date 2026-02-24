@@ -33,7 +33,10 @@ interface TruckData {
 
 export default function FindTrucks() {
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  
+  // Only shippers can request quotes
+  const canRequestQuote = isAuthenticated && user?.role === 'shipper';
   const [trucks, setTrucks] = useState<TruckData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
@@ -46,6 +49,10 @@ export default function FindTrucks() {
   const handleRequestQuote = (truck: TruckData) => {
     if (!isAuthenticated) {
       navigate('/signin?redirect=/trucks');
+      return;
+    }
+    if (!canRequestQuote) {
+      alert('Only Shippers can request quotes for trucks.');
       return;
     }
     setSelectedTruck(truck);
@@ -891,15 +898,22 @@ export default function FindTrucks() {
                         >
                           Contact Carrier
                         </a>
-                        <button 
-                          onClick={() => {
-                            setSelectedTruck(truck);
-                            setShowQuoteModal(true);
-                          }}
-                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-                        >
-                          Request Quote
-                        </button>
+                        {canRequestQuote && (
+                          <button 
+                            onClick={() => handleRequestQuote(truck)}
+                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                          >
+                            Request Quote
+                          </button>
+                        )}
+                        {!isAuthenticated && (
+                          <button 
+                            onClick={() => navigate('/signin?redirect=/trucks')}
+                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                          >
+                            Sign In to Request Quote
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

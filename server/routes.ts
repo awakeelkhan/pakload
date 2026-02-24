@@ -558,6 +558,11 @@ export function registerRoutes(app: Express) {
 
   app.post('/api/loads', optionalAuth, async (req, res) => {
     try {
+      // Only shippers can post loads
+      if (req.user && req.user.role !== 'shipper') {
+        return res.status(403).json({ error: 'Only Shippers can post loads.' });
+      }
+      
       // Validate required fields
       const requiredFields = ['origin', 'destination', 'pickupDate', 'cargoType'];
       const missingFields = requiredFields.filter(field => !req.body[field]);
@@ -693,22 +698,37 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post('/api/trucks', async (req, res) => {
+  app.post('/api/trucks', requireAuth, async (req, res) => {
     try {
+      // Only carriers can post truck availability
+      if (req.user?.role !== 'carrier') {
+        return res.status(403).json({ error: 'Only Carriers can post truck availability.' });
+      }
+      
       const vehicleData = {
         type: req.body.type,
         registrationNumber: req.body.registrationNumber,
         capacity: req.body.capacity?.toString() || '0',
         currentLocation: req.body.currentLocation || null,
-        carrierId: req.body.carrierId || 1, // TODO: Get from auth session
+        carrierId: req.user.id,
         status: 'active' as const,
       };
       
       const newVehicle = await vehicleRepo.create(vehicleData);
+      
+      // Notify admins about new truck
+      await notificationRepo.create({
+        userId: 1, // Admin user
+        type: 'load_posted',
+        title: 'New Truck Posted',
+        message: `A new ${vehicleData.type} truck has been posted by carrier.`,
+        relatedId: newVehicle.id,
+      });
+      
       res.status(201).json(newVehicle);
     } catch (error) {
       console.error('Error creating vehicle:', error);
-      res.status(500).json({ error: 'Failed to create vehicle' });
+      res.status(500).json({ error: 'Failed to post availability. Please try again.' });
     }
   });
 
@@ -722,7 +742,7 @@ export function registerRoutes(app: Express) {
       }
       
       // Ownership check: only owner or admin can update
-      const vehicleOwnerId = existingVehicle.vehicle?.carrierId || existingVehicle.carrierId;
+      const vehicleOwnerId = existingVehicle.vehicle?.carrierId;
       if (req.user && req.user.role !== 'admin' && vehicleOwnerId !== req.user.id) {
         return res.status(403).json({ error: 'You can only update your own vehicles' });
       }
@@ -753,7 +773,7 @@ export function registerRoutes(app: Express) {
       }
       
       // Ownership check: only owner or admin can delete
-      const vehicleOwnerId = existingVehicle.vehicle?.carrierId || existingVehicle.carrierId;
+      const vehicleOwnerId = existingVehicle.vehicle?.carrierId;
       if (req.user && req.user.role !== 'admin' && vehicleOwnerId !== req.user.id) {
         return res.status(403).json({ error: 'You can only delete your own vehicles' });
       }
@@ -766,9 +786,14 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Truck quote request endpoint
+  // Truck quote request endpoint - only shippers can request quotes
   app.post('/api/trucks/:id/quote', requireAuth, async (req, res) => {
     try {
+      // Only shippers can request quotes
+      if (req.user?.role !== 'shipper') {
+        return res.status(403).json({ error: 'Only Shippers can request quotes for trucks.' });
+      }
+      
       const truckId = parseInt(req.params.id);
       const { pickupLocation, deliveryLocation, message } = req.body;
       
@@ -782,11 +807,11 @@ export function registerRoutes(app: Express) {
       }
       
       // Create notification for truck owner
-      const carrierId = truck.vehicle?.carrierId || truck.carrierId;
+      const carrierId = truck.vehicle?.carrierId;
       if (carrierId) {
         await notificationRepo.create({
           userId: carrierId,
-          type: 'quote_request',
+          type: 'bid_received',
           title: 'New Quote Request',
           message: `Quote request from ${pickupLocation} to ${deliveryLocation}. ${message || ''}`,
           relatedId: truckId,

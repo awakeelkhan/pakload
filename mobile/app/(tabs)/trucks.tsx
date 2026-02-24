@@ -47,12 +47,19 @@ export default function TrucksScreen() {
     setRefreshing(false);
   }, []);
 
+  // Only shippers can request quotes
+  const canRequestQuote = isAuthenticated && user?.role === 'shipper';
+
   const handleRequestQuote = (truck: any) => {
     if (!isAuthenticated) {
       Alert.alert('Sign In Required', 'Please sign in to request a quote', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Sign In', onPress: () => router.push('/auth/login') },
       ]);
+      return;
+    }
+    if (!canRequestQuote) {
+      Alert.alert('Not Allowed', 'Only Shippers can request quotes for trucks.');
       return;
     }
     setSelectedTruck(truck);

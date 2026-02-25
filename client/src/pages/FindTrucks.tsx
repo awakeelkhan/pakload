@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Search, Truck, ShieldCheck, MapPin, Star, Phone, Mail, Calendar, DollarSign, Package, Navigation, Filter, X, Bookmark, BookmarkCheck, Award, Clock, TrendingUp, ChevronDown, ChevronUp, Eye, Building } from 'lucide-react';
 import QuoteRequestModal from '../components/QuoteRequestModal';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface TruckData {
   id: number;
@@ -32,6 +33,7 @@ interface TruckData {
 }
 
 export default function FindTrucks() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { isAuthenticated, user } = useAuth();
   
@@ -534,27 +536,27 @@ export default function FindTrucks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Find Trucks</h1>
-          <p className="text-slate-600">Browse available carriers along the CPEC corridor</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('trucks.title')}</h1>
+          <p className="text-slate-600">{t('trucks.subtitle')}</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-slate-900">{allTrucks.length}</div>
-            <div className="text-sm text-slate-600">Available Trucks</div>
+            <div className="text-sm text-slate-600">{t('trucks.stats.availableTrucks')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-green-600">{verifiedCount}</div>
-            <div className="text-sm text-slate-600">Verified Carriers</div>
+            <div className="text-sm text-slate-600">{t('trucks.stats.verifiedCarriers')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-blue-600">${avgRate}/km</div>
-            <div className="text-sm text-slate-600">Avg Rate</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.avgRate')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-amber-600">{savedTrucks.length}</div>
-            <div className="text-sm text-slate-600">Saved Trucks</div>
+            <div className="text-sm text-slate-600">{t('common.saved', 'Saved Trucks')}</div>
           </div>
         </div>
 
@@ -565,7 +567,7 @@ export default function FindTrucks() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search by location, vehicle type..."
+                placeholder={t('trucks.search')}
                 value={filters.location}
                 onChange={(e) => setFilters({...filters, location: e.target.value})}
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -576,16 +578,16 @@ export default function FindTrucks() {
               onChange={(e) => setSortBy(e.target.value as 'date' | 'rate' | 'rating')}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
-              <option value="date">Sort by: Newest First</option>
-              <option value="rate">Sort by: Lowest Rate</option>
-              <option value="rating">Sort by: Highest Rating</option>
+              <option value="date">{t('loads.sort.newestFirst')}</option>
+              <option value="rate">{t('common.lowestRate', 'Lowest Rate')}</option>
+              <option value="rating">{t('trucks.sort.highestRated')}</option>
             </select>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Filter className="w-5 h-5" />
-              {showFilters ? 'Hide' : 'Show'} Filters
+              {showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters')}
             </button>
           </div>
         </div>

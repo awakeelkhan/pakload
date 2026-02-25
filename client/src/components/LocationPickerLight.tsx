@@ -15,29 +15,6 @@ interface SearchResult {
   display_name: string;
 }
 
-// Pakistan major cities
-const PAKISTAN_CITIES = [
-  { name: 'Karachi', lat: 24.8607, lon: 67.0011 },
-  { name: 'Lahore', lat: 31.5204, lon: 74.3587 },
-  { name: 'Islamabad', lat: 33.6844, lon: 73.0479 },
-  { name: 'Rawalpindi', lat: 33.5651, lon: 73.0169 },
-  { name: 'Faisalabad', lat: 31.4504, lon: 73.135 },
-  { name: 'Multan', lat: 30.1575, lon: 71.5249 },
-  { name: 'Peshawar', lat: 34.0151, lon: 71.5249 },
-  { name: 'Quetta', lat: 30.1798, lon: 66.975 },
-  { name: 'Gwadar', lat: 25.1264, lon: 62.3225 },
-  { name: 'Sialkot', lat: 32.4945, lon: 74.5229 },
-  { name: 'Hyderabad', lat: 25.396, lon: 68.3578 },
-  { name: 'Sukkur', lat: 27.7052, lon: 68.8574 },
-];
-
-// China CPEC cities
-const CHINA_CITIES = [
-  { name: 'Kashgar', lat: 39.4547, lon: 75.9797 },
-  { name: 'Urumqi', lat: 43.8256, lon: 87.6168 },
-  { name: 'Khunjerab Pass', lat: 36.85, lon: 75.4167 },
-];
-
 export function LocationPickerLight({ 
   value, 
   onChange, 
@@ -87,10 +64,6 @@ export function LocationPickerLight({
 
   const selectSearchResult = (result: SearchResult) => {
     selectLocation(parseFloat(result.lat), parseFloat(result.lon), result.display_name);
-  };
-
-  const selectCity = (city: { name: string; lat: number; lon: number }) => {
-    selectLocation(city.lat, city.lon, city.name);
   };
 
   const getCurrentLocation = () => {
@@ -163,7 +136,7 @@ export function LocationPickerLight({
           <MapPin className="h-5 w-5" />
           {label}
         </h3>
-        <p className="text-white/80 text-sm mt-1">Search or select from quick picks below</p>
+        <p className="text-white/80 text-sm mt-1">Search location or use GPS to pin on map</p>
       </div>
       
       {/* Search Bar */}
@@ -214,53 +187,8 @@ export function LocationPickerLight({
         </div>
       </div>
 
-      {/* Quick Pick Cities */}
-      <div className="p-4">
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            🇵🇰 Pakistan Cities
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {PAKISTAN_CITIES.map((city) => (
-              <button
-                key={city.name}
-                onClick={() => selectCity(city)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
-                  selectedLocation?.address === city.name
-                    ? `bg-${accentColor}-600 text-white border-${accentColor}-600`
-                    : `bg-white text-gray-700 border-gray-200 hover:border-${accentColor}-400 hover:bg-${accentColor}-50`
-                }`}
-              >
-                {city.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            🇨🇳 China (CPEC)
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {CHINA_CITIES.map((city) => (
-              <button
-                key={city.name}
-                onClick={() => selectCity(city)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
-                  selectedLocation?.address === city.name
-                    ? 'bg-red-600 text-white border-red-600'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-red-400 hover:bg-red-50'
-                }`}
-              >
-                {city.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Google Maps Embed */}
-      <div className="relative h-64 bg-gray-100">
+      {/* Google Maps Embed - Large map for better visualization */}
+      <div className="relative h-80 bg-gray-100">
         <iframe
           width="100%"
           height="100%"

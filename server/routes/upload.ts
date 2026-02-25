@@ -2,7 +2,10 @@ import { Router, Request, Response } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+import { db } from '../db/index.js';
+import { paymentProofs, users } from '../db/schema.js';
+import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -183,8 +186,15 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
     const folder = isImage ? 'images' : 'documents';
     const fileUrl = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
 
-    // TODO: Save payment proof record to database
-    // For now, just return success
+    // Save payment proof to database
+    const [newProof] = await db.insert(paymentProofs).values({
+      userId: req.user!.id,
+      transactionRef: transactionRef || `TXN-${Date.now()}`,
+      fileUrl,
+      fileName: req.file.originalname,
+      status: 'pending',
+    }).returning();
+
     console.log(`Payment proof uploaded by user ${req.user?.id}: ${transactionRef}, ${fileUrl}`);
 
     // Notify admins about new payment proof
@@ -194,7 +204,7 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
         'New Payment Proof Uploaded',
         `A user has uploaded payment proof for transaction: ${transactionRef}. Please verify and confirm.`,
         '/admin/payments',
-        { userId: req.user?.id, transactionRef, fileUrl }
+        { userId: req.user?.id, transactionRef, fileUrl, proofId: newProof.id }
       );
     } catch (notifError) {
       console.error('Error sending payment proof notification:', notifError);
@@ -206,11 +216,70 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
       filename: req.file.filename,
       originalName: req.file.originalname,
       transactionRef,
+      proofId: newProof.id,
       message: 'Payment proof uploaded successfully. Admin will verify shortly.'
     });
   } catch (error: any) {
     console.error('Payment proof upload error:', error);
     res.status(500).json({ error: error.message || 'Upload failed' });
+  }
+});
+
+// Admin: Get all payment proofs
+router.get('/payment-proofs', requireAuth, requireRole('admin'), async (req: Request, res: Response) => {
+  try {
+    const proofs = await db.select({
+      id: paymentProofs.id,
+      userId: paymentProofs.userId,
+      transactionRef: paymentProofs.transactionRef,
+      fileUrl: paymentProofs.fileUrl,
+      fileName: paymentProofs.fileName,
+      status: paymentProofs.status,
+      verifiedBy: paymentProofs.verifiedBy,
+      verifiedAt: paymentProofs.verifiedAt,
+      notes: paymentProofs.notes,
+      createdAt: paymentProofs.createdAt,
+      userName: users.firstName,
+      userLastName: users.lastName,
+      userEmail: users.email,
+    })
+    .from(paymentProofs)
+    .leftJoin(users, eq(paymentProofs.userId, users.id))
+    .orderBy(desc(paymentProofs.createdAt));
+
+    const transformedProofs = proofs.map(p => ({
+      ...p,
+      userName: `${p.userName || ''} ${p.userLastName || ''}`.trim() || p.userEmail || `User #${p.userId}`,
+    }));
+
+    res.json(transformedProofs);
+  } catch (error: any) {
+    console.error('Error fetching payment proofs:', error);
+    res.status(500).json({ error: 'Failed to fetch payment proofs' });
+  }
+});
+
+// Admin: Verify payment proof
+router.post('/payment-proofs/:id/verify', requireAuth, requireRole('admin'), async (req: Request, res: Response) => {
+  try {
+    const proofId = parseInt(req.params.id);
+    const { status, notes } = req.body;
+
+    const [updated] = await db.update(paymentProofs)
+      .set({
+        status: status || 'verified',
+        verifiedBy: req.user!.id,
+        verifiedAt: new Date(),
+        notes,
+        updatedAt: new Date(),
+      })
+      .where(eq(paymentProofs.id, proofId))
+      .returning();
+
+    res.json(updated);
+  } catch (error: any) {
+    console.error('Error verifying payment proof:', error);
+    res.status(500).json({ error: 'Failed to verify payment proof' });
   }
 });
 

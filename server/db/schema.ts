@@ -354,6 +354,21 @@ export const payments = pgTable('payments', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Payment Proofs Table (for admin verification)
+export const paymentProofs = pgTable('payment_proofs', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id),
+  transactionRef: varchar('transaction_ref', { length: 255 }).notNull(),
+  fileUrl: varchar('file_url', { length: 500 }).notNull(),
+  fileName: varchar('file_name', { length: 255 }),
+  status: varchar('status', { length: 50 }).default('pending'), // pending, verified, rejected
+  verifiedBy: integer('verified_by').references(() => users.id),
+  verifiedAt: timestamp('verified_at'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Reviews Table
 export const reviews = pgTable('reviews', {
   id: serial('id').primaryKey(),

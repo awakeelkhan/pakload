@@ -732,7 +732,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.put('/api/trucks/:id', optionalAuth, async (req, res) => {
+  app.put('/api/trucks/:id', requireAuth, async (req, res) => {
     try {
       const vehicleId = parseInt(req.params.id);
       const existingVehicle = await vehicleRepo.findById(vehicleId);
@@ -763,7 +763,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.delete('/api/trucks/:id', optionalAuth, async (req, res) => {
+  app.delete('/api/trucks/:id', requireAuth, async (req, res) => {
     try {
       const vehicleId = parseInt(req.params.id);
       const existingVehicle = await vehicleRepo.findById(vehicleId);

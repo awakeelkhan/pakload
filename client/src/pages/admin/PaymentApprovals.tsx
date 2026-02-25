@@ -24,6 +24,8 @@ interface Payment {
   reviewedBy?: string;
   rejectionReason?: string;
   notes?: string;
+  fileUrl?: string;
+  fileName?: string;
 }
 
 export default function PaymentApprovals() {
@@ -41,93 +43,42 @@ export default function PaymentApprovals() {
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      // Mock data - in production, fetch from API
-      const mockPayments: Payment[] = [
-        {
-          id: 1,
-          userId: 101,
-          userName: 'Ahmed Khan',
-          userEmail: 'ahmed@shipper.pk',
-          userRole: 'shipper',
-          bookingId: 1001,
-          trackingNumber: 'LP-2024-001001',
-          amount: 125000,
+      const token = localStorage.getItem('access_token');
+      
+      // Fetch real payment proofs from API
+      const response = await fetch('/api/upload/payment-proofs', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Transform API data to match interface
+        const transformedPayments: Payment[] = (data || []).map((p: any) => ({
+          id: p.id,
+          userId: p.userId,
+          userName: p.userName || `User #${p.userId}`,
+          userEmail: p.userEmail || '',
+          userRole: 'shipper' as const,
+          transactionId: p.transactionRef || `TXN-${p.id}`,
+          amount: 0,
           currency: 'PKR',
-          paymentMethod: 'Bank Transfer - HBL',
-          transactionId: 'HBL-TXN-2024-78945',
-          status: 'pending',
-          submittedAt: '2024-01-20T14:30:00Z',
-          notes: 'Payment for Karachi to Lahore shipment',
-        },
-        {
-          id: 2,
-          userId: 102,
-          userName: 'Ali Transport Co.',
-          userEmail: 'ali@transport.pk',
-          userRole: 'carrier',
-          bookingId: 1002,
-          trackingNumber: 'LP-2024-001002',
-          amount: 85000,
-          currency: 'PKR',
-          paymentMethod: 'EasyPaisa',
-          transactionId: 'EP-9876543210',
-          status: 'pending',
-          submittedAt: '2024-01-20T10:15:00Z',
-        },
-        {
-          id: 3,
-          userId: 103,
-          userName: 'Tech Imports Ltd',
-          userEmail: 'imports@techltd.pk',
-          userRole: 'shipper',
-          bookingId: 1003,
-          trackingNumber: 'LP-2024-001003',
-          amount: 200000,
-          currency: 'PKR',
-          paymentMethod: 'JazzCash',
-          transactionId: 'JC-1234567890',
-          status: 'approved',
-          submittedAt: '2024-01-18T09:00:00Z',
-          reviewedAt: '2024-01-18T11:30:00Z',
-          reviewedBy: 'Admin User',
-        },
-        {
-          id: 4,
-          userId: 104,
-          userName: 'Karachi Logistics',
-          userEmail: 'info@karachilogistics.pk',
-          userRole: 'carrier',
-          amount: 50000,
-          currency: 'PKR',
-          paymentMethod: 'Bank Transfer - MCB',
-          transactionId: 'MCB-TXN-2024-45678',
-          status: 'rejected',
-          submittedAt: '2024-01-15T16:45:00Z',
-          reviewedAt: '2024-01-16T10:00:00Z',
-          reviewedBy: 'Admin User',
-          rejectionReason: 'Transaction ID not found in bank records. Please verify and resubmit.',
-        },
-        {
-          id: 5,
-          userId: 105,
-          userName: 'Global Freight Services',
-          userEmail: 'payments@globalfreight.pk',
-          userRole: 'shipper',
-          bookingId: 1005,
-          trackingNumber: 'LP-2024-001005',
-          amount: 175000,
-          currency: 'PKR',
-          paymentMethod: 'Bank Transfer - HBL',
-          transactionId: 'HBL-TXN-2024-11223',
-          status: 'pending',
-          submittedAt: '2024-01-21T08:00:00Z',
-          notes: 'Urgent shipment - please process quickly',
-        },
-      ];
-
-      setPayments(mockPayments);
+          paymentMethod: 'Bank Transfer',
+          status: p.status === 'verified' ? 'approved' : p.status === 'rejected' ? 'rejected' : 'pending',
+          submittedAt: p.createdAt || new Date().toISOString(),
+          reviewedAt: p.verifiedAt,
+          reviewedBy: p.verifiedBy ? `Admin #${p.verifiedBy}` : undefined,
+          notes: p.notes,
+          fileUrl: p.fileUrl,
+          fileName: p.fileName,
+        }));
+        setPayments(transformedPayments);
+      } else {
+        console.error('Failed to fetch payment proofs');
+        setPayments([]);
+      }
     } catch (error) {
       console.error('Error fetching payments:', error);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -136,15 +87,27 @@ export default function PaymentApprovals() {
   const handleApprove = async (paymentId: number) => {
     setProcessingId(paymentId);
     try {
-      // In production, call API to approve payment
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/upload/payment-proofs/${paymentId}/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: 'verified' })
+      });
       
-      setPayments(payments.map(p => 
-        p.id === paymentId 
-          ? { ...p, status: 'approved' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin' } 
-          : p
-      ));
-      alert('Payment approved successfully!');
+      if (response.ok) {
+        setPayments(payments.map(p => 
+          p.id === paymentId 
+            ? { ...p, status: 'approved' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin' } 
+            : p
+        ));
+        alert('Payment approved successfully!');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to approve payment');
+      }
     } catch (error) {
       console.error('Error approving payment:', error);
       alert('Failed to approve payment');
@@ -159,15 +122,27 @@ export default function PaymentApprovals() {
 
     setProcessingId(paymentId);
     try {
-      // In production, call API to reject payment
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/upload/payment-proofs/${paymentId}/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: 'rejected', notes: reason })
+      });
       
-      setPayments(payments.map(p => 
-        p.id === paymentId 
-          ? { ...p, status: 'rejected' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin', rejectionReason: reason } 
-          : p
-      ));
-      alert('Payment rejected.');
+      if (response.ok) {
+        setPayments(payments.map(p => 
+          p.id === paymentId 
+            ? { ...p, status: 'rejected' as const, reviewedAt: new Date().toISOString(), reviewedBy: 'Admin', rejectionReason: reason } 
+            : p
+        ));
+        alert('Payment rejected.');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to reject payment');
+      }
     } catch (error) {
       console.error('Error rejecting payment:', error);
       alert('Failed to reject payment');
@@ -426,16 +401,29 @@ export default function PaymentApprovals() {
                       )}
 
                       <div className="flex gap-2">
+                        {payment.fileUrl && (
+                          <>
+                            <button 
+                              onClick={() => window.open(payment.fileUrl, '_blank')}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Payment Slip
+                            </button>
+                            <a 
+                              href={payment.fileUrl}
+                              download={payment.fileName || 'payment-slip'}
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download
+                            </a>
+                          </>
+                        )}
                         <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2 text-sm">
                           <Eye className="w-4 h-4" />
                           View User Profile
                         </button>
-                        {payment.bookingId && (
-                          <button className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 flex items-center gap-2 text-sm">
-                            <Eye className="w-4 h-4" />
-                            View Booking
-                          </button>
-                        )}
                       </div>
                     </div>
                   )}

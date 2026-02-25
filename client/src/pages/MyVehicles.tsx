@@ -99,9 +99,17 @@ export default function MyVehicles() {
   const confirmDelete = async () => {
     if (!deleteConfirm.vehicleId) return;
     try {
-      await fetch(`/api/trucks/${deleteConfirm.vehicleId}`, {
-        method: 'DELETE'
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/trucks/${deleteConfirm.vehicleId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete vehicle');
+        setDeleteConfirm({ show: false, vehicleId: null });
+        return;
+      }
       setVehicles(vehicles.filter(v => v.id !== deleteConfirm.vehicleId));
       setDeleteConfirm({ show: false, vehicleId: null });
     } catch (error) {
@@ -113,6 +121,7 @@ export default function MyVehicles() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem('access_token');
       const vehicleData = {
         type: formData.type,
         registrationNumber: formData.registrationNumber,
@@ -124,17 +133,33 @@ export default function MyVehicles() {
       if (editingVehicle) {
         const response = await fetch(`/api/trucks/${editingVehicle.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(vehicleData)
         });
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Failed to update vehicle');
+          return;
+        }
         const updated = await response.json();
         setVehicles(vehicles.map(v => v.id === editingVehicle.id ? updated : v));
       } else {
         const response = await fetch('/api/trucks', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(vehicleData)
         });
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Failed to post availability. Please try again.');
+          return;
+        }
         const newVehicle = await response.json();
         setVehicles([...vehicles, newVehicle]);
       }

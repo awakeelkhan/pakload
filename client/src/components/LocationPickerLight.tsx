@@ -46,13 +46,28 @@ export function LocationPickerLight({
         }
       );
       const data = await response.json();
-      setSearchResults(data);
+      
+      // Auto-select first result to show on map immediately
+      if (data && data.length > 0) {
+        const firstResult = data[0];
+        const location = {
+          latitude: parseFloat(firstResult.lat),
+          longitude: parseFloat(firstResult.lon),
+          address: firstResult.display_name
+        };
+        setSelectedLocation(location);
+        onChange(location);
+        // Still show other results in dropdown for user to choose
+        setSearchResults(data.slice(1)); // Show remaining results
+      } else {
+        setSearchResults([]);
+      }
     } catch (error) {
       console.error('Search error:', error);
     } finally {
       setIsSearching(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, onChange]);
 
   const selectLocation = (lat: number, lon: number, address: string) => {
     const location = { latitude: lat, longitude: lon, address };

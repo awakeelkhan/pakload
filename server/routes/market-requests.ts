@@ -419,6 +419,45 @@ router.post('/:id/approve', requireAuth, requireRole('admin'), async (req, res) 
   }
 });
 
+// Update market request status (admin)
+router.patch('/:id/status', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { fulfillmentStatus, status } = req.body;
+    
+    const existing = await marketRequestRepo.findById(id);
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const updateData: any = {};
+    if (fulfillmentStatus) updateData.fulfillmentStatus = fulfillmentStatus;
+    if (status) updateData.status = status;
+    
+    // If marking as fulfilled or cancelled, also close the request
+    if (fulfillmentStatus === 'fulfilled' || fulfillmentStatus === 'cancelled') {
+      updateData.status = 'closed';
+    }
+
+    const updated = await marketRequestRepo.update(id, updateData);
+
+    // Log the action
+    await marketRequestRepo.logFulfillmentAction({
+      requestId: id,
+      actionType: 'status_update',
+      actionBy: req.user!.id,
+      notes: `Status updated to: ${fulfillmentStatus || status}`,
+      outcome: fulfillmentStatus === 'fulfilled' ? 'success' : fulfillmentStatus === 'cancelled' ? 'cancelled' : 'pending',
+    });
+
+    res.json({ message: 'Status updated', request: updated });
+  } catch (error) {
+    console.error('Update status error:', error);
+    res.status(500).json({ error: 'Failed to update status' });
+  }
+});
+
 // Reject market request (admin)
 router.post('/:id/reject', requireAuth, requireRole('admin'), async (req, res) => {
   try {

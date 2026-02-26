@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, MessageSquare, Phone, Mail, MapPin, Package, Clock, ArrowLeft, User } from 'lucide-react';
+import { ShoppingBag, MessageSquare, Phone, Mail, MapPin, Package, Clock, ArrowLeft, User, CheckCircle, XCircle, Search } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface MarketRequest {
@@ -49,11 +49,35 @@ export default function MarketRequestsAdmin() {
     }
   };
 
+  const handleUpdateStatus = async (requestId: number, newStatus: string) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/market-requests/${requestId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ fulfillmentStatus: newStatus }),
+      });
+      
+      if (response.ok) {
+        fetchRequests();
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-amber-100 text-amber-700';
       case 'searching': return 'bg-blue-100 text-blue-700';
       case 'fulfilled': return 'bg-green-100 text-green-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-slate-100 text-slate-700';
     }
   };
@@ -168,7 +192,28 @@ export default function MarketRequestsAdmin() {
                   </div>
 
                   <div className="flex flex-col gap-2 ml-6">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                    <button 
+                      onClick={() => handleUpdateStatus(req.request?.id || req.id, 'searching')}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      <Search className="w-4 h-4" />
+                      Mark Reviewing
+                    </button>
+                    <button 
+                      onClick={() => handleUpdateStatus(req.request?.id || req.id, 'fulfilled')}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Mark Fulfilled
+                    </button>
+                    <button 
+                      onClick={() => handleUpdateStatus(req.request?.id || req.id, 'cancelled')}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Cancel
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors">
                       <MessageSquare className="w-4 h-4" />
                       Contact
                     </button>

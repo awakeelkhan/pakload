@@ -611,6 +611,16 @@ export function registerRoutes(app: Express) {
         distance: req.body.distance || null,
         estimatedDays: req.body.estimatedDays || null,
         specialRequirements: req.body.specialRequirements || null,
+        images: req.body.images || null,
+        videos: req.body.videos || null,
+        documents: req.body.documents || null,
+        containerType: req.body.equipmentType || req.body.containerType || null,
+        originCity: req.body.originCity || null,
+        destinationCity: req.body.destinationCity || null,
+        pickupContactName: req.body.pickupContactName || null,
+        pickupContactPhone: req.body.pickupContactPhone || null,
+        deliveryContactName: req.body.deliveryContactName || null,
+        deliveryContactPhone: req.body.deliveryContactPhone || null,
       };
       
       const newLoad = await loadRepo.create(loadData);
@@ -1744,6 +1754,80 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching admin stats:', error);
       res.status(500).json({ error: 'Failed to fetch stats' });
+    }
+  });
+
+  // Admin: Update user status (suspend/activate)
+  app.patch('/api/admin/users/:id/status', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const userId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!['active', 'suspended', 'pending'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+      }
+      
+      const updated = await userRepo.update(userId, { status });
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      res.status(500).json({ error: 'Failed to update user status' });
+    }
+  });
+
+  // Admin: Update user role
+  app.patch('/api/admin/users/:id/role', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+      
+      if (!['shipper', 'carrier', 'admin'].includes(role)) {
+        return res.status(400).json({ error: 'Invalid role' });
+      }
+      
+      const updated = await userRepo.update(userId, { role });
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      res.status(500).json({ error: 'Failed to update user role' });
+    }
+  });
+
+  // Admin: Verify user
+  app.patch('/api/admin/users/:id/verify', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const userId = parseInt(req.params.id);
+      const updated = await userRepo.update(userId, { verified: true });
+      res.json(updated);
+    } catch (error) {
+      console.error('Error verifying user:', error);
+      res.status(500).json({ error: 'Failed to verify user' });
+    }
+  });
+
+  // Admin: Delete user
+  app.delete('/api/admin/users/:id', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      const userId = parseInt(req.params.id);
+      
+      // Soft delete by setting status to 'deleted'
+      const updated = await userRepo.update(userId, { status: 'deleted' });
+      res.json({ message: 'User deleted successfully', user: updated });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ error: 'Failed to delete user' });
     }
   });
 

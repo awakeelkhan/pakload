@@ -48,6 +48,7 @@ export default function KYC() {
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   if (!user) {
     return null;
@@ -114,8 +115,39 @@ export default function KYC() {
   const handleSubmitVerification = async () => {
     setSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Upload documents to server
+      const token = localStorage.getItem('access_token');
+      
+      for (const doc of documents) {
+        if (doc.file) {
+          // First upload the file
+          const formData = new FormData();
+          formData.append('image', doc.file);
+          
+          const uploadResponse = await fetch('/api/upload/image', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+          });
+          
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            
+            // Then create the document record
+            await fetch('/api/documents/upload', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                documentType: doc.type,
+                documentUrl: uploadData.url,
+              }),
+            });
+          }
+        }
+      }
       
       // Update all pending documents to show they're under review
       setDocuments(prev => prev.map(d => ({
@@ -123,7 +155,7 @@ export default function KYC() {
         status: 'pending' as const,
       })));
 
-      alert('Documents submitted for verification! You will be notified once reviewed.');
+      setShowSuccessModal(true);
     } catch (error) {
       alert('Failed to submit documents. Please try again.');
     } finally {
@@ -136,6 +168,41 @@ export default function KYC() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center animate-in fade-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">Documents Submitted!</h2>
+            <p className="text-slate-600 mb-6">
+              Your documents have been submitted for verification. Our team will review them within 24-48 hours. 
+              You'll receive a notification once the verification is complete.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">What happens next?</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-700">
+                    <li>Our team reviews your documents</li>
+                    <li>You'll get a notification with the result</li>
+                    <li>Once verified, you can access all features</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            >
+              Got it, thanks!
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

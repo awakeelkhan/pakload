@@ -205,6 +205,28 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
     try {
       const token = localStorage.getItem('access_token');
       
+      // First upload images if any
+      let uploadedImageUrls: string[] = [];
+      if (images.length > 0) {
+        const imageFormData = new FormData();
+        images.forEach(img => {
+          imageFormData.append('images', img.file);
+        });
+        
+        const uploadResponse = await fetch('/api/upload/images', {
+          method: 'POST',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+          },
+          body: imageFormData,
+        });
+        
+        if (uploadResponse.ok) {
+          const uploadData = await uploadResponse.json();
+          uploadedImageUrls = uploadData.urls || [];
+        }
+      }
+
       const loadData = {
         origin: formData.originAddress ? `${formData.originAddress}, ${formData.originCity}` : formData.originCity,
         destination: formData.destinationAddress ? `${formData.destinationAddress}, ${formData.destinationCity}` : formData.destinationCity,
@@ -223,6 +245,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
         pickupContactPhone: formData.pickupContactPhone,
         deliveryContactName: formData.deliveryContactName,
         deliveryContactPhone: formData.deliveryContactPhone,
+        images: uploadedImageUrls,
       };
 
       const response = await fetch('/api/loads', {

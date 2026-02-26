@@ -415,6 +415,36 @@ router.post('/:id/approve', requireAuth, requireRole('admin'), async (req, res) 
   }
 });
 
+// Admin: Get documents by user ID
+router.get('/user/:userId', requireAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    
+    const documents = await db.select({
+      id: userDocuments.id,
+      userId: userDocuments.userId,
+      documentType: userDocuments.documentType,
+      documentNumber: userDocuments.documentNumber,
+      documentUrl: userDocuments.documentUrl,
+      status: userDocuments.status,
+      issueDate: userDocuments.issueDate,
+      expiryDate: userDocuments.expiryDate,
+      issuingAuthority: userDocuments.issuingAuthority,
+      verifiedBy: userDocuments.verifiedBy,
+      verifiedAt: userDocuments.verifiedAt,
+      rejectionReason: userDocuments.rejectionReason,
+      createdAt: userDocuments.createdAt,
+    })
+    .from(userDocuments)
+    .where(eq(userDocuments.userId, userId));
+    
+    res.json(documents);
+  } catch (error) {
+    console.error('Error fetching user documents:', error);
+    res.status(500).json({ error: 'Failed to fetch user documents' });
+  }
+});
+
 // Admin: Reject document
 router.post('/:id/reject', requireAuth, requireRole('admin'), async (req, res) => {
   try {

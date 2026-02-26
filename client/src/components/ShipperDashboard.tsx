@@ -254,11 +254,11 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                   </div>
                   <span className="text-sm font-medium text-slate-900">Track</span>
                 </button>
-                <button onClick={() => navigate('/routes')} className="flex flex-col items-center gap-2 p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer">
+                <button onClick={() => navigate('/my-requests')} className="flex flex-col items-center gap-2 p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer">
                   <div className="p-3 bg-amber-600 rounded-lg">
-                    <BarChart3 className="w-5 h-5 text-white" />
+                    <FileText className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-slate-900">Analytics</span>
+                  <span className="text-sm font-medium text-slate-900">My Requests</span>
                 </button>
               </div>
             </div>

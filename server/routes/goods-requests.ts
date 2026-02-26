@@ -70,6 +70,21 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get my goods requests (must be before /:id to avoid route conflict)
+router.get('/my/requests', requireAuth, async (req, res) => {
+  try {
+    const requests = await db.select()
+      .from(goodsRequests)
+      .where(eq(goodsRequests.shipperId, req.user!.id))
+      .orderBy(desc(goodsRequests.createdAt));
+    
+    res.json(requests);
+  } catch (error) {
+    console.error('Error fetching my goods requests:', error);
+    res.status(500).json({ error: 'Failed to fetch goods requests' });
+  }
+});
+
 // Get single goods request
 router.get('/:id', async (req, res) => {
   try {
@@ -192,21 +207,6 @@ router.post('/:id/close', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Error closing goods request:', error);
     res.status(500).json({ error: 'Failed to close goods request' });
-  }
-});
-
-// Get my goods requests
-router.get('/my/requests', requireAuth, async (req, res) => {
-  try {
-    const requests = await db.select()
-      .from(goodsRequests)
-      .where(eq(goodsRequests.shipperId, req.user!.id))
-      .orderBy(desc(goodsRequests.createdAt));
-    
-    res.json(requests);
-  } catch (error) {
-    console.error('Error fetching my goods requests:', error);
-    res.status(500).json({ error: 'Failed to fetch goods requests' });
   }
 });
 

@@ -456,15 +456,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = async (lang: Language) => {
     try {
-      setLanguageState(lang);
+      // Save to storage first
       await AsyncStorage.setItem('language', lang);
       
+      // Update state
+      setLanguageState(lang);
+      
       // Handle RTL for Urdu and Pashto
-      const isRTL = lang === 'ur' || lang === 'ps';
-      if (I18nManager.isRTL !== isRTL) {
-        I18nManager.allowRTL(isRTL);
-        I18nManager.forceRTL(isRTL);
+      // Note: RTL changes require app restart to fully take effect
+      const shouldBeRTL = lang === 'ur' || lang === 'ps';
+      if (I18nManager.isRTL !== shouldBeRTL) {
+        I18nManager.allowRTL(shouldBeRTL);
+        I18nManager.forceRTL(shouldBeRTL);
+        // Note: Full RTL change requires app restart
       }
+      
+      console.log('Language changed to:', lang);
     } catch (error) {
       console.error('Error saving language:', error);
     }

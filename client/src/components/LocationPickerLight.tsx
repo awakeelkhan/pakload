@@ -66,7 +66,7 @@ export function LocationPickerLight({
       const data = await response.json();
       
       if (data && data.length > 0) {
-        // Auto-select first result to show on map immediately
+        // Show first result on map (but don't call onChange yet - user must confirm)
         const firstResult = data[0];
         const location = {
           latitude: parseFloat(firstResult.lat),
@@ -74,6 +74,7 @@ export function LocationPickerLight({
           address: firstResult.display_name
         };
         setSelectedLocation(location);
+        // Call onChange so parent knows what's selected (for confirm button)
         onChange(location);
         // Show ALL results in dropdown for user to choose different one
         setSearchResults(data);

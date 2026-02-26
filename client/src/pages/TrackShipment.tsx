@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Package, CheckCircle2, Circle, MapPin, Clock, User, Phone, Mail, Truck, Navigation, AlertCircle, Bell, Download, Share2, RefreshCw, Calendar, TrendingUp, Info, ChevronRight, Radio } from 'lucide-react';
 import LiveTrackingDashboard from '../components/LiveTrackingDashboard';
 
@@ -19,6 +20,7 @@ interface Milestone {
 }
 
 export default function TrackShipment() {
+  const { t } = useTranslation();
   const [trackingNumber, setTrackingNumber] = useState('LP-2024-08844');
   const [searchInput, setSearchInput] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);

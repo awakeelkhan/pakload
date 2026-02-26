@@ -96,6 +96,202 @@
       "thisWeek": "دا اونۍ",
       "thisMonth": "دا میاشت",
       "liveTracking": "ژوندی تعقیب"
+    },
+    "features": {
+      "title": "ولې لوډ پاک غوره کړئ؟",
+      "subtitle": "په ځانګړي ډول د چین-پاکستان بار لیږد دهلیزونو لپاره د شپرانو او کیریرانو لپاره پرمختللي ځانګړتیاوې",
+      "verifiedCarriers": "500+ تایید شوي کیریرانو ته لاسرسی",
+      "verifiedCarriersDesc": "ستاسو بار به زموږ د تایید شوي ټرکنګ شرکتونو شبکې ته ښکاره شي.",
+      "quickResponses": "چټک ځوابونه",
+      "quickResponsesDesc": "د پوسټ کولو ساعتونو کې له کیریرانو څخه نرخونه ترلاسه کړئ.",
+      "secureTransactions": "خوندي معاملات",
+      "secureTransactionsDesc": "ټول کیریران ستاسو د ذهني سکون لپاره تایید شوي او بیمه شوي دي.",
+      "trackEverything": "هرڅه تعقیب کړئ",
+      "trackEverythingDesc": "د GPS تازه معلوماتو سره د اخیستلو څخه تر سپارلو پورې ریښتیني وخت تعقیب.",
+      "routeOptimization": "د لارې اصلاح",
+      "routeOptimizationDesc": "د خنجراب درې له لارې ځانګړي لارې د سرحد تیریدو تجربې سره.",
+      "fastMatching": "چټک میچینګ",
+      "fastMatchingDesc": "هوښیار الګوریتم ستاسو بار سمدستي موجود ظرفیت سره نښلوي."
+    },
+    "cta": {
+      "title": "د پیل لپاره چمتو یاست؟",
+      "subtitle": "په CPEC لارو کې بار لیږدولو سلګونو شپرانو او کیریرانو سره یوځای شئ",
+      "signUp": "وړیا نوم لیکنه"
+    }
+  },
+  "loads": {
+    "title": "بارونه ومومئ",
+    "subtitle": "د ترانسپورت په لټه کې موجود بار وګورئ",
+    "search": "بارونه ولټوئ...",
+    "filters": {
+      "truckType": "د ټرک ډول",
+      "cargoType": "د بار ډول",
+      "route": "لاره",
+      "urgent": "عاجل",
+      "verifiedOnly": "یوازې تایید شوي کیریران",
+      "moreFilters": "نور فلټرونه",
+      "clearFilters": "فلټرونه پاک کړئ",
+      "filter": "فلټر"
+    },
+    "sort": {
+      "newestFirst": "لومړی نوي",
+      "highestRate": "ترټولو لوړ نرخ",
+      "closestPickup": "نږدې اخیستل"
+    },
+    "card": {
+      "pickup": "اخیستل:",
+      "delivery": "سپارل:",
+      "cargo": "بار:",
+      "customs": "ګمرک:",
+      "postedBy": "پوسټ شوی له خوا",
+      "viewDetails": "تفصیلات وګورئ",
+      "sendQuote": "نرخ واستوئ",
+      "urgent": "عاجل",
+      "specialPermit": "ځانګړی اجازه",
+      "negotiable": "د خبرو وړ"
+    },
+    "stats": {
+      "availableLoads": "موجود بارونه",
+      "urgentLoads": "عاجل بارونه",
+      "avgRate": "اوسط نرخ",
+      "newToday": "نن نوي"
+    }
+  },
+  "trucks": {
+    "title": "موجود ټرکونه ومومئ",
+    "subtitle": "د کیلومیټر نرخونو سره تایید شوي کیریران او موجود ټرکونه وګورئ",
+    "search": "کیریران ولټوئ...",
+    "filters": {
+      "truckType": "د ټرک ډول",
+      "currentLocation": "اوسنی ځای",
+      "allTypes": "ټول ډولونه",
+      "allLocations": "ټول ځایونه",
+      "searchTrucks": "ټرکونه ولټوئ"
+    },
+    "sort": {
+      "highestRated": "ترټولو لوړ درجه"
+    },
+    "stats": {
+      "availableTrucks": "موجود ټرکونه",
+      "inChina": "په چین کې",
+      "inPakistan": "په پاکستان کې",
+      "verifiedCarriers": "تایید شوي کیریران"
+    },
+    "card": {
+      "currentLocation": "اوسنی ځای:",
+      "availableFrom": "له دې وخت څخه موجود:",
+      "preferredRoute": "غوره لاره:",
+      "verified": "تایید شوی",
+      "insured": "بیمه شوی",
+      "gpsTracking": "GPS تعقیب",
+      "viewCarrier": "کیریر وګورئ",
+      "requestQuote": "د نرخ غوښتنه",
+      "borderCrossing": "د سرحد تیریدو تجربه:",
+      "onTime": "په وخت",
+      "diesel": "ډیزل"
+    }
+  },
+  "postLoad": {
+    "title": "بار پوسټ کړئ",
+    "subtitle": "د خپل بار لپاره کیریران موندلو لپاره لاندې تفصیلات ډک کړئ",
+    "steps": {
+      "route": "لاره",
+      "cargo": "بار",
+      "schedule": "مهال ویش",
+      "pricing": "نرخ",
+      "requirements": "اړتیاوې",
+      "photos": "عکسونه"
+    },
+    "route": {
+      "title": "د لارې معلومات",
+      "origin": "اصل ځای",
+      "destination": "منزل",
+      "selectCity": "د منزل ښار غوره کړئ"
+    },
+    "cargo": {
+      "title": "د بار تفصیلات",
+      "cargoType": "د بار ډول",
+      "selectType": "د بار ډول غوره کړئ",
+      "weight": "وزن (کیلوګرام)",
+      "length": "اوږدوالی (سانتي متر)",
+      "width": "پلنوالی (سانتي متر)",
+      "height": "لوړوالی (سانتي متر)",
+      "volume": "حجم (CBM)",
+      "description": "تفصیل (اختیاري)",
+      "descriptionPlaceholder": "د بار په اړه اضافي تفصیلات..."
+    },
+    "schedule": {
+      "title": "مهال ویش",
+      "pickupDate": "د اخیستلو نیټه",
+      "deliveryDeadline": "د سپارلو وروستۍ نیټه"
+    },
+    "buttons": {
+      "previous": "مخکینی",
+      "next": "بل",
+      "submit": "بار پوسټ کړئ"
+    },
+    "help": {
+      "title": "مرستې ته اړتیا لرئ؟",
+      "description": "زموږ د ملاتړ ټیم ستاسو د بار اړتیاوو کې د مرستې لپاره 24/7 شتون لري.",
+      "phone": "تلیفون: +92 51 123 4567",
+      "email": "بریښنالیک: support@loadpak.com"
+    },
+    "benefits": {
+      "title": "ولې په لوډ پاک کې پوسټ کړئ؟",
+      "carriers": "500+ تایید شوي کیریرانو ته لاسرسی",
+      "carriersDesc": "ستاسو بار به زموږ د تایید شوي ټرکنګ شرکتونو شبکې ته ښکاره شي.",
+      "responses": "چټک ځوابونه",
+      "responsesDesc": "د پوسټ کولو ساعتونو کې له کیریرانو څخه نرخونه ترلاسه کړئ.",
+      "transactions": "خوندي معاملات",
+      "transactionsDesc": "ټول کیریران تایید شوي او بیمه شوي دي.",
+      "tracking": "هرڅه تعقیب کړئ",
+      "trackingDesc": "د اخیستلو څخه تر سپارلو پورې ریښتیني وخت تعقیب."
+    }
+  },
+  "routes": {
+    "title": "د بار لارې",
+    "subtitle": "د قراقرم شاهراه له لارې چین-پاکستان بار دهلیزونه",
+    "alerts": {
+      "khunjerab": "خنجراب درې",
+      "khunjerabDesc": "د 4,693 متره لوړوالي سره د نړۍ ترټولو لوړه پخه نړیواله سرحدي تیریدنه.",
+      "seasonal": "موسمي وخت",
+      "seasonalDesc": "درې معمولا د اپریل څخه تر نومبر پورې خلاصه وي، د هوا اجازې سره.",
+      "weather": "د هوا خبرتیاوې",
+      "weatherDesc": "د ژمي میاشتو کې د بارونو پلان کولو دمخه اوسني حالات وګورئ."
+    },
+    "map": {
+      "title": "متقابل لارې نقشه",
+      "description": "ټولې فعالې لارې، اوسني بارونه، او موجود ټرکونه ښودونکې بصري نقشه ډیر ژر راځي."
+    },
+    "allRoutes": "ټولې لارې",
+    "distance": "واټن",
+    "estTransitTime": "اټکل شوی لیږد وخت",
+    "borderCrossing": "سرحد تیریدل",
+    "routePopularity": "د لارې مشهورتیا",
+    "viewLoads": "بارونه وګورئ",
+    "findTrucks": "ټرکونه ومومئ",
+    "activeTrucks": "فعال ټرکونه",
+    "activeLoads": "فعال بارونه",
+    "days": "ورځې"
+  },
+  "tracking": {
+    "title": "بار تعقیب کړئ",
+    "trackingNumber": "د تعقیب شمیره",
+    "from": "له",
+    "to": "ته",
+    "cargo": "بار",
+    "estArrival": "اټکل شوې رسیدنه",
+    "documents": "اسناد",
+    "contactDriver": "له چلوونکي سره اړیکه",
+    "progress": "د بار پرمختګ",
+    "inTransit": "په لیږد کې",
+    "borderCrossing": "سرحد تیریدل",
+    "milestones": {
+      "loadPickup": "بار اخیستل",
+      "borderCrossing": "سرحد تیریدل",
+      "customsClearance": "ګمرکي کلیرنس",
+      "inTransit": "په لیږد کې",
+      "finalDelivery": "وروستی سپارل"
     }
   },
   "common": {
@@ -106,14 +302,82 @@
     "save": "خوندي کړئ",
     "delete": "حذف کړئ",
     "edit": "سمون",
-    "view": "کتل",
+    "close": "بند کړئ",
     "search": "لټون",
     "filter": "فلټر",
+    "sort": "ترتیب",
+    "showing": "ښودل",
+    "results": "پایلې",
+    "noResults": "هیڅ پایله ونه موندل شوه",
+    "tryAgain": "بیا هڅه وکړئ",
+    "view": "کتل",
     "submit": "سپارل",
     "back": "شاته",
     "next": "بل",
     "previous": "مخکینی",
     "yes": "هو",
     "no": "نه"
+  },
+  "validation": {
+    "emailRequired": "بریښنالیک اړین دی",
+    "emailInvalid": "مهرباني وکړئ سم بریښنالیک پته ولیکئ",
+    "passwordRequired": "پاسورډ اړین دی",
+    "passwordMinLength": "پاسورډ باید لږ تر لږه 8 توري ولري",
+    "passwordMismatch": "پاسورډونه سره نه سمون خوري",
+    "phoneRequired": "تلیفون شمیره اړینه ده",
+    "phoneInvalid": "مهرباني وکړئ سمه تلیفون شمیره ولیکئ",
+    "firstNameRequired": "لومړی نوم اړین دی",
+    "lastNameRequired": "وروستی نوم اړین دی",
+    "termsRequired": "تاسو باید شرایطو ته موافقه وکړئ",
+    "incorrectPassword": "ناسم پاسورډ",
+    "userNotFound": "کارن ونه موندل شو",
+    "loginFailed": "ننوتل ناکام شول. مهرباني وکړئ بیا هڅه وکړئ"
+  },
+  "auth": {
+    "signIn": "ننوتل",
+    "signUp": "نوم لیکنه",
+    "createAccount": "حساب جوړ کړئ",
+    "email": "بریښنالیک",
+    "password": "پاسورډ",
+    "confirmPassword": "پاسورډ تایید کړئ",
+    "firstName": "لومړی نوم",
+    "lastName": "وروستی نوم",
+    "phone": "تلیفون",
+    "phoneNumber": "تلیفون شمیره",
+    "companyName": "د شرکت نوم",
+    "iAmA": "زه یم",
+    "shipper": "شپر",
+    "carrier": "کیریر",
+    "agreeToTerms": "زه شرایطو ته موافق یم",
+    "termsAndConditions": "شرایط او ضوابط",
+    "privacyPolicy": "د محرمیت پالیسي",
+    "alreadyHaveAccount": "دمخه حساب لرئ؟",
+    "dontHaveAccount": "حساب نه لرئ؟",
+    "forgotPassword": "پاسورډ مو هیر شو؟",
+    "continueWithGoogle": "له ګوګل سره دوام ورکړئ",
+    "continueWithFacebook": "له فیسبوک سره دوام ورکړئ",
+    "orSignUpWithEmail": "یا له بریښنالیک سره نوم ولیکئ",
+    "welcomeBack": "بیرته ښه راغلاست",
+    "signInToAccount": "خپل PakLoad حساب ته ننوځئ",
+    "orContinueWith": "یا دوام ورکړئ له",
+    "emailAddress": "بریښنالیک پته",
+    "requestOtp": "OTP غوښتنه",
+    "sendingOtp": "OTP لیږل کیږي...",
+    "enterOtp": "OTP ولیکئ",
+    "didntReceiveCode": "کوډ نه دی ترلاسه شوی؟",
+    "resend": "بیا واستوئ",
+    "rememberMe": "ما په یاد ولرئ",
+    "signingIn": "ننوتل کیږي..."
+  },
+  "forgotPassword": {
+    "title": "پاسورډ مو هیر شو؟",
+    "subtitle": "اندیښنه مه کوئ، موږ به تاسو ته د بیا تنظیم لارښوونې واستوو.",
+    "checkInbox": "خپل ان باکس وګورئ",
+    "emailSent": "موږ ستاسو بریښنالیک پتې ته د پاسورډ بیا تنظیم لارښوونې واستولې.",
+    "smsSent": "موږ ستاسو تلیفون شمیرې ته تایید کوډ واستاوه.",
+    "backToSignIn": "ننوتلو ته بیرته لاړ شئ",
+    "sending": "لیږل کیږي...",
+    "resetPassword": "پاسورډ بیا تنظیم کړئ",
+    "rememberPassword": "خپل پاسورډ مو په یاد دی؟"
   }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Navigation, DollarSign, Clock, Fuel, AlertTriangle, Cloud, TrendingUp, Calculator, Route as RouteIcon, Truck, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
@@ -58,6 +59,7 @@ interface RouteData {
 }
 
 export default function Routes() {
+  const { t } = useTranslation();
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
@@ -176,8 +178,8 @@ export default function Routes() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">CPEC Routes & Planning</h1>
-          <p className="text-slate-600">Plan your route along the China-Pakistan Economic Corridor with real-time information</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('routes.title')}</h1>
+          <p className="text-slate-600">{t('routes.subtitle')}</p>
         </div>
 
         {/* Route Calculator */}

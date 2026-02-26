@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, Package, MapPin, Calendar, Truck, X, DollarSign, TrendingUp, Star, Bookmark, BookmarkCheck, Eye, MessageSquare, ChevronDown, ChevronUp, AlertCircle, Clock, Navigation, Phone, Mail, Building, Award, Shield, ArrowUpDown, Plus, RefreshCw, Image, FileText, File, Edit, Trash2, MoreVertical } from 'lucide-react';
 import BidModal from '../components/BidModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,6 +24,7 @@ interface Load {
 }
 
 export default function FindLoads() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [loads, setLoads] = useState<Load[]>([]);
   const [loading, setLoading] = useState(true);
@@ -748,23 +750,23 @@ export default function FindLoads() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Find Loads</h1>
-          <p className="text-slate-600">Browse available loads along the CPEC corridor</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('loads.title')}</h1>
+          <p className="text-slate-600">{t('loads.subtitle')}</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-slate-900">{allLoads.length}</div>
-            <div className="text-sm text-slate-600">Available Loads</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.availableLoads')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-red-600">{urgentCount}</div>
-            <div className="text-sm text-slate-600">Urgent Loads</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.urgentLoads')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-green-600">PKR {avgRate}/km</div>
-            <div className="text-sm text-slate-600">Avg Rate</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.avgRate')}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-blue-600">{savedLoads.length}</div>
@@ -779,7 +781,7 @@ export default function FindLoads() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search by city, cargo type..."
+                placeholder={t('loads.search')}
                 value={filters.originCity}
                 onChange={(e) => setFilters({...filters, originCity: e.target.value})}
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -790,16 +792,16 @@ export default function FindLoads() {
               onChange={(e) => setSortBy(e.target.value as 'date' | 'rate' | 'distance')}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
-              <option value="date">Sort by: Newest First</option>
-              <option value="rate">Sort by: Highest Rate</option>
-              <option value="distance">Sort by: Shortest Distance</option>
+              <option value="date">{t('loads.sort.newestFirst')}</option>
+              <option value="rate">{t('loads.sort.highestRate')}</option>
+              <option value="distance">{t('loads.sort.closestPickup')}</option>
             </select>
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Filter className="w-5 h-5" />
-              {showFilters ? 'Hide' : 'Show'} Filters
+              {showFilters ? t('common.close') : t('loads.filters.filter')}
             </button>
           </div>
         </div>
@@ -808,13 +810,13 @@ export default function FindLoads() {
         {showFilters && (
           <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Advanced Filters</h2>
+              <h2 className="text-xl font-semibold">{t('loads.filters.moreFilters')}</h2>
               <button
                 onClick={clearFilters}
                 className="flex items-center gap-2 text-slate-600 hover:text-slate-900"
               >
                 <X size={16} />
-                Clear All
+                {t('loads.filters.clearFilters')}
               </button>
             </div>
             

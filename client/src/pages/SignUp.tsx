@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { Mail, Lock, User, Phone, Building, Truck, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function SignUp() {
+  const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const { register } = useAuth();
   const [formData, setFormData] = useState({

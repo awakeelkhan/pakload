@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Truck, ShieldCheck, MapPin, Star, Phone, Mail, Calendar, DollarSign, Package, Navigation, Filter, X, Bookmark, BookmarkCheck, Award, Clock, TrendingUp, ChevronDown, ChevronUp, Eye, Building } from 'lucide-react';
+import { Search, Truck, ShieldCheck, MapPin, Star, Phone, Mail, Calendar, DollarSign, Package, Navigation, Filter, X, Bookmark, BookmarkCheck, Award, Clock, TrendingUp, ChevronDown, ChevronUp, Eye, Building, MessageSquare, Send } from 'lucide-react';
 import QuoteRequestModal from '../components/QuoteRequestModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +47,10 @@ export default function FindTrucks() {
   const [expandedTruck, setExpandedTruck] = useState<number | null>(null);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState<TruckData | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactSubject, setContactSubject] = useState('');
+  const [submittingContact, setSubmittingContact] = useState(false);
 
   const handleRequestQuote = (truck: TruckData) => {
     if (!isAuthenticated) {
@@ -59,6 +63,56 @@ export default function FindTrucks() {
     }
     setSelectedTruck(truck);
     setShowQuoteModal(true);
+  };
+
+  const handleContactRequest = (truck: TruckData) => {
+    if (!isAuthenticated) {
+      navigate('/signin?redirect=/trucks');
+      return;
+    }
+    setSelectedTruck(truck);
+    setContactSubject(`Inquiry about ${truck.vehicleType}`);
+    setContactMessage('');
+    setShowContactModal(true);
+  };
+
+  const submitContactRequest = async () => {
+    if (!selectedTruck || !contactMessage.trim()) return;
+    
+    setSubmittingContact(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/contact-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          truckId: selectedTruck.id,
+          carrierId: selectedTruck.id, // Will be resolved on backend
+          subject: contactSubject,
+          message: contactMessage,
+          carrierName: selectedTruck.carrierName,
+          vehicleType: selectedTruck.vehicleType
+        })
+      });
+      
+      if (response.ok) {
+        alert('Your contact request has been submitted. Our team will review and connect you with the carrier soon.');
+        setShowContactModal(false);
+        setContactMessage('');
+        setContactSubject('');
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to submit contact request. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting contact request:', error);
+      alert('Failed to submit contact request. Please try again.');
+    } finally {
+      setSubmittingContact(false);
+    }
   };
   
   const [filters, setFilters] = useState({
@@ -863,16 +917,18 @@ export default function FindTrucks() {
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <h4 className="font-semibold text-slate-900 mb-2">Contact Information</h4>
+                          <h4 className="font-semibold text-slate-900 mb-2">Contact Carrier</h4>
                           <div className="space-y-2 text-sm">
-                            <a href={`tel:${truck.contactPhone}`} className="flex items-center gap-2 text-green-600 hover:text-green-700">
-                              <Phone className="w-4 h-4" />
-                              {truck.contactPhone}
-                            </a>
-                            <a href={`mailto:${truck.contactEmail}`} className="flex items-center gap-2 text-green-600 hover:text-green-700">
-                              <Mail className="w-4 h-4" />
-                              {truck.contactEmail}
-                            </a>
+                            <p className="text-slate-600">
+                              Contact details are managed by our team. Submit a contact request and we'll connect you with this carrier.
+                            </p>
+                            <button
+                              onClick={() => handleContactRequest(truck)}
+                              className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                              Request to Contact
+                            </button>
                           </div>
                         </div>
                         <div>
@@ -894,12 +950,13 @@ export default function FindTrucks() {
                         </div>
                       </div>
                       <div className="flex gap-2 pt-3">
-                        <a 
-                          href={`mailto:${truck.contactEmail}?subject=Inquiry about ${truck.vehicleType}&body=Hello ${truck.carrierName},%0D%0A%0D%0AI am interested in your ${truck.vehicleType} currently in ${truck.currentLocation}.`}
-                          className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center"
+                        <button 
+                          onClick={() => handleContactRequest(truck)}
+                          className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center flex items-center justify-center gap-2"
                         >
-                          Contact Carrier
-                        </a>
+                          <MessageSquare className="w-4 h-4" />
+                          Request Contact
+                        </button>
                         {canRequestQuote && (
                           <button 
                             onClick={() => handleRequestQuote(truck)}
@@ -935,6 +992,95 @@ export default function FindTrucks() {
             }}
             truck={selectedTruck}
           />
+        )}
+
+        {/* Contact Request Modal */}
+        {showContactModal && selectedTruck && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-slate-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-slate-900">Request to Contact Carrier</h2>
+                  <button
+                    onClick={() => {
+                      setShowContactModal(false);
+                      setSelectedTruck(null);
+                    }}
+                    className="p-2 hover:bg-slate-100 rounded-lg"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-sm text-slate-600 mt-1">
+                  Your request will be reviewed by our team before connecting you with the carrier.
+                </p>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-slate-900">{selectedTruck.carrierName}</h3>
+                  <p className="text-sm text-slate-600">{selectedTruck.vehicleType} • {selectedTruck.currentLocation}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                  <input
+                    type="text"
+                    value={contactSubject}
+                    onChange={(e) => setContactSubject(e.target.value)}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Subject of your inquiry"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
+                  <textarea
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
+                    rows={5}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                    placeholder="Describe your requirements, cargo details, preferred dates, etc."
+                  />
+                </div>
+                
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-sm text-amber-800">
+                    <strong>Note:</strong> Your contact request will be reviewed by our admin team. Once approved, we will facilitate the connection between you and the carrier.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="p-6 border-t border-slate-200 flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setSelectedTruck(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitContactRequest}
+                  disabled={submittingContact || !contactMessage.trim()}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {submittingContact ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Submit Request
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -41,6 +41,7 @@ import BidApprovals from './pages/admin/BidApprovals';
 import MarketRequestsAdmin from './pages/admin/MarketRequestsAdmin';
 import VerificationDocuments from './pages/admin/VerificationDocuments';
 import PaymentApprovals from './pages/admin/PaymentApprovals';
+import ContactRequests from './pages/admin/ContactRequests';
 import Documentation from './pages/Documentation';
 import HelpCenter from './pages/HelpCenter';
 import OAuthCallback from './pages/OAuthCallback';
@@ -101,6 +102,7 @@ function App() {
               <Route path="/admin/market-requests" component={MarketRequestsAdmin} />
               <Route path="/admin/verification" component={VerificationDocuments} />
               <Route path="/admin/payment-approvals" component={PaymentApprovals} />
+              <Route path="/admin/contact-requests" component={ContactRequests} />
               <Route path="/admin/kyc-review" component={AdminKYCReview} />
               <Route path="/admin/analytics" component={AdminAnalytics} />
               <Route path="/loads" component={FindLoads} />

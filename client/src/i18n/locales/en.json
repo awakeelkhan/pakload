@@ -372,5 +372,101 @@
     "sending": "Sending...",
     "resetPassword": "Reset Password",
     "rememberPassword": "Remember your password?"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "overview": "Overview",
+    "activeBookings": "Active Bookings",
+    "completedTrips": "Completed Trips",
+    "totalEarned": "Total Earned",
+    "totalSpent": "Total Spent",
+    "pendingBids": "Pending Bids",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "viewAll": "View All",
+    "noActivity": "No recent activity"
+  },
+  "bids": {
+    "title": "My Bids",
+    "subtitle": "Manage your bids and quotes",
+    "bidAmount": "Bid Amount",
+    "askingPrice": "Asking Price",
+    "platformFee": "Platform Fee",
+    "total": "Total",
+    "pickupDate": "Pickup Date",
+    "deliveryDate": "Delivery Date",
+    "submitted": "Submitted",
+    "status": "Status",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "rejected": "Rejected",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "bidDetails": "Bid Details",
+    "carrierInfo": "Carrier Information",
+    "noBids": "No bids found"
+  },
+  "bookings": {
+    "title": "My Bookings",
+    "subtitle": "Track your active and completed shipments",
+    "trackingNumber": "Tracking Number",
+    "origin": "Origin",
+    "destination": "Destination",
+    "status": "Status",
+    "inTransit": "In Transit",
+    "completed": "Completed",
+    "pending": "Pending",
+    "noBookings": "No bookings found"
+  },
+  "vehicles": {
+    "title": "My Vehicles",
+    "subtitle": "Manage your fleet",
+    "addVehicle": "Add Vehicle",
+    "registrationNumber": "Registration Number",
+    "vehicleType": "Vehicle Type",
+    "capacity": "Capacity",
+    "currentLocation": "Current Location",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "maintenance": "Maintenance",
+    "noVehicles": "No vehicles found"
+  },
+  "currency": {
+    "pkr": "PKR",
+    "usd": "USD",
+    "cny": "CNY",
+    "rs": "Rs",
+    "perKm": "per km"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "days ago",
+    "hoursAgo": "hours ago",
+    "minutesAgo": "minutes ago",
+    "justNow": "Just now"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "newBid": "New bid received",
+    "bidAccepted": "Your bid was accepted",
+    "bidRejected": "Your bid was rejected",
+    "shipmentUpdate": "Shipment update"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "personalInfo": "Personal Information",
+    "companyInfo": "Company Information",
+    "documents": "Documents",
+    "verification": "Verification",
+    "verified": "Verified",
+    "notVerified": "Not Verified",
+    "uploadDocument": "Upload Document"
   }
 }

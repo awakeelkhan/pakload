@@ -63,7 +63,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
         route: `${load.origin} → ${load.destination}`,
         cargo: load.cargoType,
         weight: `${load.weight?.toLocaleString() || 0} kg`,
-        rate: `$${load.price || 0}`,
+        rate: `Rs ${load.price || 0}`,
         distance: '1,200 km',
         pickup: load.pickupDate ? new Date(load.pickupDate).toLocaleDateString() : 'TBD',
       }));

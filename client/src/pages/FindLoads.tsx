@@ -108,10 +108,10 @@ export default function FindLoads() {
   // Currency symbol helper
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
-      case 'PKR': return 'PKR';
+      case 'PKR': return 'Rs';
       case 'CNY': return '¥';
       case 'USD': return '$';
-      default: return 'PKR';
+      default: return 'Rs';
     }
   };
 

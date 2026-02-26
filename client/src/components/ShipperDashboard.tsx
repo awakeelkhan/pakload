@@ -136,9 +136,9 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
   };
 
   const topCarriers = [
-    { id: 1, name: 'CPEC Express', rating: 4.9, trips: 45, onTime: 98, avgRate: '$0.85/km' },
-    { id: 2, name: 'Silk Road Transport', rating: 4.8, trips: 67, onTime: 96, avgRate: '$0.82/km' },
-    { id: 3, name: 'Mountain Movers', rating: 4.7, trips: 34, onTime: 94, avgRate: '$0.88/km' },
+    { id: 1, name: 'CPEC Express', rating: 4.9, trips: 45, onTime: 98, avgRate: 'Rs 0.85/km' },
+    { id: 2, name: 'Silk Road Transport', rating: 4.8, trips: 67, onTime: 96, avgRate: 'Rs 0.82/km' },
+    { id: 3, name: 'Mountain Movers', rating: 4.7, trips: 34, onTime: 94, avgRate: 'Rs 0.88/km' },
   ];
 
   const costAnalysis = [
@@ -213,7 +213,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                 15%
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900">${stats.totalSpent.toLocaleString()}</h3>
+            <h3 className="text-2xl font-bold text-slate-900">Rs {stats.totalSpent.toLocaleString()}</h3>
             <p className="text-sm text-slate-600 mt-1">Total Spent</p>
           </div>
 
@@ -289,7 +289,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                           <p className="text-xs text-slate-500 mt-1">{load.bids} bids received • Posted {load.postedTime}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-slate-900">${load.amount.toLocaleString()}</p>
+                          <p className="font-semibold text-slate-900">Rs {load.amount.toLocaleString()}</p>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
                             load.status === 'completed' ? 'bg-green-100 text-green-800' :
                             load.status === 'in_transit' ? 'bg-blue-100 text-blue-800' :
@@ -333,8 +333,8 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-700">{month.month}</span>
                       <div className="text-right">
-                        <span className="text-sm font-semibold text-slate-900">${month.spent.toLocaleString()}</span>
-                        <span className="text-xs text-green-600 ml-2">-${month.saved.toLocaleString()} saved</span>
+                        <span className="text-sm font-semibold text-slate-900">Rs {month.spent.toLocaleString()}</span>
+                        <span className="text-xs text-green-600 ml-2">-Rs {month.saved.toLocaleString()} saved</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">

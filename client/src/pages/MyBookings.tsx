@@ -128,7 +128,7 @@ export default function MyBookings() {
                   <p className="text-sm text-slate-600 mt-1">{booking.carrierName}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-green-600">${parseFloat(booking.price || '0').toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">Rs {parseFloat(booking.price || '0').toLocaleString()}</p>
                 </div>
               </div>
 

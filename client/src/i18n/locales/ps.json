@@ -379,5 +379,101 @@
     "sending": "لیږل کیږي...",
     "resetPassword": "پاسورډ بیا تنظیم کړئ",
     "rememberPassword": "خپل پاسورډ مو په یاد دی؟"
+  },
+  "dashboard": {
+    "title": "ډشبورډ",
+    "welcome": "بیرته ښه راغلاست",
+    "overview": "کتنه",
+    "activeBookings": "فعال بکینګونه",
+    "completedTrips": "بشپړ شوي سفرونه",
+    "totalEarned": "ټوله ګټه",
+    "totalSpent": "ټول لګښت",
+    "pendingBids": "پاتې بیډونه",
+    "recentActivity": "وروستی فعالیت",
+    "quickActions": "چټک کړنې",
+    "viewAll": "ټول وګورئ",
+    "noActivity": "هیڅ وروستی فعالیت نشته"
+  },
+  "bids": {
+    "title": "زما بیډونه",
+    "subtitle": "خپلې بیډونه او نرخونه اداره کړئ",
+    "bidAmount": "د بیډ اندازه",
+    "askingPrice": "غوښتل شوی نرخ",
+    "platformFee": "د پلیټفارم فیس",
+    "total": "ټول",
+    "pickupDate": "د اخیستلو نیټه",
+    "deliveryDate": "د سپارلو نیټه",
+    "submitted": "ورکړل شوی",
+    "status": "حالت",
+    "pending": "پاتې",
+    "confirmed": "تایید شوی",
+    "cancelled": "لغوه شوی",
+    "rejected": "رد شوی",
+    "showDetails": "تفصیلات وښایئ",
+    "hideDetails": "تفصیلات پټ کړئ",
+    "bidDetails": "د بیډ تفصیلات",
+    "carrierInfo": "د کیریر معلومات",
+    "noBids": "هیڅ بیډ ونه موندل شو"
+  },
+  "bookings": {
+    "title": "زما بکینګونه",
+    "subtitle": "خپلې فعالې او بشپړې شپمنټونه تعقیب کړئ",
+    "trackingNumber": "د تعقیب شمیره",
+    "origin": "اصل ځای",
+    "destination": "منزل",
+    "status": "حالت",
+    "inTransit": "په لیږد کې",
+    "completed": "بشپړ",
+    "pending": "پاتې",
+    "noBookings": "هیڅ بکینګ ونه موندل شوه"
+  },
+  "vehicles": {
+    "title": "زما ګاډي",
+    "subtitle": "خپل بیړا اداره کړئ",
+    "addVehicle": "ګاډي اضافه کړئ",
+    "registrationNumber": "د رجسټریشن شمیره",
+    "vehicleType": "د ګاډي ډول",
+    "capacity": "ظرفیت",
+    "currentLocation": "اوسنی ځای",
+    "status": "حالت",
+    "active": "فعال",
+    "inactive": "غیر فعال",
+    "maintenance": "ساتنه",
+    "noVehicles": "هیڅ ګاډي ونه موندل شوه"
+  },
+  "currency": {
+    "pkr": "روپۍ",
+    "usd": "ډالر",
+    "cny": "یوآن",
+    "rs": "روپۍ",
+    "perKm": "پر کیلومیټر"
+  },
+  "time": {
+    "today": "نن",
+    "yesterday": "پرون",
+    "daysAgo": "ورځې مخکې",
+    "hoursAgo": "ساعتونه مخکې",
+    "minutesAgo": "دقیقې مخکې",
+    "justNow": "اوس"
+  },
+  "notifications": {
+    "title": "خبرتیاوې",
+    "markAllRead": "ټول لوستل شوي نښانه کړئ",
+    "noNotifications": "هیڅ خبرتیا نشته",
+    "newBid": "نوی بیډ ترلاسه شوی",
+    "bidAccepted": "ستاسو بیډ منل شوی",
+    "bidRejected": "ستاسو بیډ رد شوی",
+    "shipmentUpdate": "د بار تازه معلومات"
+  },
+  "profile": {
+    "title": "پروفایل",
+    "editProfile": "پروفایل سمون کړئ",
+    "personalInfo": "شخصي معلومات",
+    "companyInfo": "د شرکت معلومات",
+    "documents": "اسناد",
+    "verification": "تایید",
+    "verified": "تایید شوی",
+    "notVerified": "تایید نه دی شوی",
+    "uploadDocument": "سند اپلوډ کړئ"
   }
 }

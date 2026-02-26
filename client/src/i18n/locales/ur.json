@@ -372,5 +372,101 @@
     "incorrectPassword": "غلط پاس ورڈ",
     "userNotFound": "صارف نہیں ملا",
     "loginFailed": "لاگ ان ناکام۔ براہ کرم دوبارہ کوشش کریں"
+  },
+  "dashboard": {
+    "title": "ڈیش بورڈ",
+    "welcome": "خوش آمدید",
+    "overview": "جائزہ",
+    "activeBookings": "فعال بکنگز",
+    "completedTrips": "مکمل سفر",
+    "totalEarned": "کل کمائی",
+    "totalSpent": "کل خرچ",
+    "pendingBids": "زیر التواء بولیاں",
+    "recentActivity": "حالیہ سرگرمی",
+    "quickActions": "فوری کارروائیاں",
+    "viewAll": "سب دیکھیں",
+    "noActivity": "کوئی حالیہ سرگرمی نہیں"
+  },
+  "bids": {
+    "title": "میری بولیاں",
+    "subtitle": "اپنی بولیاں اور قیمتیں منظم کریں",
+    "bidAmount": "بولی کی رقم",
+    "askingPrice": "مانگی گئی قیمت",
+    "platformFee": "پلیٹ فارم فیس",
+    "total": "کل",
+    "pickupDate": "پک اپ کی تاریخ",
+    "deliveryDate": "ڈیلیوری کی تاریخ",
+    "submitted": "جمع کرایا",
+    "status": "حیثیت",
+    "pending": "زیر التواء",
+    "confirmed": "تصدیق شدہ",
+    "cancelled": "منسوخ",
+    "rejected": "مسترد",
+    "showDetails": "تفصیلات دکھائیں",
+    "hideDetails": "تفصیلات چھپائیں",
+    "bidDetails": "بولی کی تفصیلات",
+    "carrierInfo": "کیریئر کی معلومات",
+    "noBids": "کوئی بولی نہیں ملی"
+  },
+  "bookings": {
+    "title": "میری بکنگز",
+    "subtitle": "اپنی فعال اور مکمل شپمنٹس ٹریک کریں",
+    "trackingNumber": "ٹریکنگ نمبر",
+    "origin": "آغاز",
+    "destination": "منزل",
+    "status": "حیثیت",
+    "inTransit": "راستے میں",
+    "completed": "مکمل",
+    "pending": "زیر التواء",
+    "noBookings": "کوئی بکنگ نہیں ملی"
+  },
+  "vehicles": {
+    "title": "میری گاڑیاں",
+    "subtitle": "اپنا بیڑا منظم کریں",
+    "addVehicle": "گاڑی شامل کریں",
+    "registrationNumber": "رجسٹریشن نمبر",
+    "vehicleType": "گاڑی کی قسم",
+    "capacity": "گنجائش",
+    "currentLocation": "موجودہ مقام",
+    "status": "حیثیت",
+    "active": "فعال",
+    "inactive": "غیر فعال",
+    "maintenance": "دیکھ بھال",
+    "noVehicles": "کوئی گاڑی نہیں ملی"
+  },
+  "currency": {
+    "pkr": "روپے",
+    "usd": "ڈالر",
+    "cny": "یوآن",
+    "rs": "روپے",
+    "perKm": "فی کلومیٹر"
+  },
+  "time": {
+    "today": "آج",
+    "yesterday": "کل",
+    "daysAgo": "دن پہلے",
+    "hoursAgo": "گھنٹے پہلے",
+    "minutesAgo": "منٹ پہلے",
+    "justNow": "ابھی"
+  },
+  "notifications": {
+    "title": "اطلاعات",
+    "markAllRead": "سب پڑھا ہوا نشان زد کریں",
+    "noNotifications": "کوئی اطلاع نہیں",
+    "newBid": "نئی بولی موصول ہوئی",
+    "bidAccepted": "آپ کی بولی قبول ہو گئی",
+    "bidRejected": "آپ کی بولی مسترد ہو گئی",
+    "shipmentUpdate": "شپمنٹ اپڈیٹ"
+  },
+  "profile": {
+    "title": "پروفائل",
+    "editProfile": "پروفائل میں ترمیم کریں",
+    "personalInfo": "ذاتی معلومات",
+    "companyInfo": "کمپنی کی معلومات",
+    "documents": "دستاویزات",
+    "verification": "تصدیق",
+    "verified": "تصدیق شدہ",
+    "notVerified": "تصدیق نہیں ہوئی",
+    "uploadDocument": "دستاویز اپ لوڈ کریں"
   }
 }

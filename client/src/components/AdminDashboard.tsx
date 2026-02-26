@@ -270,6 +270,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     { id: 'load-approvals', label: 'Load Approvals', icon: Package, badge: pendingLoads.length, path: '/admin/load-approvals' },
     { id: 'bid-approvals', label: 'Bid Approvals', icon: DollarSign, badge: pendingBids.length, path: '/admin/bid-approvals' },
     { id: 'market-requests', label: 'Market Requests', icon: ShoppingBag, badge: marketRequests.length, path: '/admin/market-requests' },
+    { id: 'contact-requests', label: 'Contact Requests', icon: MessageSquare, badge: null, path: '/admin/contact-requests' },
     { id: 'users', label: 'User Management', icon: Users, badge: null, path: '/admin/settings/users' },
     { id: 'settings', label: 'Settings', icon: Settings, badge: null, path: '/admin/settings' },
   ];
@@ -375,10 +376,10 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
               </div>
               <span className="text-xs font-medium text-green-600">+15%</span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900">${stats.totalRevenue.toLocaleString()}</h3>
+            <h3 className="text-2xl font-bold text-slate-900">Rs {stats.totalRevenue.toLocaleString()}</h3>
             <p className="text-sm text-slate-600 mt-1">Total Revenue</p>
             <div className="mt-3 text-xs text-slate-600">
-              Platform Fee: ${stats.platformFee.toLocaleString()}
+              Platform Fee: Rs {stats.platformFee.toLocaleString()}
             </div>
           </div>
 
@@ -773,8 +774,8 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-slate-700">{month.month}</span>
                       <div className="text-right">
-                        <span className="text-sm font-semibold text-slate-900">${month.revenue.toLocaleString()}</span>
-                        <span className="text-xs text-green-600 ml-2">${month.fees.toLocaleString()}</span>
+                        <span className="text-sm font-semibold text-slate-900">Rs {month.revenue.toLocaleString()}</span>
+                        <span className="text-xs text-green-600 ml-2">Rs {month.fees.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">

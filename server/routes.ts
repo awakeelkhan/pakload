@@ -1842,5 +1842,135 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // ============ CONTACT REQUESTS ============
+  // In-memory storage for contact requests (in production, use database)
+  const contactRequests: any[] = [];
+  let contactRequestIdCounter = 1;
+
+  // Create contact request (shipper to carrier)
+  app.post('/api/contact-requests', requireAuth, async (req, res) => {
+    try {
+      const { truckId, carrierId, subject, message, carrierName, vehicleType } = req.body;
+      
+      if (!message || !message.trim()) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      const contactRequest = {
+        id: contactRequestIdCounter++,
+        shipperId: req.user?.id,
+        shipperName: `${req.user?.firstName || ''} ${req.user?.lastName || ''}`.trim(),
+        shipperEmail: req.user?.email,
+        truckId,
+        carrierId,
+        carrierName,
+        vehicleType,
+        subject: subject || 'Contact Request',
+        message,
+        status: 'pending', // pending, approved, rejected
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        adminNotes: null,
+        approvedAt: null,
+        approvedBy: null
+      };
+
+      contactRequests.push(contactRequest);
+
+      // Notify admin about new contact request
+      try {
+        const admins = await userRepo.findAll();
+        const adminUsers = admins?.filter((u: any) => u.role === 'admin') || [];
+        for (const admin of adminUsers) {
+          await notificationService.createNotification({
+            userId: admin.id,
+            title: 'New Contact Request',
+            message: `${contactRequest.shipperName} wants to contact ${carrierName}`,
+            type: 'contact_request',
+            data: { contactRequestId: contactRequest.id }
+          });
+        }
+      } catch (notifyError) {
+        console.error('Error notifying admins:', notifyError);
+      }
+
+      res.status(201).json({ 
+        message: 'Contact request submitted successfully',
+        contactRequest 
+      });
+    } catch (error) {
+      console.error('Error creating contact request:', error);
+      res.status(500).json({ error: 'Failed to create contact request' });
+    }
+  });
+
+  // Get all contact requests (admin only)
+  app.get('/api/contact-requests', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        // For non-admins, return only their own requests
+        const userRequests = contactRequests.filter(r => r.shipperId === req.user?.id);
+        return res.json(userRequests);
+      }
+      
+      // Admin gets all requests
+      res.json(contactRequests);
+    } catch (error) {
+      console.error('Error fetching contact requests:', error);
+      res.status(500).json({ error: 'Failed to fetch contact requests' });
+    }
+  });
+
+  // Update contact request status (admin only)
+  app.patch('/api/contact-requests/:id', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const requestId = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+
+      const requestIndex = contactRequests.findIndex(r => r.id === requestId);
+      if (requestIndex === -1) {
+        return res.status(404).json({ error: 'Contact request not found' });
+      }
+
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+      }
+
+      contactRequests[requestIndex] = {
+        ...contactRequests[requestIndex],
+        status,
+        adminNotes: adminNotes || contactRequests[requestIndex].adminNotes,
+        updatedAt: new Date().toISOString(),
+        approvedAt: status === 'approved' ? new Date().toISOString() : null,
+        approvedBy: status === 'approved' ? req.user?.id : null
+      };
+
+      // Notify shipper about the decision
+      try {
+        const request = contactRequests[requestIndex];
+        await notificationService.createNotification({
+          userId: request.shipperId,
+          title: status === 'approved' ? 'Contact Request Approved' : 'Contact Request Update',
+          message: status === 'approved' 
+            ? `Your request to contact ${request.carrierName} has been approved. Our team will connect you shortly.`
+            : `Your contact request for ${request.carrierName} has been ${status}.`,
+          type: 'contact_request_update',
+          data: { contactRequestId: request.id, status }
+        });
+      } catch (notifyError) {
+        console.error('Error notifying shipper:', notifyError);
+      }
+
+      res.json(contactRequests[requestIndex]);
+    } catch (error) {
+      console.error('Error updating contact request:', error);
+      res.status(500).json({ error: 'Failed to update contact request' });
+    }
+  });
+
   // Note: 404 handler moved to index.ts after static file serving
 }

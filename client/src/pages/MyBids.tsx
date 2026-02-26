@@ -310,10 +310,10 @@ export default function MyBids() {
                     {/* Bid Amount & Status */}
                     <div className="text-right ml-4">
                       <div className="text-2xl font-bold text-green-600 mb-2">
-                        ${parseFloat(bid.price || '0').toLocaleString()}
+                        Rs {parseFloat(bid.price || '0').toLocaleString()}
                       </div>
                       <div className="text-sm text-slate-500 mb-2">
-                        vs ${parseFloat(bid.load?.price || '0').toLocaleString()} asking
+                        vs Rs {parseFloat(bid.load?.price || '0').toLocaleString()} asking
                       </div>
                       {getStatusBadge(bid.status)}
                     </div>
@@ -342,15 +342,15 @@ export default function MyBids() {
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-slate-600">Bid Amount:</span>
-                            <span className="font-medium">${parseFloat(bid.price || '0').toLocaleString()}</span>
+                            <span className="font-medium">Rs {parseFloat(bid.price || '0').toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-600">Platform Fee (5%):</span>
-                            <span className="font-medium">${(parseFloat(bid.price || '0') * 0.05).toFixed(2)}</span>
+                            <span className="font-medium">Rs {(parseFloat(bid.price || '0') * 0.05).toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between border-t pt-2">
                             <span className="text-slate-900 font-semibold">Total:</span>
-                            <span className="font-bold text-green-600">${(parseFloat(bid.price || '0') * 1.05).toFixed(2)}</span>
+                            <span className="font-bold text-green-600">Rs {(parseFloat(bid.price || '0') * 1.05).toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between mt-4">
                             <span className="text-slate-600">Pickup Date:</span>

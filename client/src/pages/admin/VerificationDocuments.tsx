@@ -271,7 +271,7 @@ export default function VerificationDocuments() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Verification & Compliance</h1>
+                <h1 className="text-2xl font-bold text-slate-900">Compliance</h1>
                 <p className="text-slate-600">Review user documents and manage compliance</p>
               </div>
             </div>

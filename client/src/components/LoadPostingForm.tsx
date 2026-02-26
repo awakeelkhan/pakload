@@ -98,6 +98,8 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
 
   const [showOriginMap, setShowOriginMap] = useState(false);
   const [showDestinationMap, setShowDestinationMap] = useState(false);
+  const [tempOriginLocation, setTempOriginLocation] = useState<{latitude: number; longitude: number; address?: string} | null>(null);
+  const [tempDestLocation, setTempDestLocation] = useState<{latitude: number; longitude: number; address?: string} | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -1024,7 +1026,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-4 border-b flex items-center justify-between">
               <h3 className="text-lg font-bold">Select Pickup Location</h3>
-              <button onClick={() => setShowOriginMap(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => { setShowOriginMap(false); setTempOriginLocation(null); }} className="p-2 hover:bg-gray-100 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1033,11 +1035,34 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                 label="Pickup Location"
                 placeholder="Search for pickup location..."
                 onChange={(location) => {
-                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
-                  handleChange('originPinLocation', location.address || coords);
-                  setShowOriginMap(false);
+                  setTempOriginLocation(location);
                 }}
               />
+            </div>
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setShowOriginMap(false); setTempOriginLocation(null); }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (tempOriginLocation) {
+                    const coords = `${tempOriginLocation.latitude.toFixed(6)}, ${tempOriginLocation.longitude.toFixed(6)}`;
+                    handleChange('originPinLocation', tempOriginLocation.address || coords);
+                  }
+                  setShowOriginMap(false);
+                  setTempOriginLocation(null);
+                }}
+                disabled={!tempOriginLocation}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Confirm Location
+              </button>
             </div>
           </div>
         </div>
@@ -1049,7 +1074,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-4 border-b flex items-center justify-between">
               <h3 className="text-lg font-bold">Select Delivery Location</h3>
-              <button onClick={() => setShowDestinationMap(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => { setShowDestinationMap(false); setTempDestLocation(null); }} className="p-2 hover:bg-gray-100 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1057,12 +1082,36 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <LocationPicker
                 label="Delivery Location"
                 placeholder="Search for delivery location..."
+                markerColor="red"
                 onChange={(location) => {
-                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
-                  handleChange('destinationPinLocation', location.address || coords);
-                  setShowDestinationMap(false);
+                  setTempDestLocation(location);
                 }}
               />
+            </div>
+            <div className="p-4 border-t bg-gray-50 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setShowDestinationMap(false); setTempDestLocation(null); }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (tempDestLocation) {
+                    const coords = `${tempDestLocation.latitude.toFixed(6)}, ${tempDestLocation.longitude.toFixed(6)}`;
+                    handleChange('destinationPinLocation', tempDestLocation.address || coords);
+                  }
+                  setShowDestinationMap(false);
+                  setTempDestLocation(null);
+                }}
+                disabled={!tempDestLocation}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Confirm Location
+              </button>
             </div>
           </div>
         </div>

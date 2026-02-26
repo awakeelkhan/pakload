@@ -493,6 +493,17 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get shipper's own loads
+  app.get('/api/loads/my-loads', requireAuth, async (req, res) => {
+    try {
+      const loads = await loadRepo.findAll({ shipperId: req.user!.id });
+      res.json({ loads: loads || [] });
+    } catch (error) {
+      console.error('Error fetching my loads:', error);
+      res.status(500).json({ error: 'Failed to fetch loads' });
+    }
+  });
+
   app.delete('/api/loads/:id', optionalAuth, async (req, res) => {
     try {
       const loadId = parseInt(req.params.id);
@@ -1746,8 +1757,8 @@ export function registerRoutes(app: Express) {
         totalShippers: users?.filter((u: any) => u.role === 'shipper').length || 0,
         totalCarriers: users?.filter((u: any) => u.role === 'carrier').length || 0,
         totalLoads: loads?.length || 0,
-        activeLoads: loads?.filter((l: any) => l.status === 'available' || l.status === 'pending').length || 0,
-        completedLoads: loads?.filter((l: any) => l.status === 'completed' || l.status === 'delivered').length || 0,
+        activeLoads: loads?.filter((l: any) => l.status === 'posted' || l.status === 'pending' || l.status === 'in_transit').length || 0,
+        completedLoads: loads?.filter((l: any) => l.status === 'delivered').length || 0,
       };
       
       res.json(stats);

@@ -38,11 +38,12 @@ export default function MyRequests() {
       const token = localStorage.getItem('access_token');
       
       // Try to fetch real data from all request types
-      const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes] = await Promise.all([
+      const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes, loadsRes] = await Promise.all([
         fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
-        fetch('/api/market-requests/my-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
+        fetch('/api/market-requests/my-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch('/api/loads/my-loads', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
       ]);
 
       let allRequests: Request[] = [];
@@ -125,6 +126,33 @@ export default function MyRequests() {
           }
         }));
         allRequests = [...allRequests, ...marketRequests];
+      }
+
+      // Fetch shipper's posted loads
+      if (loadsRes?.ok) {
+        const loadsData = await loadsRes.json();
+        const loadRequests = (loadsData.loads || loadsData || []).map((l: any) => ({
+          id: l.id + 40000,
+          type: 'booking' as const,
+          title: `Load #${l.trackingNumber || l.id}`,
+          description: `${l.originCity || l.origin || 'Origin'} → ${l.destinationCity || l.destination || 'Destination'} - ${l.cargoType || 'Cargo'}`,
+          status: l.status === 'delivered' ? 'completed' : 
+                  l.status === 'cancelled' ? 'rejected' :
+                  l.status === 'in_transit' ? 'in_progress' : 'pending',
+          createdAt: l.createdAt || new Date().toISOString(),
+          updatedAt: l.updatedAt || new Date().toISOString(),
+          details: {
+            trackingNumber: l.trackingNumber,
+            cargoType: l.cargoType,
+            weight: l.cargoWeight ? `${l.cargoWeight} kg` : 'N/A',
+            price: l.price ? `PKR ${l.price}` : 'N/A',
+            origin: l.originCity || l.origin,
+            destination: l.destinationCity || l.destination,
+            pickupDate: l.pickupDate ? new Date(l.pickupDate).toLocaleDateString() : 'TBD',
+            status: l.status
+          }
+        }));
+        allRequests = [...allRequests, ...loadRequests];
       }
 
       // Add mock data if no real data

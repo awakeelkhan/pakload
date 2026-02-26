@@ -1,4 +1,4 @@
-import { useState, useCallback, ChangeEvent, KeyboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, ChangeEvent, KeyboardEvent } from 'react';
 import { MapPin, Search, Locate, Loader2, Check, ExternalLink } from 'lucide-react';
 
 interface LocationPickerProps {
@@ -31,6 +31,24 @@ export function LocationPickerLight({
     longitude: number;
     address: string;
   } | null>(value ? { ...value, address: value.address || '' } : null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-search with debounce as user types
+  useEffect(() => {
+    if (searchQuery.trim().length >= 3) {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        searchLocation();
+      }, 500);
+    }
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [searchQuery]);
 
   const searchLocation = useCallback(async () => {
     if (!searchQuery.trim()) return;
@@ -47,8 +65,8 @@ export function LocationPickerLight({
       );
       const data = await response.json();
       
-      // Auto-select first result to show on map immediately
       if (data && data.length > 0) {
+        // Auto-select first result to show on map immediately
         const firstResult = data[0];
         const location = {
           latitude: parseFloat(firstResult.lat),
@@ -57,8 +75,8 @@ export function LocationPickerLight({
         };
         setSelectedLocation(location);
         onChange(location);
-        // Still show other results in dropdown for user to choose
-        setSearchResults(data.slice(1)); // Show remaining results
+        // Show ALL results in dropdown for user to choose different one
+        setSearchResults(data);
       } else {
         setSearchResults([]);
       }

@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { 
-  Package, MapPin, Truck, DollarSign, Send, AlertCircle, Check, Loader2, 
+  Package, MapPin, Truck, DollarSign, Send, AlertCircle, Loader2, 
   ChevronRight, ChevronLeft, Calendar, Clock, User, Phone, Box, Scale,
-  FileText, Image, Upload, X, File, Camera, Map
+  FileText, Image, Upload, X, File, Camera
 } from 'lucide-react';
 import { LocationPicker } from './LocationPicker';
 
@@ -96,8 +96,6 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
     termsAccepted: false,
   });
 
-  const [showOriginMap, setShowOriginMap] = useState(false);
-  const [showDestinationMap, setShowDestinationMap] = useState(false);
   const [tempOriginLocation, setTempOriginLocation] = useState<{latitude: number; longitude: number; address?: string} | null>(null);
   const [tempDestLocation, setTempDestLocation] = useState<{latitude: number; longitude: number; address?: string} | null>(null);
 
@@ -419,26 +417,18 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="h-4 w-4 inline mr-1" />
-                Pin Location / Google Maps Link
+                Pin Pickup Location on Map
               </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={formData.originPinLocation}
-                  onChange={(e) => handleChange('originPinLocation', e.target.value)}
-                  placeholder="e.g., https://maps.google.com/... or GPS coordinates"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOriginMap(true)}
-                  className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                >
-                  <Map className="h-4 w-4" />
-                  Select on Map
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Paste Google Maps link, enter GPS coordinates, or select on map</p>
+              <LocationPicker
+                label="Pickup Location"
+                placeholder="Search for pickup location..."
+                value={tempOriginLocation || undefined}
+                onChange={(location) => {
+                  setTempOriginLocation(location);
+                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+                  handleChange('originPinLocation', location.address || coords);
+                }}
+              />
             </div>
 
             <div>
@@ -560,26 +550,19 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="h-4 w-4 inline mr-1" />
-                Pin Location / Google Maps Link
+                Pin Delivery Location on Map
               </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={formData.destinationPinLocation}
-                  onChange={(e) => handleChange('destinationPinLocation', e.target.value)}
-                  placeholder="e.g., https://maps.google.com/... or GPS coordinates"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowDestinationMap(true)}
-                  className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                >
-                  <Map className="h-4 w-4" />
-                  Select on Map
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Paste Google Maps link, enter GPS coordinates, or select on map</p>
+              <LocationPicker
+                label="Delivery Location"
+                placeholder="Search for delivery location..."
+                markerColor="red"
+                value={tempDestLocation || undefined}
+                onChange={(location) => {
+                  setTempDestLocation(location);
+                  const coords = `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+                  handleChange('destinationPinLocation', location.address || coords);
+                }}
+              />
             </div>
 
             <div>
@@ -1020,102 +1003,6 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
         </div>
       </div>
 
-      {/* Origin Map Modal */}
-      {showOriginMap && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-bold">Select Pickup Location</h3>
-              <button onClick={() => { setShowOriginMap(false); setTempOriginLocation(null); }} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4">
-              <LocationPicker
-                label="Pickup Location"
-                placeholder="Search for pickup location..."
-                onChange={(location) => {
-                  setTempOriginLocation(location);
-                }}
-              />
-            </div>
-            <div className="p-4 border-t bg-gray-50 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => { setShowOriginMap(false); setTempOriginLocation(null); }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (tempOriginLocation) {
-                    const coords = `${tempOriginLocation.latitude.toFixed(6)}, ${tempOriginLocation.longitude.toFixed(6)}`;
-                    handleChange('originPinLocation', tempOriginLocation.address || coords);
-                  }
-                  setShowOriginMap(false);
-                  setTempOriginLocation(null);
-                }}
-                disabled={!tempOriginLocation}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <Check className="w-4 h-4" />
-                Confirm Location
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Destination Map Modal */}
-      {showDestinationMap && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-bold">Select Delivery Location</h3>
-              <button onClick={() => { setShowDestinationMap(false); setTempDestLocation(null); }} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4">
-              <LocationPicker
-                label="Delivery Location"
-                placeholder="Search for delivery location..."
-                markerColor="red"
-                onChange={(location) => {
-                  setTempDestLocation(location);
-                }}
-              />
-            </div>
-            <div className="p-4 border-t bg-gray-50 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => { setShowDestinationMap(false); setTempDestLocation(null); }}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (tempDestLocation) {
-                    const coords = `${tempDestLocation.latitude.toFixed(6)}, ${tempDestLocation.longitude.toFixed(6)}`;
-                    handleChange('destinationPinLocation', tempDestLocation.address || coords);
-                  }
-                  setShowDestinationMap(false);
-                  setTempDestLocation(null);
-                }}
-                disabled={!tempDestLocation}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <Check className="w-4 h-4" />
-                Confirm Location
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

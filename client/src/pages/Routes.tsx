@@ -88,7 +88,8 @@ export default function Routes() {
     // Domestic Pakistan Routes
     { id: '16', from: 'Islamabad, Pakistan', to: 'Karachi, Pakistan', distance: 1200, duration: '2-3 days', fuelCost: 43000, tollCost: 7500, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: true },
     { id: '17', from: 'Lahore, Pakistan', to: 'Karachi, Pakistan', distance: 1100, duration: '2-3 days', fuelCost: 39500, tollCost: 7000, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: true },
-    { id: '18', from: 'Islamabad, Pakistan', to: 'Lahore, Pakistan', distance: 375, duration: '5-6 hours', fuelCost: 13500, tollCost: 2500, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: true },
+    { id: '18', from: 'Islamabad, Pakistan', to: 'Lahore, Pakistan', distance: 380, duration: '5-6 hours', fuelCost: 13500, tollCost: 2500, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: true },
+    { id: '26', from: 'Lahore, Pakistan', to: 'Islamabad, Pakistan', distance: 380, duration: '5-6 hours', fuelCost: 13500, tollCost: 2500, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: true },
     { id: '19', from: 'Islamabad, Pakistan', to: 'Peshawar, Pakistan', distance: 165, duration: '2-3 hours', fuelCost: 6000, tollCost: 1200, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'low', popularRoute: true },
     { id: '20', from: 'Karachi, Pakistan', to: 'Gwadar, Pakistan', distance: 650, duration: '1-2 days', fuelCost: 23500, tollCost: 4500, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Hot', trafficLevel: 'low', popularRoute: true },
     { id: '21', from: 'Lahore, Pakistan', to: 'Faisalabad, Pakistan', distance: 130, duration: '2 hours', fuelCost: 4700, tollCost: 900, borderCrossing: 'N/A', status: 'open', weatherCondition: 'Clear', trafficLevel: 'medium', popularRoute: false },
@@ -295,7 +296,7 @@ export default function Routes() {
               {selectedRoute && (
                 <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
                   <h3 className="text-lg font-bold text-slate-900 mb-4">Route Summary</h3>
-                  <div className="grid md:grid-cols-4 gap-4">
+                  <div className="grid md:grid-cols-5 gap-4">
                     <div className="bg-white p-4 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
                         <RouteIcon className="w-5 h-5 text-green-600" />
@@ -315,15 +316,24 @@ export default function Routes() {
                         <Fuel className="w-5 h-5 text-amber-600" />
                         <span className="text-sm text-slate-600">Fuel Cost</span>
                       </div>
-                      <p className="text-2xl font-bold text-slate-900">PKR {selectedRoute.fuelCost.toLocaleString()}</p>
-                      <p className="text-xs text-slate-500 mt-1">{getFuelConsumption(selectedRoute.distance)} liters</p>
+                      <p className="text-2xl font-bold text-slate-900">PKR {getDynamicFuelCost(selectedRoute.distance).toLocaleString()}</p>
+                      <p className="text-xs text-slate-500 mt-1">{getFuelConsumption(selectedRoute.distance)} liters × PKR {fuelPrice}/L</p>
                     </div>
                     <div className="bg-white p-4 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="w-5 h-5 text-green-600" />
+                        <DollarSign className="w-5 h-5 text-blue-600" />
                         <span className="text-sm text-slate-600">Toll Cost</span>
                       </div>
-                      <p className="text-2xl font-bold text-slate-900">PKR {selectedRoute.tollCost.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-slate-900">PKR {getTollCost(selectedRoute.distance).toLocaleString()}</p>
+                      <p className="text-xs text-slate-500 mt-1">{Math.max(1, Math.ceil(selectedRoute.distance / 100))} segments × PKR 3,000</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Truck className="w-5 h-5 text-green-600" />
+                        <span className="text-sm text-slate-600">Driver Cost</span>
+                      </div>
+                      <p className="text-2xl font-bold text-slate-900">PKR {getDriverExpenses(selectedRoute).toLocaleString()}</p>
+                      <p className="text-xs text-slate-500 mt-1">{getDriverDays(selectedRoute) === 0 ? 'Same-day trip' : `${getDriverDays(selectedRoute)} nights × PKR 7,000`}</p>
                     </div>
                   </div>
                   {/* Loadboard-Style Cost Breakdown */}

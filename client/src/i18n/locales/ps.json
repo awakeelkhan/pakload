@@ -138,7 +138,17 @@
       "verifiedOnly": "یوازې تایید شوي کیریران",
       "moreFilters": "نور فلټرونه",
       "clearFilters": "فلټرونه پاک کړئ",
-      "filter": "فلټر"
+      "filter": "فلټر",
+      "originCity": "د اصل ښار",
+      "destinationCity": "د منزل ښار",
+      "minWeight": "لږ تر لږه وزن",
+      "maxWeight": "ډیر تر ډیره وزن",
+      "minRate": "لږ تر لږه نرخ",
+      "maxRate": "ډیر تر ډیره نرخ",
+      "pickupDateFrom": "د اخیستلو نیټه له",
+      "pickupDateTo": "د اخیستلو نیټه تر",
+      "urgentOnly": "یوازې عاجل",
+      "vehicleType": "د ګاډي ډول"
     },
     "sort": {
       "newestFirst": "لومړی نوي",
@@ -155,13 +165,19 @@
       "sendQuote": "نرخ واستوئ",
       "urgent": "عاجل",
       "specialPermit": "ځانګړی اجازه",
-      "negotiable": "د خبرو وړ"
+      "negotiable": "د خبرو وړ",
+      "weight": "وزن",
+      "volume": "حجم",
+      "distance": "واټن",
+      "rate": "نرخ",
+      "placeBid": "بیډ ورکړئ"
     },
     "stats": {
       "availableLoads": "موجود بارونه",
       "urgentLoads": "عاجل بارونه",
       "avgRate": "اوسط نرخ",
-      "newToday": "نن نوي"
+      "newToday": "نن نوي",
+      "savedLoads": "خوندي شوي بارونه"
     }
   },
   "trucks": {

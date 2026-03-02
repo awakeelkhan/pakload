@@ -180,7 +180,7 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const { transactionRef, type } = req.body;
+    const { transactionRef, type, amount } = req.body;
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const isImage = req.file.mimetype.startsWith('image/');
     const folder = isImage ? 'images' : 'documents';
@@ -190,6 +190,7 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
     const [newProof] = await db.insert(paymentProofs).values({
       userId: req.user!.id,
       transactionRef: transactionRef || `TXN-${Date.now()}`,
+      amount: amount ? parseFloat(amount) : null,
       fileUrl,
       fileName: req.file.originalname,
       status: 'pending',
@@ -203,7 +204,7 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
       await notificationService.notifyAllAdmins(
         'New Payment Proof Uploaded',
         `A user has uploaded payment proof for transaction: ${transactionRef}. Please verify and confirm.`,
-        '/admin/payments',
+        '/admin/payment-approvals',
         { userId: req.user?.id, transactionRef, fileUrl, proofId: newProof.id }
       );
     } catch (notifError) {
@@ -233,6 +234,7 @@ router.get('/payment-proofs', requireAuth, requireRole('admin'), async (req: Req
       id: paymentProofs.id,
       userId: paymentProofs.userId,
       transactionRef: paymentProofs.transactionRef,
+      amount: paymentProofs.amount,
       fileUrl: paymentProofs.fileUrl,
       fileName: paymentProofs.fileName,
       status: paymentProofs.status,
@@ -285,7 +287,7 @@ router.get('/payment-proofs', requireAuth, requireRole('admin'), async (req: Req
       verifiedAt: p.verifiedAt,
       notes: p.notes,
       createdAt: p.createdAt,
-      amount: null,
+      amount: p.amount ? parseFloat(p.amount) : null,
       paymentMethod: 'Bank Transfer',
     }));
 

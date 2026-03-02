@@ -185,7 +185,17 @@
       "verifiedOnly": "仅认证承运商",
       "moreFilters": "更多筛选",
       "clearFilters": "清除筛选",
-      "filter": "筛选"
+      "filter": "筛选",
+      "originCity": "起点城市",
+      "destinationCity": "目的地城市",
+      "minWeight": "最小重量",
+      "maxWeight": "最大重量",
+      "minRate": "最低费率",
+      "maxRate": "最高费率",
+      "pickupDateFrom": "取货日期从",
+      "pickupDateTo": "取货日期至",
+      "urgentOnly": "仅紧急",
+      "vehicleType": "车辆类型"
     },
     "sort": {
       "newestFirst": "最新优先",
@@ -202,13 +212,19 @@
       "sendQuote": "发送报价",
       "urgent": "紧急",
       "specialPermit": "特殊许可",
-      "negotiable": "可协商"
+      "negotiable": "可协商",
+      "weight": "重量",
+      "volume": "体积",
+      "distance": "距离",
+      "rate": "费率",
+      "placeBid": "出价"
     },
     "stats": {
       "availableLoads": "可用货源",
       "urgentLoads": "紧急货源",
       "avgRate": "平均费率",
-      "newToday": "今日新增"
+      "newToday": "今日新增",
+      "savedLoads": "已保存货源"
     }
   },
   "trucks": {
@@ -379,5 +395,101 @@
     "incorrectPassword": "密码错误",
     "userNotFound": "未找到用户",
     "loginFailed": "登录失败，请重试"
+  },
+  "dashboard": {
+    "title": "控制面板",
+    "welcome": "欢迎回来",
+    "overview": "概览",
+    "activeBookings": "活跃订单",
+    "completedTrips": "已完成行程",
+    "totalEarned": "总收入",
+    "totalSpent": "总支出",
+    "pendingBids": "待处理报价",
+    "recentActivity": "最近活动",
+    "quickActions": "快捷操作",
+    "viewAll": "查看全部",
+    "noActivity": "暂无活动"
+  },
+  "bids": {
+    "title": "我的报价",
+    "subtitle": "管理您的报价和询价",
+    "bidAmount": "报价金额",
+    "askingPrice": "要价",
+    "platformFee": "平台费用",
+    "total": "总计",
+    "pickupDate": "取货日期",
+    "deliveryDate": "交付日期",
+    "submitted": "已提交",
+    "status": "状态",
+    "pending": "待处理",
+    "confirmed": "已确认",
+    "cancelled": "已取消",
+    "rejected": "已拒绝",
+    "showDetails": "显示详情",
+    "hideDetails": "隐藏详情",
+    "bidDetails": "报价详情",
+    "carrierInfo": "承运商信息",
+    "noBids": "暂无报价"
+  },
+  "bookings": {
+    "title": "我的订单",
+    "subtitle": "追踪您的活跃和已完成货运",
+    "trackingNumber": "追踪号码",
+    "origin": "起点",
+    "destination": "目的地",
+    "status": "状态",
+    "inTransit": "运输中",
+    "completed": "已完成",
+    "pending": "待处理",
+    "noBookings": "暂无订单"
+  },
+  "vehicles": {
+    "title": "我的车辆",
+    "subtitle": "管理您的车队",
+    "addVehicle": "添加车辆",
+    "registrationNumber": "车牌号",
+    "vehicleType": "车辆类型",
+    "capacity": "载重量",
+    "currentLocation": "当前位置",
+    "status": "状态",
+    "active": "活跃",
+    "inactive": "停用",
+    "maintenance": "维护中",
+    "noVehicles": "暂无车辆"
+  },
+  "currency": {
+    "pkr": "巴基斯坦卢比",
+    "usd": "美元",
+    "cny": "人民币",
+    "rs": "卢比",
+    "perKm": "每公里"
+  },
+  "time": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "daysAgo": "天前",
+    "hoursAgo": "小时前",
+    "minutesAgo": "分钟前",
+    "justNow": "刚刚"
+  },
+  "notifications": {
+    "title": "通知",
+    "markAllRead": "全部标为已读",
+    "noNotifications": "暂无通知",
+    "newBid": "收到新报价",
+    "bidAccepted": "您的报价已被接受",
+    "bidRejected": "您的报价已被拒绝",
+    "shipmentUpdate": "货运更新"
+  },
+  "profile": {
+    "title": "个人资料",
+    "editProfile": "编辑资料",
+    "personalInfo": "个人信息",
+    "companyInfo": "公司信息",
+    "documents": "文件",
+    "verification": "认证",
+    "verified": "已认证",
+    "notVerified": "未认证",
+    "uploadDocument": "上传文件"
   }
 }

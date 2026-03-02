@@ -770,7 +770,7 @@ export default function FindLoads() {
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200">
             <div className="text-2xl font-bold text-blue-600">{savedLoads.length}</div>
-            <div className="text-sm text-slate-600">Saved Loads</div>
+            <div className="text-sm text-slate-600">{t('loads.stats.savedLoads')}</div>
           </div>
         </div>
 
@@ -824,7 +824,7 @@ export default function FindLoads() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <MapPin className="inline w-4 h-4 mr-1" />
-                  Origin City
+                  {t('loads.filters.originCity')}
                 </label>
                 <input
                   type="text"
@@ -838,7 +838,7 @@ export default function FindLoads() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <MapPin className="inline w-4 h-4 mr-1" />
-                  Destination City
+                  {t('loads.filters.destinationCity')}
                 </label>
                 <input
                   type="text"

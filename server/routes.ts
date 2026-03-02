@@ -941,7 +941,7 @@ export function registerRoutes(app: Express) {
         await notificationService.notifyAllAdmins(
           'New Bid Pending Approval',
           `A new bid of ${currencySymbol}${formattedBidAmount} was submitted for load ${trackingNumber}${routeInfo}.`,
-          '/admin/bids',
+          '/admin/bid-approvals',
           { loadId, carrierId, bidAmount, bookingId: newBooking.id, origin, destination, currency }
         );
       } catch (notifError) {

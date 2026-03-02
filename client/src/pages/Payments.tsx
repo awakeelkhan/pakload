@@ -8,6 +8,7 @@ export default function Payments() {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [transactionRef, setTransactionRef] = useState('');
+  const [amount, setAmount] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,8 +18,8 @@ export default function Payments() {
   };
 
   const handleUploadProof = async () => {
-    if (!paymentProof || !transactionRef) {
-      alert('Please select a file and enter transaction reference');
+    if (!paymentProof || !transactionRef || !amount) {
+      alert('Please select a file, enter transaction reference, and total amount');
       return;
     }
 
@@ -28,6 +29,7 @@ export default function Payments() {
       const formData = new FormData();
       formData.append('file', paymentProof);
       formData.append('transactionRef', transactionRef);
+      formData.append('amount', amount);
       formData.append('type', 'payment_proof');
 
       const token = localStorage.getItem('access_token');
@@ -51,6 +53,7 @@ export default function Payments() {
         setUploadStatus('success');
         setPaymentProof(null);
         setTransactionRef('');
+        setAmount('');
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -199,7 +202,21 @@ export default function Payments() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Transaction Reference / ID
+                  Total Amount (PKR) *
+                </label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter payment amount in PKR"
+                  min="1"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Transaction Reference / ID *
                 </label>
                 <input
                   type="text"
@@ -251,7 +268,7 @@ export default function Payments() {
 
               <button
                 onClick={handleUploadProof}
-                disabled={uploadStatus === 'uploading' || !paymentProof || !transactionRef}
+                disabled={uploadStatus === 'uploading' || !paymentProof || !transactionRef || !amount}
                 className={`w-full py-3 rounded-lg font-medium transition-colors ${
                   uploadStatus === 'uploading' || !paymentProof || !transactionRef
                     ? 'bg-slate-300 text-slate-500 cursor-not-allowed'

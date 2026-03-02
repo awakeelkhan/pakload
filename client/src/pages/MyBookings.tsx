@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Package, MapPin, Calendar, DollarSign, Truck, Clock, CheckCircle, AlertCircle, ArrowLeft, Home, RefreshCw, Loader2 } from 'lucide-react';
+import { Package, MapPin, Calendar, DollarSign, Truck, Clock, CheckCircle, AlertCircle, ArrowLeft, Home, RefreshCw, Loader2, FileText, Printer } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
+import BiltyInvoice from '../components/BiltyInvoice';
 
 interface Booking {
   id: number;
@@ -24,6 +25,7 @@ export default function MyBookings() {
   const [, navigate] = useLocation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBilty, setShowBilty] = useState<Booking | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -184,17 +186,66 @@ export default function MyBookings() {
                     Delivery: {booking.deliveryDate}
                   </div>
                 </div>
-                <button 
-                  onClick={() => navigate(`/track?tracking=${booking.trackingNumber}`)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  Track Shipment
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setShowBilty(booking)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Print Bilty
+                  </button>
+                  <button 
+                    onClick={() => navigate(`/track?tracking=${booking.trackingNumber}`)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Track Shipment
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Bilty Invoice Modal */}
+      {showBilty && (
+        <BiltyInvoice
+          booking={{
+            id: showBilty.id,
+            trackingNumber: showBilty.trackingNumber || `LP-${showBilty.id.toString().padStart(6, '0')}`,
+            loadId: showBilty.load?.id || showBilty.id,
+            status: showBilty.status,
+            createdAt: new Date().toISOString(),
+            price: parseFloat(showBilty.price || '0'),
+            currency: 'Rs',
+          }}
+          load={{
+            origin: showBilty.origin,
+            destination: showBilty.destination,
+            cargoType: showBilty.cargoType,
+            weight: showBilty.load?.weight || 'N/A',
+            volume: showBilty.load?.volume,
+            pickupDate: showBilty.pickupDate,
+            deliveryDate: showBilty.deliveryDate,
+            description: showBilty.load?.description,
+            specialRequirements: showBilty.load?.specialRequirements,
+          }}
+          shipper={{
+            name: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'Shipper',
+            company: user?.companyName,
+            phone: user?.phone || 'N/A',
+            email: user?.email || 'N/A',
+          }}
+          carrier={{
+            name: showBilty.carrierName || 'Carrier',
+            company: showBilty.carrier?.companyName,
+            phone: showBilty.carrier?.phone || 'N/A',
+            email: showBilty.carrier?.email || 'N/A',
+            vehicleNumber: showBilty.carrier?.vehicleNumber,
+          }}
+          onClose={() => setShowBilty(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { 
@@ -46,9 +46,46 @@ export default function KYC() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Fetch existing documents on mount
+  useEffect(() => {
+    const fetchExistingDocuments = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('/api/documents/my-documents', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Transform API data to match local Document interface
+          const transformedDocs: Document[] = (data || []).map((doc: any) => ({
+            id: doc.id?.toString() || `doc-${Date.now()}`,
+            type: doc.documentType,
+            name: doc.documentUrl?.split('/').pop() || 'document',
+            status: doc.status || 'pending',
+            uploadedAt: doc.createdAt,
+            expiresAt: doc.expiryDate,
+            rejectionReason: doc.rejectionReason,
+            preview: doc.documentUrl,
+          }));
+          setDocuments(transformedDocs);
+        }
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (user) {
+      fetchExistingDocuments();
+    }
+  }, [user]);
 
   if (!user) {
     return null;
@@ -165,6 +202,17 @@ export default function KYC() {
 
   const progress = getVerificationProgress();
   const allRequiredUploaded = requiredDocs.filter(d => d.required).every(d => getDocumentStatus(d.id));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto mb-4" />
+          <p className="text-slate-600">Loading your documents...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">

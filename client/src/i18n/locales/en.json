@@ -138,7 +138,17 @@
       "verifiedOnly": "Verified Carriers Only",
       "moreFilters": "More Filters",
       "clearFilters": "Clear Filters",
-      "filter": "Filter"
+      "filter": "Filter",
+      "originCity": "Origin City",
+      "destinationCity": "Destination City",
+      "minWeight": "Min Weight",
+      "maxWeight": "Max Weight",
+      "minRate": "Min Rate",
+      "maxRate": "Max Rate",
+      "pickupDateFrom": "Pickup Date From",
+      "pickupDateTo": "Pickup Date To",
+      "urgentOnly": "Urgent Only",
+      "vehicleType": "Vehicle Type"
     },
     "sort": {
       "newestFirst": "Newest First",
@@ -155,13 +165,19 @@
       "sendQuote": "Send Quote",
       "urgent": "Urgent",
       "specialPermit": "Special Permit",
-      "negotiable": "Negotiable"
+      "negotiable": "Negotiable",
+      "weight": "Weight",
+      "volume": "Volume",
+      "distance": "Distance",
+      "rate": "Rate",
+      "placeBid": "Place Bid"
     },
     "stats": {
       "availableLoads": "Available Loads",
       "urgentLoads": "Urgent Loads",
       "avgRate": "Avg. Rate",
-      "newToday": "New Today"
+      "newToday": "New Today",
+      "savedLoads": "Saved Loads"
     }
   },
   "trucks": {

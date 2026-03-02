@@ -62,8 +62,48 @@ export default function Profile() {
   const handleSaveDocuments = async () => {
     setSavingDocs(true);
     try {
-      // In a real app, upload files to server
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const token = localStorage.getItem('access_token');
+      
+      // Map local state keys to API document types
+      const docTypeMap: Record<string, string> = {
+        'nic': 'cnic_front',
+        'license': 'driving_license',
+        'companyReg': 'company_registration',
+        'vehicleReg': 'vehicle_registration',
+      };
+      
+      // Upload each document that has a file
+      for (const [key, doc] of Object.entries(verificationDocs)) {
+        if (doc.file) {
+          // First upload the file
+          const formData = new FormData();
+          formData.append('image', doc.file);
+          
+          const uploadResponse = await fetch('/api/upload/image', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+          });
+          
+          if (uploadResponse.ok) {
+            const uploadData = await uploadResponse.json();
+            
+            // Then create the document record
+            await fetch('/api/documents/upload', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                documentType: docTypeMap[key],
+                documentUrl: uploadData.url,
+              }),
+            });
+          }
+        }
+      }
+      
       addToast('success', 'Documents submitted for verification. Admin will review within 24-48 hours.');
     } catch (error) {
       addToast('error', 'Failed to save documents');
@@ -83,6 +123,51 @@ export default function Profile() {
       navigate('/signin?redirect=/profile');
     }
   }, [user, authLoading, navigate]);
+
+  // Fetch existing documents for carrier
+  useEffect(() => {
+    const fetchExistingDocuments = async () => {
+      if (!user || user.role !== 'carrier') return;
+      
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('/api/documents/my-documents', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const docs = await response.json();
+          // Map API document types to local state keys
+          const docTypeMap: Record<string, 'nic' | 'license' | 'companyReg' | 'vehicleReg'> = {
+            'cnic_front': 'nic',
+            'cnic_back': 'nic',
+            'nic_copy': 'nic',
+            'driving_license': 'license',
+            'driving_license_htv': 'license',
+            'company_registration': 'companyReg',
+            'vehicle_registration': 'vehicleReg',
+          };
+          
+          const newDocs = { ...verificationDocs };
+          docs.forEach((doc: any) => {
+            const key = docTypeMap[doc.documentType];
+            if (key) {
+              newDocs[key] = {
+                file: null,
+                preview: doc.documentUrl || '',
+                status: doc.status === 'verified' ? 'verified' : doc.status === 'rejected' ? 'rejected' : 'uploaded'
+              };
+            }
+          });
+          setVerificationDocs(newDocs);
+        }
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      }
+    };
+    
+    fetchExistingDocuments();
+  }, [user]);
 
   if (authLoading) {
     return (
@@ -377,11 +462,14 @@ export default function Profile() {
                   <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
                 </div>
                 <label className="block">
-                  {verificationDocs.nic.status === 'uploaded' ? (
-                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                  {verificationDocs.nic.status === 'uploaded' || verificationDocs.nic.status === 'verified' ? (
+                    <div className={`border-2 rounded-lg p-4 text-center ${verificationDocs.nic.status === 'verified' ? 'border-green-500 bg-green-100' : 'border-green-300 bg-green-50'}`}>
                       <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
-                      <p className="text-xs text-green-600 mt-1">{verificationDocs.nic.file?.name}</p>
+                      <p className="text-sm text-green-700 font-medium">{verificationDocs.nic.status === 'verified' ? 'Verified' : 'Document Uploaded'}</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.nic.file?.name || (verificationDocs.nic.preview ? 'View Document' : '')}</p>
+                      {verificationDocs.nic.preview && !verificationDocs.nic.file && (
+                        <a href={verificationDocs.nic.preview} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline mt-1 block">View uploaded document</a>
+                      )}
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
@@ -409,11 +497,14 @@ export default function Profile() {
                   <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
                 </div>
                 <label className="block">
-                  {verificationDocs.license.status === 'uploaded' ? (
-                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                  {verificationDocs.license.status === 'uploaded' || verificationDocs.license.status === 'verified' ? (
+                    <div className={`border-2 rounded-lg p-4 text-center ${verificationDocs.license.status === 'verified' ? 'border-green-500 bg-green-100' : 'border-green-300 bg-green-50'}`}>
                       <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
-                      <p className="text-xs text-green-600 mt-1">{verificationDocs.license.file?.name}</p>
+                      <p className="text-sm text-green-700 font-medium">{verificationDocs.license.status === 'verified' ? 'Verified' : 'Document Uploaded'}</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.license.file?.name || (verificationDocs.license.preview ? 'View Document' : '')}</p>
+                      {verificationDocs.license.preview && !verificationDocs.license.file && (
+                        <a href={verificationDocs.license.preview} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline mt-1 block">View uploaded document</a>
+                      )}
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
@@ -441,11 +532,14 @@ export default function Profile() {
                   <span className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs font-medium">Required</span>
                 </div>
                 <label className="block">
-                  {verificationDocs.vehicleReg.status === 'uploaded' ? (
-                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                  {verificationDocs.vehicleReg.status === 'uploaded' || verificationDocs.vehicleReg.status === 'verified' ? (
+                    <div className={`border-2 rounded-lg p-4 text-center ${verificationDocs.vehicleReg.status === 'verified' ? 'border-green-500 bg-green-100' : 'border-green-300 bg-green-50'}`}>
                       <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
-                      <p className="text-xs text-green-600 mt-1">{verificationDocs.vehicleReg.file?.name}</p>
+                      <p className="text-sm text-green-700 font-medium">{verificationDocs.vehicleReg.status === 'verified' ? 'Verified' : 'Document Uploaded'}</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.vehicleReg.file?.name || (verificationDocs.vehicleReg.preview ? 'View Document' : '')}</p>
+                      {verificationDocs.vehicleReg.preview && !verificationDocs.vehicleReg.file && (
+                        <a href={verificationDocs.vehicleReg.preview} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline mt-1 block">View uploaded document</a>
+                      )}
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
@@ -473,11 +567,14 @@ export default function Profile() {
                   <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded text-xs">Optional</span>
                 </div>
                 <label className="block">
-                  {verificationDocs.companyReg.status === 'uploaded' ? (
-                    <div className="border-2 border-green-300 rounded-lg p-4 text-center bg-green-50">
+                  {verificationDocs.companyReg.status === 'uploaded' || verificationDocs.companyReg.status === 'verified' ? (
+                    <div className={`border-2 rounded-lg p-4 text-center ${verificationDocs.companyReg.status === 'verified' ? 'border-green-500 bg-green-100' : 'border-green-300 bg-green-50'}`}>
                       <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 font-medium">Document Uploaded</p>
-                      <p className="text-xs text-green-600 mt-1">{verificationDocs.companyReg.file?.name}</p>
+                      <p className="text-sm text-green-700 font-medium">{verificationDocs.companyReg.status === 'verified' ? 'Verified' : 'Document Uploaded'}</p>
+                      <p className="text-xs text-green-600 mt-1">{verificationDocs.companyReg.file?.name || (verificationDocs.companyReg.preview ? 'View Document' : '')}</p>
+                      {verificationDocs.companyReg.preview && !verificationDocs.companyReg.file && (
+                        <a href={verificationDocs.companyReg.preview} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline mt-1 block">View uploaded document</a>
+                      )}
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">

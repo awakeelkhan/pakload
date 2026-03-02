@@ -359,6 +359,7 @@ export const paymentProofs = pgTable('payment_proofs', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
   transactionRef: varchar('transaction_ref', { length: 255 }).notNull(),
+  amount: decimal('amount', { precision: 12, scale: 2 }),
   fileUrl: varchar('file_url', { length: 500 }).notNull(),
   fileName: varchar('file_name', { length: 255 }),
   status: varchar('status', { length: 50 }).default('pending'), // pending, verified, rejected

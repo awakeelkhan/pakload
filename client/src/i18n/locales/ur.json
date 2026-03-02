@@ -117,7 +117,17 @@
       "verifiedOnly": "صرف تصدیق شدہ کیریئرز",
       "moreFilters": "مزید فلٹرز",
       "clearFilters": "فلٹرز صاف کریں",
-      "filter": "فلٹر"
+      "filter": "فلٹر",
+      "originCity": "آغاز کا شہر",
+      "destinationCity": "منزل کا شہر",
+      "minWeight": "کم از کم وزن",
+      "maxWeight": "زیادہ سے زیادہ وزن",
+      "minRate": "کم از کم شرح",
+      "maxRate": "زیادہ سے زیادہ شرح",
+      "pickupDateFrom": "پک اپ کی تاریخ سے",
+      "pickupDateTo": "پک اپ کی تاریخ تک",
+      "urgentOnly": "صرف فوری",
+      "vehicleType": "گاڑی کی قسم"
     },
     "sort": {
       "newestFirst": "نیا پہلے",
@@ -134,13 +144,19 @@
       "sendQuote": "قیمت بھیجیں",
       "urgent": "فوری",
       "specialPermit": "خصوصی اجازت",
-      "negotiable": "قابل گفت و شنید"
+      "negotiable": "قابل گفت و شنید",
+      "weight": "وزن",
+      "volume": "حجم",
+      "distance": "فاصلہ",
+      "rate": "شرح",
+      "placeBid": "بولی لگائیں"
     },
     "stats": {
       "availableLoads": "دستیاب لوڈز",
       "urgentLoads": "فوری لوڈز",
       "avgRate": "اوسط شرح",
-      "newToday": "آج نیا"
+      "newToday": "آج نیا",
+      "savedLoads": "محفوظ شدہ لوڈز"
     }
   },
   "trucks": {

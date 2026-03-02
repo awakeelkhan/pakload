@@ -115,23 +115,23 @@ export default function Header() {
                         </button>
                         <button onClick={() => { navigate('/admin/load-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Load Approvals
+                          {t('header.loadApprovals', 'Load Approvals')}
                         </button>
                         <button onClick={() => { navigate('/admin/bid-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Bid Approvals
+                          {t('header.bidApprovals', 'Bid Approvals')}
                         </button>
                         <button onClick={() => { navigate('/admin/market-requests'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Market Requests
+                          {t('header.marketRequests', 'Market Requests')}
                         </button>
                         <button onClick={() => { navigate('/admin/verification'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Compliance
+                          {t('header.compliance', 'Compliance')}
                         </button>
                         <button onClick={() => { navigate('/admin/payment-approvals'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Payment Approvals
+                          {t('header.paymentApprovals', 'Payment Approvals')}
                         </button>
                         <button onClick={() => { navigate('/admin/settings'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Settings className="w-4 h-4" />
@@ -162,7 +162,7 @@ export default function Header() {
                         </button>
                         <button onClick={() => { navigate('/payments'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
                           <Package className="w-4 h-4" />
-                          Payments
+                          {t('header.payments', 'Payments')}
                         </button>
                         {user?.role === 'carrier' && (
                           <button onClick={() => { navigate('/vehicles'); setUserMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">

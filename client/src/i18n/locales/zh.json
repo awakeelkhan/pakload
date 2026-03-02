@@ -29,7 +29,14 @@
     "myVehicles": "我的车辆",
     "manageBids": "管理报价",
     "postALoad": "发布货源",
-    "myRequests": "我的请求"
+    "myRequests": "我的请求",
+    "loadApprovals": "货源审批",
+    "bidApprovals": "报价审批",
+    "marketRequests": "市场请求",
+    "compliance": "合规",
+    "paymentApprovals": "付款审批",
+    "payments": "付款",
+    "selectLanguage": "选择语言"
   },
   "footer": {
     "companyDescription": "通过尖端技术和可靠服务，革新中巴经济走廊物流。",

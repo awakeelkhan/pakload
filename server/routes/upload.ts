@@ -4,8 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import { db } from '../db/index.js';
-import { paymentProofs, users } from '../db/schema.js';
-import { eq, desc } from 'drizzle-orm';
+import { paymentProofs, users, payments, bookings } from '../db/schema.js';
+import { eq, desc, or } from 'drizzle-orm';
 
 const router = Router();
 
@@ -228,6 +228,7 @@ router.post('/payment-proof', requireAuth, upload.single('file'), async (req: Mu
 // Admin: Get all payment proofs
 router.get('/payment-proofs', requireAuth, requireRole('admin'), async (req: Request, res: Response) => {
   try {
+    // Fetch payment proofs (uploaded bank slips)
     const proofs = await db.select({
       id: paymentProofs.id,
       userId: paymentProofs.userId,
@@ -242,17 +243,80 @@ router.get('/payment-proofs', requireAuth, requireRole('admin'), async (req: Req
       userName: users.firstName,
       userLastName: users.lastName,
       userEmail: users.email,
+      userRole: users.role,
     })
     .from(paymentProofs)
     .leftJoin(users, eq(paymentProofs.userId, users.id))
     .orderBy(desc(paymentProofs.createdAt));
 
+    // Also fetch payments from the payments table that have transaction IDs
+    const bookingPayments = await db.select({
+      id: payments.id,
+      bookingId: payments.bookingId,
+      payerId: payments.payerId,
+      amount: payments.amount,
+      status: payments.status,
+      paymentMethod: payments.paymentMethod,
+      transactionId: payments.transactionId,
+      paidAt: payments.paidAt,
+      createdAt: payments.createdAt,
+      userName: users.firstName,
+      userLastName: users.lastName,
+      userEmail: users.email,
+      userRole: users.role,
+    })
+    .from(payments)
+    .leftJoin(users, eq(payments.payerId, users.id))
+    .orderBy(desc(payments.createdAt));
+
+    // Transform payment proofs
     const transformedProofs = proofs.map(p => ({
-      ...p,
+      id: p.id,
+      source: 'proof' as const,
+      userId: p.userId,
       userName: `${p.userName || ''} ${p.userLastName || ''}`.trim() || p.userEmail || `User #${p.userId}`,
+      userEmail: p.userEmail,
+      userRole: p.userRole || 'shipper',
+      transactionRef: p.transactionRef,
+      fileUrl: p.fileUrl,
+      fileName: p.fileName,
+      status: p.status,
+      verifiedBy: p.verifiedBy,
+      verifiedAt: p.verifiedAt,
+      notes: p.notes,
+      createdAt: p.createdAt,
+      amount: null,
+      paymentMethod: 'Bank Transfer',
     }));
 
-    res.json(transformedProofs);
+    // Transform booking payments
+    const transformedPayments = bookingPayments
+      .filter(p => p.transactionId) // Only include payments with transaction IDs
+      .map(p => ({
+        id: p.id + 100000, // Offset to avoid ID collision
+        source: 'payment' as const,
+        userId: p.payerId,
+        userName: `${p.userName || ''} ${p.userLastName || ''}`.trim() || p.userEmail || `User #${p.payerId}`,
+        userEmail: p.userEmail,
+        userRole: p.userRole || 'shipper',
+        transactionRef: p.transactionId,
+        fileUrl: null,
+        fileName: null,
+        status: p.status === 'paid' ? 'verified' : p.status === 'failed' ? 'rejected' : 'pending',
+        verifiedBy: null,
+        verifiedAt: p.paidAt,
+        notes: null,
+        createdAt: p.createdAt,
+        amount: p.amount,
+        paymentMethod: p.paymentMethod || 'Bank Transfer',
+        bookingId: p.bookingId,
+      }));
+
+    // Combine and sort by createdAt
+    const allPayments = [...transformedProofs, ...transformedPayments]
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+    res.json(allPayments);
   } catch (error: any) {
     console.error('Error fetching payment proofs:', error);
     res.status(500).json({ error: 'Failed to fetch payment proofs' });

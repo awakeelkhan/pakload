@@ -38,12 +38,13 @@ export default function MyRequests() {
       const token = localStorage.getItem('access_token');
       
       // Try to fetch real data from all request types
-      const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes, loadsRes] = await Promise.all([
+      const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes, loadsRes, contactRequestsRes] = await Promise.all([
         fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/market-requests/my-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
-        fetch('/api/loads/my-loads', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
+        fetch('/api/loads/my-loads', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch('/api/contact-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null)
       ]);
 
       let allRequests: Request[] = [];
@@ -153,6 +154,29 @@ export default function MyRequests() {
           }
         }));
         allRequests = [...allRequests, ...loadRequests];
+      }
+
+      // Fetch contact requests (shipper's requests to contact carriers)
+      if (contactRequestsRes?.ok) {
+        const contactData = await contactRequestsRes.json();
+        const contactReqs = (contactData || []).map((c: any) => ({
+          id: c.id + 50000,
+          type: 'support' as const,
+          title: `Contact Request - ${c.carrierName || 'Carrier'}`,
+          description: c.subject || `Request to contact ${c.carrierName}`,
+          status: c.status === 'approved' ? 'completed' : 
+                  c.status === 'rejected' ? 'rejected' : 'pending',
+          createdAt: c.createdAt || new Date().toISOString(),
+          updatedAt: c.updatedAt || new Date().toISOString(),
+          details: {
+            carrierName: c.carrierName,
+            vehicleType: c.vehicleType,
+            message: c.message,
+            adminNotes: c.adminNotes,
+            status: c.status
+          }
+        }));
+        allRequests = [...allRequests, ...contactReqs];
       }
 
       // Add mock data if no real data

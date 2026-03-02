@@ -29,7 +29,14 @@
     "myVehicles": "My Vehicles",
     "manageBids": "Manage Bids",
     "postALoad": "Post a Load",
-    "myRequests": "My Requests"
+    "myRequests": "My Requests",
+    "loadApprovals": "Load Approvals",
+    "bidApprovals": "Bid Approvals",
+    "marketRequests": "Market Requests",
+    "compliance": "Compliance",
+    "paymentApprovals": "Payment Approvals",
+    "payments": "Payments",
+    "selectLanguage": "Select Language"
   },
   "footer": {
     "companyDescription": "Revolutionizing logistics along the China-Pakistan Economic Corridor with cutting-edge technology and reliable service.",

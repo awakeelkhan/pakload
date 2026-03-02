@@ -29,7 +29,14 @@
     "myVehicles": "میری گاڑیاں",
     "manageBids": "بولیاں منظم کریں",
     "postALoad": "لوڈ پوسٹ کریں",
-    "myRequests": "میری درخواستیں"
+    "myRequests": "میری درخواستیں",
+    "loadApprovals": "لوڈ منظوریاں",
+    "bidApprovals": "بولی منظوریاں",
+    "marketRequests": "مارکیٹ درخواستیں",
+    "compliance": "تعمیل",
+    "paymentApprovals": "ادائیگی منظوریاں",
+    "payments": "ادائیگیاں",
+    "selectLanguage": "زبان منتخب کریں"
   },
   "footer": {
     "companyDescription": "چین-پاکستان اقتصادی راہداری کے ساتھ جدید ٹیکنالوجی اور قابل اعتماد سروس کے ساتھ لاجسٹکس میں انقلاب۔",

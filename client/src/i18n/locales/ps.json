@@ -29,7 +29,14 @@
     "myVehicles": "زما ګاډي",
     "manageBids": "بیډونه اداره کړئ",
     "postALoad": "بار پوسټ کړئ",
-    "myRequests": "زما غوښتنې"
+    "myRequests": "زما غوښتنې",
+    "loadApprovals": "د بار تصویبونه",
+    "bidApprovals": "د بیډ تصویبونه",
+    "marketRequests": "د بازار غوښتنې",
+    "compliance": "تعمیل",
+    "paymentApprovals": "د تادیې تصویبونه",
+    "payments": "تادیات",
+    "selectLanguage": "ژبه وټاکئ"
   },
   "footer": {
     "companyDescription": "د چین-پاکستان اقتصادي دهلیز په اوږدو کې د نوې ټیکنالوژۍ او باوري خدمت سره لوژستیک انقلابي کول.",

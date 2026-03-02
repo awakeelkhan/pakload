@@ -131,7 +131,34 @@ export default function Routes() {
 
   const getFuelConsumption = (distance: number) => {
     const consumption = vehicleType === 'truck' ? 0.35 : 0.25; // liters per km
-    return (distance * consumption).toFixed(0);
+    return Math.round(distance * consumption);
+  };
+
+  // Calculate dynamic fuel cost based on distance, vehicle type, and current fuel price
+  const getDynamicFuelCost = (distance: number) => {
+    const liters = getFuelConsumption(distance);
+    return liters * fuelPrice;
+  };
+
+  // Calculate toll cost - PKR 3,000 per 100 KM with minimum of 3,000
+  const getTollCost = (distance: number) => {
+    const segments = Math.max(1, Math.ceil(distance / 100)); // Minimum 1 segment (3000 PKR)
+    return segments * 3000;
+  };
+
+  // Calculate total operating costs (fuel + toll + driver expenses)
+  const getOperatingCosts = (route: RouteData) => {
+    return getDynamicFuelCost(route.distance) + getTollCost(route.distance) + getDriverExpenses(route);
+  };
+
+  // Calculate profit margin (35%)
+  const getProfitMargin = (route: RouteData) => {
+    return Math.round(getOperatingCosts(route) * 0.35);
+  };
+
+  // Calculate total price with 35% margin
+  const getTotalPrice = (route: RouteData) => {
+    return Math.round(getOperatingCosts(route) * 1.35);
   };
 
   // Calculate driver days based on distance - short routes (under 400km) don't need overnight stays
@@ -322,7 +349,7 @@ export default function Routes() {
                               <span className="text-sm text-slate-700">Fuel Cost</span>
                               <p className="text-xs text-slate-500">{getFuelConsumption(selectedRoute.distance)} liters × PKR {fuelPrice}/L</p>
                             </div>
-                            <span className="font-bold text-slate-900">PKR {selectedRoute.fuelCost.toLocaleString()}</span>
+                            <span className="font-bold text-slate-900">PKR {getDynamicFuelCost(selectedRoute.distance).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -337,9 +364,9 @@ export default function Routes() {
                           <div className="flex justify-between items-center">
                             <div>
                               <span className="text-sm text-slate-700">Toll Tax</span>
-                              <p className="text-xs text-slate-500">PKR 3,000 per 100 KM × {Math.ceil(selectedRoute.distance / 100)} segments</p>
+                              <p className="text-xs text-slate-500">PKR 3,000 per 100 KM × {Math.max(1, Math.ceil(selectedRoute.distance / 100))} segments</p>
                             </div>
-                            <span className="font-bold text-slate-900">PKR {(Math.ceil(selectedRoute.distance / 100) * 3000).toLocaleString()}</span>
+                            <span className="font-bold text-slate-900">PKR {getTollCost(selectedRoute.distance).toLocaleString()}</span>
                           </div>
                           <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
                             ℹ️ Minimum toll: PKR 3,000 (applies to routes under 100 KM)
@@ -377,11 +404,7 @@ export default function Routes() {
                       <div className="border-t border-slate-200 pt-3 mb-3">
                         <div className="flex justify-between items-center text-slate-700">
                           <span className="font-medium">Subtotal (Operating Costs)</span>
-                          <span className="font-bold text-lg">PKR {(
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ).toLocaleString()}</span>
+                          <span className="font-bold text-lg">PKR {getOperatingCosts(selectedRoute).toLocaleString()}</span>
                         </div>
                       </div>
 
@@ -397,11 +420,7 @@ export default function Routes() {
                               <span className="text-sm text-amber-800 font-medium">35% Profit Margin</span>
                               <p className="text-xs text-amber-600">Standard industry margin for truckers</p>
                             </div>
-                            <span className="font-bold text-amber-700 text-lg">+ PKR {Math.round((
-                              selectedRoute.fuelCost + 
-                              (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                              getDriverExpenses(selectedRoute)
-                            ) * 0.35).toLocaleString()}</span>
+                            <span className="font-bold text-amber-700 text-lg">+ PKR {getProfitMargin(selectedRoute).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -415,16 +434,8 @@ export default function Routes() {
                           <p className="text-green-200 text-xs mt-0.5">Fuel + Tolls + Driver Expenses + 35% Margin</p>
                         </div>
                         <div className="text-right">
-                          <span className="text-3xl font-bold text-white">PKR {Math.round((
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ) * 1.35).toLocaleString()}</span>
-                          <p className="text-green-200 text-xs">≈ PKR {Math.round(((
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ) * 1.35) / selectedRoute.distance).toLocaleString()}/km</p>
+                          <span className="text-3xl font-bold text-white">PKR {getTotalPrice(selectedRoute).toLocaleString()}</span>
+                          <p className="text-green-200 text-xs">≈ PKR {Math.round(getTotalPrice(selectedRoute) / selectedRoute.distance).toLocaleString()}/km</p>
                         </div>
                       </div>
                     </div>
@@ -435,31 +446,19 @@ export default function Routes() {
                       <div className="grid grid-cols-4 gap-2 text-center">
                         <div className="bg-white p-2 rounded border border-slate-200">
                           <p className="text-xs text-slate-500">Fuel</p>
-                          <p className="font-bold text-sm text-slate-900">{Math.round((selectedRoute.fuelCost / ((
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ) * 1.35)) * 100)}%</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round((getDynamicFuelCost(selectedRoute.distance) / getTotalPrice(selectedRoute)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">
                           <p className="text-xs text-slate-500">Tolls</p>
-                          <p className="font-bold text-sm text-slate-900">{Math.round(((Math.ceil(selectedRoute.distance / 100) * 3000) / ((
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ) * 1.35)) * 100)}%</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round((getTollCost(selectedRoute.distance) / getTotalPrice(selectedRoute)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">
                           <p className="text-xs text-slate-500">Driver</p>
-                          <p className="font-bold text-sm text-slate-900">{Math.round((getDriverExpenses(selectedRoute) / ((
-                            selectedRoute.fuelCost + 
-                            (Math.ceil(selectedRoute.distance / 100) * 3000) + 
-                            getDriverExpenses(selectedRoute)
-                          ) * 1.35)) * 100)}%</p>
+                          <p className="font-bold text-sm text-slate-900">{Math.round((getDriverExpenses(selectedRoute) / getTotalPrice(selectedRoute)) * 100)}%</p>
                         </div>
                         <div className="bg-white p-2 rounded border border-slate-200">
                           <p className="text-xs text-slate-500">Profit</p>
-                          <p className="font-bold text-sm text-amber-600">26%</p>
+                          <p className="font-bold text-sm text-amber-600">{Math.round((getProfitMargin(selectedRoute) / getTotalPrice(selectedRoute)) * 100)}%</p>
                         </div>
                       </div>
                     </div>

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { 
   CreditCard, ArrowLeft, Search, CheckCircle, XCircle, Clock, 
-  Eye, User, Building, Calendar, DollarSign, Filter,
-  ChevronDown, ChevronUp, AlertTriangle, Download, RefreshCw
+  Eye, User, Building, ChevronDown, ChevronUp, AlertTriangle, Download, RefreshCw
 } from 'lucide-react';
 
 interface Payment {
@@ -24,8 +23,8 @@ interface Payment {
   reviewedBy?: string;
   rejectionReason?: string;
   notes?: string;
-  fileUrl?: string;
-  fileName?: string;
+  fileUrl?: string | null;
+  fileName?: string | null;
 }
 
 export default function PaymentApprovals() {
@@ -58,11 +57,11 @@ export default function PaymentApprovals() {
           userId: p.userId,
           userName: p.userName || `User #${p.userId}`,
           userEmail: p.userEmail || '',
-          userRole: 'shipper' as const,
+          userRole: (p.userRole === 'carrier' ? 'carrier' : 'shipper') as 'carrier' | 'shipper',
           transactionId: p.transactionRef || `TXN-${p.id}`,
-          amount: 0,
+          amount: p.amount ? parseFloat(p.amount) : 0,
           currency: 'PKR',
-          paymentMethod: 'Bank Transfer',
+          paymentMethod: p.paymentMethod || 'Bank Transfer',
           status: p.status === 'verified' ? 'approved' : p.status === 'rejected' ? 'rejected' : 'pending',
           submittedAt: p.createdAt || new Date().toISOString(),
           reviewedAt: p.verifiedAt,
@@ -70,6 +69,7 @@ export default function PaymentApprovals() {
           notes: p.notes,
           fileUrl: p.fileUrl,
           fileName: p.fileName,
+          bookingId: p.bookingId,
         }));
         setPayments(transformedPayments);
       } else {
@@ -404,14 +404,14 @@ export default function PaymentApprovals() {
                         {payment.fileUrl && (
                           <>
                             <button 
-                              onClick={() => window.open(payment.fileUrl, '_blank')}
+                              onClick={() => payment.fileUrl && window.open(payment.fileUrl, '_blank')}
                               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
                             >
                               <Eye className="w-4 h-4" />
                               View Payment Slip
                             </button>
                             <a 
-                              href={payment.fileUrl}
+                              href={payment.fileUrl || '#'}
                               download={payment.fileName || 'payment-slip'}
                               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm"
                             >

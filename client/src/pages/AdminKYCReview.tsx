@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { 
   Shield, CheckCircle, XCircle, Clock, Eye, Download, 
-  User, FileText, RefreshCw, Search, Filter, ArrowLeft
+  User, FileText, RefreshCw, Search, ArrowLeft
 } from 'lucide-react';
 
 interface KYCSubmission {
@@ -15,7 +15,7 @@ interface KYCSubmission {
   documentType: string;
   documentName: string;
   fileUrl: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'verified' | 'rejected';
   submittedAt: string;
   reviewedAt?: string;
   rejectionReason?: string;
@@ -26,7 +26,7 @@ export default function AdminKYCReview() {
   const [, navigate] = useLocation();
   const [submissions, setSubmissions] = useState<KYCSubmission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('pending');
+  const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState<KYCSubmission | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -43,7 +43,8 @@ export default function AdminKYCReview() {
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/documents/admin/pending', {
+      // Fetch ALL documents, not just pending
+      const response = await fetch('/api/documents/all', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -51,50 +52,29 @@ export default function AdminKYCReview() {
 
       if (response.ok) {
         const data = await response.json();
-        setSubmissions(data.documents || []);
+        // Transform API data to match KYCSubmission interface
+        const transformedDocs: KYCSubmission[] = (data || []).map((doc: any) => ({
+          id: doc.id,
+          userId: doc.userId,
+          userName: doc.userName || `User #${doc.userId}`,
+          userEmail: doc.userEmail || '',
+          userRole: doc.userRole || 'carrier',
+          documentType: doc.documentType || 'document',
+          documentName: doc.documentType?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Document',
+          fileUrl: doc.documentUrl || '',
+          status: doc.status || 'pending',
+          submittedAt: doc.createdAt || new Date().toISOString(),
+          reviewedAt: doc.verifiedAt,
+          rejectionReason: doc.rejectionReason,
+        }));
+        setSubmissions(transformedDocs);
       } else {
-        // Use mock data if API fails
-        setSubmissions([
-          {
-            id: 1,
-            userId: 101,
-            userName: 'Ahmad Khan',
-            userEmail: 'ahmad@example.com',
-            userRole: 'carrier',
-            documentType: 'cnic_front',
-            documentName: 'CNIC Front',
-            fileUrl: '/uploads/documents/cnic-front-1.jpg',
-            status: 'pending',
-            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            id: 2,
-            userId: 101,
-            userName: 'Ahmad Khan',
-            userEmail: 'ahmad@example.com',
-            userRole: 'carrier',
-            documentType: 'driving_license',
-            documentName: 'HTV Driving License',
-            fileUrl: '/uploads/documents/license-1.jpg',
-            status: 'pending',
-            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            id: 3,
-            userId: 102,
-            userName: 'Fatima Bibi',
-            userEmail: 'fatima@example.com',
-            userRole: 'shipper',
-            documentType: 'company_registration',
-            documentName: 'Company Registration',
-            fileUrl: '/uploads/documents/company-reg-1.pdf',
-            status: 'pending',
-            submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-        ]);
+        console.error('Failed to fetch documents:', response.status);
+        setSubmissions([]);
       }
     } catch (error) {
       console.error('Error fetching KYC submissions:', error);
+      setSubmissions([]);
     } finally {
       setLoading(false);
     }
@@ -113,11 +93,12 @@ export default function AdminKYCReview() {
 
       if (response.ok) {
         setSubmissions(prev => prev.map(s => 
-          s.id === submissionId ? { ...s, status: 'approved' as const, reviewedAt: new Date().toISOString() } : s
+          s.id === submissionId ? { ...s, status: 'verified' as const, reviewedAt: new Date().toISOString() } : s
         ));
         alert('Document approved successfully');
       } else {
-        alert('Failed to approve document');
+        const error = await response.json();
+        alert(error.error || 'Failed to approve document');
       }
     } catch (error) {
       console.error('Error approving document:', error);
@@ -150,7 +131,8 @@ export default function AdminKYCReview() {
         setSelectedSubmission(null);
         alert('Document rejected');
       } else {
-        alert('Failed to reject document');
+        const error = await response.json();
+        alert(error.error || 'Failed to reject document');
       }
     } catch (error) {
       console.error('Error rejecting document:', error);
@@ -159,7 +141,9 @@ export default function AdminKYCReview() {
   };
 
   const filteredSubmissions = submissions.filter(s => {
-    if (filter !== 'all' && s.status !== filter) return false;
+    // Map 'verified' to match filter if needed
+    const statusMatch = filter === 'all' || s.status === filter || (filter === 'approved' && s.status === 'verified');
+    if (!statusMatch) return false;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -174,6 +158,7 @@ export default function AdminKYCReview() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
+      case 'verified':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'rejected':
         return <XCircle className="w-5 h-5 text-red-600" />;
@@ -185,11 +170,23 @@ export default function AdminKYCReview() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
+      case 'verified':
         return 'bg-green-100 text-green-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-amber-100 text-amber-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return 'Pending';
     }
   };
 
@@ -237,7 +234,7 @@ export default function AdminKYCReview() {
           </div>
           <div className="bg-white rounded-lg border p-4">
             <div className="text-2xl font-bold text-green-600">
-              {submissions.filter(s => s.status === 'approved').length}
+              {submissions.filter(s => s.status === 'verified').length}
             </div>
             <div className="text-sm text-slate-500">Approved</div>
           </div>
@@ -267,10 +264,10 @@ export default function AdminKYCReview() {
               onChange={(e) => setFilter(e.target.value)}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
               <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="verified">Approved</option>
+              <option value="rejected">Rejected</option>
             </select>
             <button
               onClick={fetchSubmissions}
@@ -315,7 +312,7 @@ export default function AdminKYCReview() {
                   <div className="flex items-center gap-2">
                     {getStatusIcon(submission.status)}
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(submission.status)}`}>
-                      {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                      {getStatusLabel(submission.status)}
                     </span>
                   </div>
                 </div>

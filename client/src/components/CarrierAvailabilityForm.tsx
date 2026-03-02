@@ -43,8 +43,14 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
 
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('/api/v1/carrier-availability', data, {
+      const token = localStorage.getItem('access_token');
+      const response = await axios.post('/api/trucks', {
+        type: data.truckType,
+        registrationNumber: `REG-${Date.now()}`, // Auto-generate if not provided
+        capacity: data.capacity || '0',
+        currentLocation: data.availableCity,
+        status: 'active'
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;

@@ -31,6 +31,13 @@ export default function Payments() {
       formData.append('type', 'payment_proof');
 
       const token = localStorage.getItem('access_token');
+      
+      if (!token) {
+        alert('Please log in to upload payment proof');
+        setUploadStatus('error');
+        return;
+      }
+      
       const response = await fetch('/api/upload/payment-proof', {
         method: 'POST',
         headers: {
@@ -40,18 +47,23 @@ export default function Payments() {
       });
 
       if (response.ok) {
+        const result = await response.json();
         setUploadStatus('success');
         setPaymentProof(null);
         setTransactionRef('');
-        alert('Payment proof uploaded successfully! Admin will verify and confirm your payment.');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        alert(result.message || 'Payment proof uploaded successfully! Admin will verify and confirm your payment.');
       } else {
+        const errorData = await response.json().catch(() => ({}));
         setUploadStatus('error');
-        alert('Failed to upload payment proof. Please try again.');
+        alert(errorData.error || 'Failed to upload payment proof. Please try again.');
       }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus('error');
-      alert('Failed to upload payment proof. Please try again.');
+      alert('Network error. Please check your connection and try again.');
     }
   };
 

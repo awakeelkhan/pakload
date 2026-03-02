@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Package, MapPin, Calendar, DollarSign, Send, AlertCircle, Check, Loader2,
   ChevronRight, ChevronLeft, User, Phone, FileText, Image, Upload, X, File, Camera, LogIn
@@ -36,6 +37,7 @@ const GOODS_TYPES = [
 ];
 
 export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProps) {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -294,9 +296,9 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-8 overflow-x-auto pb-2">
         {[
-          { num: 1, label: 'What You Need', icon: Package },
-          { num: 2, label: 'Route', icon: MapPin },
-          { num: 3, label: 'Timeline & Budget', icon: Calendar },
+          { num: 1, label: t('marketRequest.steps.whatYouNeed'), icon: Package },
+          { num: 2, label: t('marketRequest.steps.route'), icon: MapPin },
+          { num: 3, label: t('marketRequest.steps.timelineBudget'), icon: Calendar },
         ].map((s, idx) => (
           <div key={s.num} className="flex items-center">
             <button
@@ -336,14 +338,14 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               <Package className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">What Do You Need?</h2>
-              <p className="text-sm text-gray-500">Tell us about the goods you want to transport</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('marketRequest.whatDoYouNeed')}</h2>
+              <p className="text-sm text-gray-500">{t('marketRequest.tellUsGoods')}</p>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Request Title <span className="text-red-500">*</span>
+              {t('marketRequest.requestTitle')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -357,14 +359,14 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Goods Type <span className="text-red-500">*</span>
+                {t('marketRequest.goodsType')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.goodsType}
                 onChange={(e) => handleChange('goodsType', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Select goods type</option>
+                <option value="">{t('marketRequest.selectGoodsType')}</option>
                 {GOODS_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -373,7 +375,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Quantity <span className="text-red-500">*</span>
+                {t('marketRequest.quantity')} <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -400,12 +402,12 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
+              {t('marketRequest.description')}
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Describe your goods in detail (packaging, special handling requirements, etc.)"
+              placeholder={t('marketRequest.descriptionPlaceholder')}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -415,7 +417,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
           <div className="border-t pt-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <Camera className="h-4 w-4" />
-              Product Images (Optional)
+              {t('marketRequest.productImages')}
             </h3>
             
             <input
@@ -448,7 +450,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
                   className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors"
                 >
                   <Image className="h-6 w-6 mb-1" />
-                  <span className="text-xs">Add Photo</span>
+                  <span className="text-xs">{t('marketRequest.addPhoto')}</span>
                 </button>
               )}
             </div>
@@ -464,8 +466,8 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               <MapPin className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Route Details</h2>
-              <p className="text-sm text-gray-500">Where do you need the goods transported from and to?</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('marketRequest.routeInfo')}</h2>
+              <p className="text-sm text-gray-500">{t('marketRequest.whereToShip')}</p>
             </div>
           </div>
 
@@ -563,8 +565,8 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               <Calendar className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Timeline & Budget</h2>
-              <p className="text-sm text-gray-500">When do you need this and what's your budget?</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('marketRequest.timelineAndBudget')}</h2>
+              <p className="text-sm text-gray-500">{t('marketRequest.whenAndHowMuch')}</p>
             </div>
           </div>
 
@@ -572,7 +574,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="h-4 w-4 inline mr-1" />
-                Required By Date <span className="text-red-500">*</span>
+                {t('marketRequest.requiredByDate')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -588,11 +590,11 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
           <div className="bg-gray-50 p-6 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-4">
               <DollarSign className="h-4 w-4 inline mr-1" />
-              Budget Range (PKR) - Optional
+              {t('marketRequest.budgetRange')}
             </label>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Minimum</label>
+                <label className="block text-xs text-gray-500 mb-1">{t('marketRequest.minimum')}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">Rs</span>
                   <input
@@ -605,7 +607,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Maximum</label>
+                <label className="block text-xs text-gray-500 mb-1">{t('marketRequest.maximum')}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">Rs</span>
                   <input
@@ -732,7 +734,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back
+              {t('marketRequest.previous')}
             </button>
           ) : onCancel ? (
             <button
@@ -752,7 +754,7 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               onClick={handleNext}
               className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm"
             >
-              Continue
+              {t('marketRequest.next')}
               <ChevronRight className="h-4 w-4" />
             </button>
           ) : (
@@ -765,12 +767,12 @@ export function MarketRequestForm({ onSuccess, onCancel }: MarketRequestFormProp
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Submitting...
+                  {t('marketRequest.submitting')}
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4" />
-                  Submit Request
+                  {t('marketRequest.submitRequest')}
                 </>
               )}
             </button>

@@ -33,17 +33,17 @@ export default function PostLoad() {
             className="mb-6 text-slate-500 hover:text-slate-700 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+            {t('postLoad.selection.backToDashboard')}
           </button>
 
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-slate-900 mb-3">
-              {isCarrier ? 'Post Your Availability' : 'How can we help you today?'}
+              {isCarrier ? t('postLoad.selection.carrierTitle') : t('postLoad.selection.howCanWeHelp')}
             </h1>
             <p className="text-slate-600 text-lg">
               {isCarrier 
-                ? 'Let shippers know where your trucks are available'
-                : 'Choose the option that best fits your needs'}
+                ? t('postLoad.selection.carrierSubtitle')
+                : t('postLoad.selection.chooseOption')}
             </p>
           </div>
 
@@ -58,27 +58,27 @@ export default function PostLoad() {
                   <Truck className="w-7 h-7 text-green-600 group-hover:text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2">
-                  Post a Load
+                  {t('postLoad.selection.postLoad')}
                 </h2>
                 <p className="text-slate-600 text-sm mb-4">
-                  I have cargo ready and want carriers to bid on it
+                  {t('postLoad.selection.postLoadDesc')}
                 </p>
                 <ul className="space-y-2 text-sm text-slate-500">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Select equipment type (20ft, 40ft, flatbed)
+                    {t('postLoad.selection.selectEquipment')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Upload product images & documents
+                    {t('postLoad.selection.uploadImages')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Receive bids from verified carriers
+                    {t('postLoad.selection.receiveBids')}
                   </li>
                 </ul>
                 <div className="mt-5 text-green-600 font-medium flex items-center gap-2">
-                  Get Started →
+                  {t('postLoad.selection.getStarted')} →
                 </div>
               </button>
             )}
@@ -93,27 +93,27 @@ export default function PostLoad() {
                   <MapPin className="w-7 h-7 text-green-600 group-hover:text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2">
-                  Post Truck Availability
+                  {t('postLoad.selection.postAvailability')}
                 </h2>
                 <p className="text-slate-600 text-sm mb-4">
-                  Let shippers know your trucks are available in a city
+                  {t('postLoad.selection.postAvailabilityDesc')}
                 </p>
                 <ul className="space-y-2 text-sm text-slate-500">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Select truck type and capacity
+                    {t('postLoad.selection.selectTruckType')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Set your available city/location
+                    {t('postLoad.selection.setAvailableCity')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                    Get matched with nearby loads
+                    {t('postLoad.selection.getMatchedLoads')}
                   </li>
                 </ul>
                 <div className="mt-5 text-green-600 font-medium flex items-center gap-2">
-                  Post Availability →
+                  {t('postLoad.selection.postAvailabilityBtn')} →
                 </div>
               </button>
             )}
@@ -128,27 +128,27 @@ export default function PostLoad() {
                   <Users className="w-7 h-7 text-blue-600 group-hover:text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2">
-                  Submit a Transport Request
+                  {t('postLoad.selection.transportRequest')}
                 </h2>
                 <p className="text-slate-600 text-sm mb-4">
-                  I need help finding the best transport option
+                  {t('postLoad.selection.transportRequestDesc')}
                 </p>
                 <ul className="space-y-2 text-sm text-slate-500">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    Tell us what you need transported
+                    {t('postLoad.selection.tellUsNeeds')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    Our team finds the best options
+                    {t('postLoad.selection.teamFinds')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    We negotiate on your behalf
+                    {t('postLoad.selection.weNegotiate')}
                   </li>
                 </ul>
                 <div className="mt-5 text-blue-600 font-medium flex items-center gap-2">
-                  Submit Request →
+                  {t('postLoad.selection.submitRequest')} →
                 </div>
               </button>
             )}
@@ -163,27 +163,27 @@ export default function PostLoad() {
                   <Users className="w-7 h-7 text-blue-600 group-hover:text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2">
-                  Request Load Matching
+                  {t('postLoad.selection.requestLoadMatching')}
                 </h2>
                 <p className="text-slate-600 text-sm mb-4">
-                  Let our team find loads that match your trucks
+                  {t('postLoad.selection.requestLoadMatchingDesc')}
                 </p>
                 <ul className="space-y-2 text-sm text-slate-500">
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    Tell us your preferred routes
+                    {t('postLoad.selection.tellPreferredRoutes')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    Our team matches you with shippers
+                    {t('postLoad.selection.teamMatchesShippers')}
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                    Get notified of matching loads
+                    {t('postLoad.selection.getNotifiedLoads')}
                   </li>
                 </ul>
                 <div className="mt-5 text-blue-600 font-medium flex items-center gap-2">
-                  Submit Request →
+                  {t('postLoad.selection.submitRequest')} →
                 </div>
               </button>
             )}
@@ -203,7 +203,7 @@ export default function PostLoad() {
             className="mb-6 text-slate-500 hover:text-slate-700 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to options
+            {t('postLoad.selection.backToOptions')}
           </button>
           
           <div className="bg-white rounded-xl shadow-sm border p-6 md:p-8">
@@ -241,7 +241,7 @@ export default function PostLoad() {
             className="mb-6 text-slate-500 hover:text-slate-700 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to options
+            {t('postLoad.selection.backToOptions')}
           </button>
           
           <div className="bg-white rounded-xl shadow-sm border p-6 md:p-8">
@@ -279,7 +279,7 @@ export default function PostLoad() {
             className="mb-6 text-slate-500 hover:text-slate-700 flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to options
+            {t('postLoad.selection.backToOptions')}
           </button>
           
           <div className="bg-white rounded-xl shadow-sm border p-6 md:p-8">

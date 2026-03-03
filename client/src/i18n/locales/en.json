@@ -136,19 +136,28 @@
       "route": "Route",
       "urgent": "Urgent",
       "verifiedOnly": "Verified Carriers Only",
+      "verifiedShippersOnly": "Verified Shippers Only",
       "moreFilters": "More Filters",
+      "advancedFilters": "Advanced Filters",
       "clearFilters": "Clear Filters",
+      "hideFilters": "Hide Filters",
+      "showFilters": "Show Filters",
       "filter": "Filter",
       "originCity": "Origin City",
       "destinationCity": "Destination City",
-      "minWeight": "Min Weight",
-      "maxWeight": "Max Weight",
+      "minWeight": "Min Weight (kg)",
+      "maxWeight": "Max Weight (kg)",
       "minRate": "Min Rate",
       "maxRate": "Max Rate",
+      "pickupFrom": "Pickup From",
+      "pickupTo": "Pickup To",
       "pickupDateFrom": "Pickup Date From",
       "pickupDateTo": "Pickup Date To",
-      "urgentOnly": "Urgent Only",
-      "vehicleType": "Vehicle Type"
+      "urgentOnly": "Urgent Loads Only",
+      "vehicleType": "Vehicle Type",
+      "allTypes": "All Types",
+      "allVehicles": "All Vehicles",
+      "showingResults": "Showing {{count}} of {{total}} loads"
     },
     "sort": {
       "newestFirst": "Newest First",
@@ -170,7 +179,9 @@
       "volume": "Volume",
       "distance": "Distance",
       "rate": "Rate",
-      "placeBid": "Place Bid"
+      "placeBid": "Place Bid",
+      "bidsReceived": "bids received",
+      "posted": "Posted"
     },
     "stats": {
       "availableLoads": "Available Loads",
@@ -189,16 +200,32 @@
       "currentLocation": "Current Location",
       "allTypes": "All Types",
       "allLocations": "All Locations",
-      "searchTrucks": "Search Trucks"
+      "searchTrucks": "Search Trucks",
+      "hideFilters": "Hide Filters",
+      "showFilters": "Show Filters",
+      "clearAll": "Clear All",
+      "minCapacity": "Min Capacity (kg)",
+      "vehicleType": "Vehicle Type",
+      "verifiedCarriersOnly": "Verified Carriers Only",
+      "insuredOnly": "Insured Only",
+      "gpsTrackingOnly": "GPS Tracking Only",
+      "availableFrom": "Available From",
+      "advancedFilters": "Advanced Filters",
+      "savedTrucks": "Saved Trucks",
+      "avgRate": "Avg Rate",
+      "showingResults": "Showing {{count}} of {{total}} trucks"
     },
     "sort": {
-      "highestRated": "Highest Rated"
+      "highestRated": "Highest Rated",
+      "newest": "Newest"
     },
     "stats": {
       "availableTrucks": "Available Trucks",
       "inChina": "In China",
       "inPakistan": "In Pakistan",
-      "verifiedCarriers": "Verified Carriers"
+      "verifiedCarriers": "Verified Carriers",
+      "savedTrucks": "Saved Trucks",
+      "avgRate": "Avg Rate"
     },
     "card": {
       "currentLocation": "Current Location:",
@@ -211,7 +238,9 @@
       "requestQuote": "Request Quote",
       "borderCrossing": "Border crossing experience:",
       "onTime": "on-time",
-      "diesel": "Diesel"
+      "diesel": "Diesel",
+      "views": "views",
+      "trips": "trips"
     }
   },
   "postLoad": {
@@ -329,17 +358,41 @@
     "days": "days"
   },
   "tracking": {
-    "title": "Track Shipment",
+    "title": "Track Your Shipment",
+    "subtitle": "Real-time tracking with live updates and notifications",
     "trackingNumber": "Tracking Number",
+    "enterTrackingNumber": "Enter tracking number (e.g., LP-2024-08844)",
+    "track": "Track",
     "from": "From",
     "to": "To",
     "cargo": "Cargo",
     "estArrival": "Est. Arrival",
+    "eta": "ETA",
+    "origin": "Origin",
+    "destination": "Destination",
     "documents": "Documents",
     "contactDriver": "Contact Driver",
     "progress": "Shipment Progress",
+    "deliveryProgress": "Delivery Progress",
     "inTransit": "In Transit",
     "borderCrossing": "Border Crossing",
+    "liveTrack": "Live Track",
+    "driverInformation": "Driver Information",
+    "contactDetails": "Contact details",
+    "driverName": "Driver Name",
+    "phoneNumber": "Phone Number",
+    "email": "Email",
+    "vehicleDetails": "Vehicle Details",
+    "quickStats": "Quick Stats",
+    "totalDistance": "Total Distance",
+    "completed": "Completed",
+    "remaining": "Remaining",
+    "kmRemaining": "km remaining",
+    "kmCompleted": "km completed",
+    "lastUpdated": "Last Updated",
+    "hoursAgo": "hours ago",
+    "currentLocation": "Current Location",
+    "shipmentTimeline": "Shipment Timeline",
     "milestones": {
       "loadPickup": "Load Pickup",
       "borderCrossing": "Border Crossing",
@@ -671,12 +724,20 @@
     "topCarriers": "Top Carriers",
     "rating": "Rating",
     "trips": "Trips",
-    "onTime": "On Time",
+    "onTime": "on-time",
     "avgRate": "Avg Rate",
     "costAnalysis": "Cost Analysis",
     "month": "Month",
     "spent": "Spent",
-    "saved": "Saved"
+    "saved": "Saved",
+    "avgDeliveryTime": "Avg Delivery Time",
+    "days": "days",
+    "myRequests": "My Requests",
+    "track": "Track",
+    "alerts": "Alerts",
+    "new": "New",
+    "newBidsReceived": "new bids received",
+    "minutesAgo": "minutes ago"
   },
   "carrierDashboard": {
     "welcome": "Welcome back",

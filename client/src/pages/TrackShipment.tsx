@@ -145,20 +145,20 @@ export default function TrackShipment() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Track Your Shipment</h1>
-          <p className="text-slate-600">Real-time tracking with live updates and notifications</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('tracking.title')}</h1>
+          <p className="text-slate-600">{t('tracking.subtitle')}</p>
         </div>
 
         {/* Search Bar */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-700 mb-2">Tracking Number</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('tracking.trackingNumber')}</label>
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Enter tracking number (e.g., LP-2024-08844)"
+                placeholder={t('tracking.enterTrackingNumber')}
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
@@ -169,7 +169,7 @@ export default function TrackShipment() {
                 className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2"
               >
                 <Navigation className="w-5 h-5" />
-                Track
+                {t('tracking.track')}
               </button>
             </div>
           </div>
@@ -186,7 +186,7 @@ export default function TrackShipment() {
                     <Package className="w-8 h-8 text-green-600" />
                   </div>
                   <div>
-                    <div className="text-sm text-slate-500">Tracking Number</div>
+                    <div className="text-sm text-slate-500">{t('tracking.trackingNumber')}</div>
                     <div className="text-2xl font-bold text-slate-900">{shipmentData.trackingNumber}</div>
                     <span className={`inline-block mt-2 px-3 py-1 text-sm font-medium rounded-full border ${getStatusColor(shipmentData.status)}`}>
                       {shipmentData.status}
@@ -200,7 +200,7 @@ export default function TrackShipment() {
                     title="Live Tracking"
                   >
                     <Radio className="w-4 h-4" />
-                    Live Track
+                    {t('tracking.liveTrack')}
                   </button>
                   <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Download Report">
                     <Download className="w-5 h-5 text-slate-600" />
@@ -222,21 +222,21 @@ export default function TrackShipment() {
                 <div className="bg-slate-50 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <MapPin className="w-4 h-4 text-slate-500" />
-                    <span className="text-xs text-slate-600">Origin</span>
+                    <span className="text-xs text-slate-600">{t('tracking.origin')}</span>
                   </div>
                   <div className="font-semibold text-slate-900">{shipmentData.origin}</div>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <Navigation className="w-4 h-4 text-slate-500" />
-                    <span className="text-xs text-slate-600">Destination</span>
+                    <span className="text-xs text-slate-600">{t('tracking.destination')}</span>
                   </div>
                   <div className="font-semibold text-slate-900">{shipmentData.destination}</div>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <Package className="w-4 h-4 text-slate-500" />
-                    <span className="text-xs text-slate-600">Cargo</span>
+                    <span className="text-xs text-slate-600">{t('tracking.cargo')}</span>
                   </div>
                   <div className="font-semibold text-slate-900">{shipmentData.cargoType}</div>
                   <div className="text-xs text-slate-500">{shipmentData.weight}</div>
@@ -244,7 +244,7 @@ export default function TrackShipment() {
                 <div className="bg-slate-50 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-slate-500" />
-                    <span className="text-xs text-slate-600">ETA</span>
+                    <span className="text-xs text-slate-600">{t('tracking.eta')}</span>
                   </div>
                   <div className="font-semibold text-green-600">{shipmentData.estimatedArrival}</div>
                 </div>
@@ -253,7 +253,7 @@ export default function TrackShipment() {
               {/* Progress Bar */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-700">Delivery Progress</span>
+                  <span className="text-sm font-medium text-slate-700">{t('tracking.deliveryProgress')}</span>
                   <span className="text-sm text-green-600 font-semibold">{shipmentData.progress}%</span>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-3">
@@ -263,8 +263,8 @@ export default function TrackShipment() {
                   />
                 </div>
                 <div className="flex items-center justify-between mt-2 text-xs text-slate-600">
-                  <span>{shipmentData.distance.completed} km completed</span>
-                  <span>{shipmentData.distance.remaining} km remaining</span>
+                  <span>{shipmentData.distance.completed} {t('tracking.kmCompleted')}</span>
+                  <span>{shipmentData.distance.remaining} {t('tracking.kmRemaining')}</span>
                 </div>
               </div>
 
@@ -273,11 +273,11 @@ export default function TrackShipment() {
                 <div className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-blue-600" />
                   <div className="flex-1">
-                    <div className="text-sm text-blue-900 font-medium">Current Location</div>
+                    <div className="text-sm text-blue-900 font-medium">{t('tracking.currentLocation')}</div>
                     <div className="text-lg font-bold text-slate-900">{shipmentData.currentLocation}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-blue-600">Last Updated</div>
+                    <div className="text-xs text-blue-600">{t('tracking.lastUpdated')}</div>
                     <div className="text-sm font-medium text-slate-900">{shipmentData.lastUpdate}</div>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function TrackShipment() {
 
             {/* Timeline */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Shipment Timeline</h3>
+              <h3 className="text-lg font-bold text-slate-900 mb-6">{t('tracking.shipmentTimeline')}</h3>
               <div className="space-y-4">
                 {milestones.map((milestone, index) => (
                   <div key={milestone.id} className="flex gap-4">

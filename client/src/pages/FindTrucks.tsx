@@ -650,13 +650,13 @@ export default function FindTrucks() {
         {showFilters && (
           <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Advanced Filters</h2>
+              <h2 className="text-xl font-semibold">{t('trucks.filters.advancedFilters')}</h2>
               <button
                 onClick={clearFilters}
                 className="flex items-center gap-2 text-slate-600 hover:text-slate-900"
               >
                 <X size={16} />
-                Clear All
+                {t('trucks.filters.clearAll')}
               </button>
             </div>
             
@@ -664,7 +664,7 @@ export default function FindTrucks() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <MapPin className="inline w-4 h-4 mr-1" />
-                  Current Location
+                  {t('trucks.filters.currentLocation')}
                 </label>
                 <input
                   type="text"
@@ -678,14 +678,14 @@ export default function FindTrucks() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <Truck className="inline w-4 h-4 mr-1" />
-                  Vehicle Type
+                  {t('trucks.filters.vehicleType')}
                 </label>
                 <select
                   value={filters.vehicleType}
                   onChange={(e) => setFilters({...filters, vehicleType: e.target.value})}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">All Types</option>
+                  <option value="">{t('trucks.filters.allTypes')}</option>
                   <option value="20ft">20ft Container</option>
                   <option value="40ft">40ft Container</option>
                   <option value="flatbed">Flatbed</option>
@@ -697,7 +697,7 @@ export default function FindTrucks() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <Package className="inline w-4 h-4 mr-1" />
-                  Min Capacity (kg)
+                  {t('trucks.filters.minCapacity')}
                 </label>
                 <input
                   type="number"
@@ -711,7 +711,7 @@ export default function FindTrucks() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   <Calendar className="inline w-4 h-4 mr-1" />
-                  Available From
+                  {t('trucks.filters.availableFrom')}
                 </label>
                 <input
                   type="date"
@@ -731,7 +731,7 @@ export default function FindTrucks() {
                     className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                   />
                   <label htmlFor="verifiedOnly" className="ml-2 text-sm font-medium text-slate-700">
-                    Verified Carriers Only
+                    {t('trucks.filters.verifiedCarriersOnly')}
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -743,7 +743,7 @@ export default function FindTrucks() {
                     className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                   />
                   <label htmlFor="insuredOnly" className="ml-2 text-sm font-medium text-slate-700">
-                    Insured Only
+                    {t('trucks.filters.insuredOnly')}
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -755,14 +755,14 @@ export default function FindTrucks() {
                     className="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500"
                   />
                   <label htmlFor="gpsOnly" className="ml-2 text-sm font-medium text-slate-700">
-                    GPS Tracking Only
+                    {t('trucks.filters.gpsTrackingOnly')}
                   </label>
                 </div>
               </div>
             </div>
 
             <div className="mt-4 text-sm text-slate-600">
-              Showing {sortedTrucks.length} of {allTrucks.length} trucks
+              {t('trucks.filters.showingResults', { count: sortedTrucks.length, total: allTrucks.length })}
             </div>
           </div>
         )}
@@ -790,12 +790,12 @@ export default function FindTrucks() {
                           {truck.verified && (
                             <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full flex items-center gap-1">
                               <ShieldCheck className="w-3 h-3" />
-                              Verified
+                              {t('trucks.card.verified')}
                             </span>
                           )}
                           {truck.insured && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                              Insured
+                              {t('trucks.card.insured')}
                             </span>
                           )}
                           {truck.gpsTracking && (

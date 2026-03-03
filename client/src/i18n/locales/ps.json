@@ -147,8 +147,17 @@
       "maxRate": "ډیر تر ډیره نرخ",
       "pickupDateFrom": "د اخیستلو نیټه له",
       "pickupDateTo": "د اخیستلو نیټه تر",
-      "urgentOnly": "یوازې عاجل",
-      "vehicleType": "د ګاډي ډول"
+      "urgentOnly": "یوازې عاجل بارونه",
+      "vehicleType": "د ګاډي ډول",
+      "verifiedShippersOnly": "یوازې تایید شوي شپران",
+      "advancedFilters": "نور فلټرونه",
+      "hideFilters": "فلټرونه پټ کړئ",
+      "showFilters": "فلټرونه وښایاست",
+      "pickupFrom": "اخیستل له",
+      "pickupTo": "اخیستل تر",
+      "allTypes": "ټول ډولونه",
+      "allVehicles": "ټولې ګاډۍ",
+      "showingResults": "د {{total}} څخه {{count}} بارونه ښودل کیږي"
     },
     "sort": {
       "newestFirst": "لومړی نوي",
@@ -170,7 +179,9 @@
       "volume": "حجم",
       "distance": "واټن",
       "rate": "نرخ",
-      "placeBid": "بیډ ورکړئ"
+      "placeBid": "بیډ ورکړئ",
+      "bidsReceived": "بیډونه ترلاسه شوي",
+      "posted": "پوسټ شوی"
     },
     "stats": {
       "availableLoads": "موجود بارونه",
@@ -189,16 +200,32 @@
       "currentLocation": "اوسنی ځای",
       "allTypes": "ټول ډولونه",
       "allLocations": "ټول ځایونه",
-      "searchTrucks": "ټرکونه ولټوئ"
+      "searchTrucks": "ټرکونه ولټوئ",
+      "hideFilters": "فلټرونه پټ کړئ",
+      "showFilters": "فلټرونه وښایاست",
+      "clearAll": "ټول پاک کړئ",
+      "minCapacity": "لږ تر لږه ظرفیت (کیلوګرام)",
+      "vehicleType": "د ګاډي ډول",
+      "verifiedCarriersOnly": "یوازې تایید شوي کیریران",
+      "insuredOnly": "یوازې بیمه شوي",
+      "gpsTrackingOnly": "یوازې GPS تعقیب",
+      "availableFrom": "له دې وخت څخه موجود",
+      "advancedFilters": "نور فلټرونه",
+      "savedTrucks": "خوندي شوي ټرکونه",
+      "avgRate": "اوسط نرخ",
+      "showingResults": "د {{total}} څخه {{count}} ټرکونه ښودل کیږي"
     },
     "sort": {
-      "highestRated": "ترټولو لوړ درجه"
+      "highestRated": "ترټولو لوړ درجه",
+      "newest": "لومړی نوي"
     },
     "stats": {
       "availableTrucks": "موجود ټرکونه",
       "inChina": "په چین کې",
       "inPakistan": "په پاکستان کې",
-      "verifiedCarriers": "تایید شوي کیریران"
+      "verifiedCarriers": "تایید شوي کیریران",
+      "savedTrucks": "خوندي شوي ټرکونه",
+      "avgRate": "اوسط نرخ"
     },
     "card": {
       "currentLocation": "اوسنی ځای:",
@@ -211,7 +238,9 @@
       "requestQuote": "د نرخ غوښتنه",
       "borderCrossing": "د سرحد تیریدو تجربه:",
       "onTime": "په وخت",
-      "diesel": "ډیزل"
+      "diesel": "ډیزل",
+      "views": "لیدنې",
+      "trips": "سفرونه"
     }
   },
   "postLoad": {
@@ -329,17 +358,41 @@
     "days": "ورځې"
   },
   "tracking": {
-    "title": "بار تعقیب کړئ",
+    "title": "خپل بار تعقیب کړئ",
+    "subtitle": "د ژوندي تازه معلوماتو او خبرتیاو سره ریل ټایم تعقیب",
     "trackingNumber": "د تعقیب شمیره",
+    "enterTrackingNumber": "د تعقیب شمیره ولیکئ (مثال: LP-2024-08844)",
+    "track": "تعقیب کړئ",
     "from": "له",
     "to": "ته",
     "cargo": "بار",
     "estArrival": "اټکل شوې رسیدنه",
+    "eta": "اټکل شوی وخت",
+    "origin": "اصل",
+    "destination": "منزل",
     "documents": "اسناد",
     "contactDriver": "له چلوونکي سره اړیکه",
     "progress": "د بار پرمختګ",
+    "deliveryProgress": "د سپارلو پرمختګ",
     "inTransit": "په لیږد کې",
     "borderCrossing": "سرحد تیریدل",
+    "liveTrack": "ژوندی تعقیب",
+    "driverInformation": "د چلوونکي معلومات",
+    "contactDetails": "د اړیکې تفصیلات",
+    "driverName": "د چلوونکي نوم",
+    "phoneNumber": "ټیلیفون شمیره",
+    "email": "بریښنالیک",
+    "vehicleDetails": "د ګاډي تفصیلات",
+    "quickStats": "چټک احصائیې",
+    "totalDistance": "ټول واټن",
+    "completed": "بشپړ شوی",
+    "remaining": "پاتې",
+    "kmRemaining": "کیلومیټر پاتې",
+    "kmCompleted": "کیلومیټر بشپړ",
+    "lastUpdated": "وروستی تازه",
+    "hoursAgo": "ساعتونه مخکې",
+    "currentLocation": "اوسنی ځای",
+    "shipmentTimeline": "د بار مهال ویش",
     "milestones": {
       "loadPickup": "بار اخیستل",
       "borderCrossing": "سرحد تیریدل",
@@ -683,7 +736,15 @@
     "costAnalysis": "د لګښت تحلیل",
     "month": "میاشت",
     "spent": "مصرف",
-    "saved": "سپما"
+    "saved": "سپما",
+    "avgDeliveryTime": "اوسط سپارلو وخت",
+    "days": "ورځې",
+    "myRequests": "زما غوښتنې",
+    "track": "تعقیب",
+    "alerts": "خبرتیاوې",
+    "new": "نوی",
+    "newBidsReceived": "نوي بیډونه ترلاسه شوي",
+    "minutesAgo": "دقیقې مخکې"
   },
   "carrierDashboard": {
     "welcome": "بیرته ښه راغلاست",

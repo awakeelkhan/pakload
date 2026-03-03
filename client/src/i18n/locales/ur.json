@@ -126,8 +126,17 @@
       "maxRate": "زیادہ سے زیادہ شرح",
       "pickupDateFrom": "پک اپ کی تاریخ سے",
       "pickupDateTo": "پک اپ کی تاریخ تک",
-      "urgentOnly": "صرف فوری",
-      "vehicleType": "گاڑی کی قسم"
+      "urgentOnly": "صرف فوری لوڈز",
+      "vehicleType": "گاڑی کی قسم",
+      "verifiedShippersOnly": "صرف تصدیق شدہ شپرز",
+      "advancedFilters": "مزید فلٹرز",
+      "hideFilters": "فلٹرز چھپائیں",
+      "showFilters": "فلٹرز دکھائیں",
+      "pickupFrom": "پک اپ سے",
+      "pickupTo": "پک اپ تک",
+      "allTypes": "تمام اقسام",
+      "allVehicles": "تمام گاڑیاں",
+      "showingResults": "{{total}} میں سے {{count}} لوڈز دکھائے جا رہے ہیں"
     },
     "sort": {
       "newestFirst": "نیا پہلے",
@@ -149,7 +158,9 @@
       "volume": "حجم",
       "distance": "فاصلہ",
       "rate": "شرح",
-      "placeBid": "بولی لگائیں"
+      "placeBid": "بولی لگائیں",
+      "bidsReceived": "بولیاں موصول",
+      "posted": "پوسٹ کیا گیا"
     },
     "stats": {
       "availableLoads": "دستیاب لوڈز",
@@ -168,16 +179,32 @@
       "currentLocation": "موجودہ مقام",
       "allTypes": "تمام اقسام",
       "allLocations": "تمام مقامات",
-      "searchTrucks": "ٹرک تلاش کریں"
+      "searchTrucks": "ٹرک تلاش کریں",
+      "hideFilters": "فلٹرز چھپائیں",
+      "showFilters": "فلٹرز دکھائیں",
+      "clearAll": "سب صاف کریں",
+      "minCapacity": "کم از کم گنجائش (کلوگرام)",
+      "vehicleType": "گاڑی کی قسم",
+      "verifiedCarriersOnly": "صرف تصدیق شدہ کیریئرز",
+      "insuredOnly": "صرف بیمہ شدہ",
+      "gpsTrackingOnly": "صرف GPS ٹریکنگ",
+      "availableFrom": "سے دستیاب",
+      "advancedFilters": "مزید فلٹرز",
+      "savedTrucks": "محفوظ شدہ ٹرک",
+      "avgRate": "اوسط شرح",
+      "showingResults": "{{total}} میں سے {{count}} ٹرک دکھائے جا رہے ہیں"
     },
     "sort": {
-      "highestRated": "سب سے زیادہ درجہ بند"
+      "highestRated": "سب سے زیادہ درجہ بند",
+      "newest": "نیا پہلے"
     },
     "stats": {
       "availableTrucks": "دستیاب ٹرک",
       "inChina": "چین میں",
       "inPakistan": "پاکستان میں",
-      "verifiedCarriers": "تصدیق شدہ کیریئرز"
+      "verifiedCarriers": "تصدیق شدہ کیریئرز",
+      "savedTrucks": "محفوظ شدہ ٹرک",
+      "avgRate": "اوسط شرح"
     },
     "card": {
       "currentLocation": "موجودہ مقام:",
@@ -186,6 +213,8 @@
       "verified": "تصدیق شدہ",
       "insured": "بیمہ شدہ",
       "gpsTracking": "GPS ٹریکنگ",
+      "views": "ملاحظات",
+      "trips": "سفر",
       "viewCarrier": "کیریئر دیکھیں",
       "requestQuote": "قیمت کی درخواست کریں",
       "borderCrossing": "بارڈر کراسنگ کا تجربہ:",
@@ -308,17 +337,41 @@
     "days": "دن"
   },
   "tracking": {
-    "title": "شپمنٹ ٹریک کریں",
+    "title": "اپنی شپمنٹ ٹریک کریں",
+    "subtitle": "لائیو اپڈیٹس اور اطلاعات کے ساتھ ریئل ٹائم ٹریکنگ",
     "trackingNumber": "ٹریکنگ نمبر",
+    "enterTrackingNumber": "ٹریکنگ نمبر درج کریں (مثال: LP-2024-08844)",
+    "track": "ٹریک کریں",
     "from": "سے",
     "to": "تک",
     "cargo": "کارگو",
     "estArrival": "تخمینی آمد",
+    "eta": "متوقع وقت",
+    "origin": "آغاز",
+    "destination": "منزل",
     "documents": "دستاویزات",
     "contactDriver": "ڈرائیور سے رابطہ کریں",
     "progress": "شپمنٹ کی پیشرفت",
+    "deliveryProgress": "ڈیلیوری کی پیشرفت",
     "inTransit": "راستے میں",
     "borderCrossing": "بارڈر کراسنگ",
+    "liveTrack": "لائیو ٹریک",
+    "driverInformation": "ڈرائیور کی معلومات",
+    "contactDetails": "رابطہ کی تفصیلات",
+    "driverName": "ڈرائیور کا نام",
+    "phoneNumber": "فون نمبر",
+    "email": "ای میل",
+    "vehicleDetails": "گاڑی کی تفصیلات",
+    "quickStats": "فوری اعدادوشمار",
+    "totalDistance": "کل فاصلہ",
+    "completed": "مکمل",
+    "remaining": "باقی",
+    "kmRemaining": "کلومیٹر باقی",
+    "kmCompleted": "کلومیٹر مکمل",
+    "lastUpdated": "آخری اپڈیٹ",
+    "hoursAgo": "گھنٹے پہلے",
+    "currentLocation": "موجودہ مقام",
+    "shipmentTimeline": "شپمنٹ ٹائم لائن",
     "milestones": {
       "loadPickup": "لوڈ پک اپ",
       "borderCrossing": "بارڈر کراسنگ",
@@ -676,7 +729,15 @@
     "costAnalysis": "لاگت کا تجزیہ",
     "month": "مہینہ",
     "spent": "خرچ",
-    "saved": "بچت"
+    "saved": "بچت",
+    "avgDeliveryTime": "اوسط ڈیلیوری کا وقت",
+    "days": "دن",
+    "myRequests": "میری درخواستیں",
+    "track": "ٹریک",
+    "alerts": "انتباہات",
+    "new": "نیا",
+    "newBidsReceived": "نئی بولیاں موصول",
+    "minutesAgo": "منٹ پہلے"
   },
   "carrierDashboard": {
     "welcome": "خوش آمدید",

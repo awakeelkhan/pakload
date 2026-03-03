@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { MapPin, Truck, Calendar, DollarSign, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const TRUCK_TYPES = [
   '20ft Container',
@@ -29,6 +30,7 @@ interface CarrierAvailabilityFormProps {
 }
 
 export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabilityFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     truckType: '',
     capacity: '',
@@ -78,7 +80,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
           <Truck className="w-4 h-4 inline mr-2" />
-          Truck Type *
+          {t('carrierAvailability.truckType')} *
         </label>
         <select
           name="truckType"
@@ -87,7 +89,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
           required
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
         >
-          <option value="">Select truck type</option>
+          <option value="">{t('carrierAvailability.selectTruckType')}</option>
           {TRUCK_TYPES.map(type => (
             <option key={type} value={type}>{type}</option>
           ))}
@@ -97,7 +99,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       {/* Capacity */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Capacity (tons) *
+          {t('carrierAvailability.capacity')} *
         </label>
         <input
           type="number"
@@ -106,7 +108,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
           onChange={handleChange}
           required
           min="1"
-          placeholder="e.g., 20"
+          placeholder={t('carrierAvailability.capacityPlaceholder')}
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
         />
       </div>
@@ -115,7 +117,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
           <MapPin className="w-4 h-4 inline mr-2" />
-          Available City *
+          {t('carrierAvailability.availableCity')} *
         </label>
         <select
           name="availableCity"
@@ -124,7 +126,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
           required
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
         >
-          <option value="">Select city where truck is available</option>
+          <option value="">{t('carrierAvailability.selectCityPlaceholder')}</option>
           {CITIES.map(city => (
             <option key={city} value={city}>{city}</option>
           ))}
@@ -136,7 +138,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             <Calendar className="w-4 h-4 inline mr-2" />
-            Available From *
+            {t('carrierAvailability.availableFrom')} *
           </label>
           <input
             type="date"
@@ -151,7 +153,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             <Calendar className="w-4 h-4 inline mr-2" />
-            Available Until
+            {t('carrierAvailability.availableUntil')}
           </label>
           <input
             type="date"
@@ -167,14 +169,14 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       {/* Preferred Routes */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Preferred Routes
+          {t('carrierAvailability.preferredRoutes')}
         </label>
         <input
           type="text"
           name="preferredRoutes"
           value={formData.preferredRoutes}
           onChange={handleChange}
-          placeholder="e.g., Karachi to Lahore, Islamabad to Peshawar"
+          placeholder={t('carrierAvailability.preferredRoutesPlaceholder')}
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
         />
       </div>
@@ -184,7 +186,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             <DollarSign className="w-4 h-4 inline mr-2" />
-            Rate per KM
+            {t('carrierAvailability.ratePerKm')}
           </label>
           <input
             type="number"
@@ -192,13 +194,13 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
             value={formData.ratePerKm}
             onChange={handleChange}
             min="0"
-            placeholder="e.g., 50"
+            placeholder={t('carrierAvailability.ratePlaceholder')}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Currency
+            {t('carrierAvailability.currency')}
           </label>
           <select
             name="currency"
@@ -206,9 +208,9 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
             onChange={handleChange}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
           >
-            <option value="PKR">PKR - Pakistani Rupee</option>
-            <option value="USD">USD - US Dollar</option>
-            <option value="CNY">CNY - Chinese Yuan</option>
+            <option value="PKR">{t('carrierAvailability.currencies.pkr')}</option>
+            <option value="USD">{t('carrierAvailability.currencies.usd')}</option>
+            <option value="CNY">{t('carrierAvailability.currencies.cny')}</option>
           </select>
         </div>
       </div>
@@ -216,14 +218,14 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       {/* Notes */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Additional Notes
+          {t('carrierAvailability.additionalNotes')}
         </label>
         <textarea
           name="notes"
           value={formData.notes}
           onChange={handleChange}
           rows={3}
-          placeholder="Any special requirements or information..."
+          placeholder={t('carrierAvailability.notesPlaceholder')}
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
         />
       </div>
@@ -231,7 +233,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       {/* Error Message */}
       {mutation.isError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {(mutation.error as any)?.response?.data?.message || 'Failed to post availability. Please try again.'}
+          {(mutation.error as any)?.response?.data?.message || t('carrierAvailability.errorMessage')}
         </div>
       )}
 
@@ -239,7 +241,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
       {mutation.isSuccess && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center gap-2">
           <CheckCircle className="w-5 h-5" />
-          Availability posted successfully! Shippers can now see your truck.
+          {t('carrierAvailability.successMessage')}
         </div>
       )}
 
@@ -251,7 +253,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
             onClick={onCancel}
             className="flex-1 px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
           >
-            Cancel
+            {t('carrierAvailability.cancel')}
           </button>
         )}
         <button
@@ -259,7 +261,7 @@ export function CarrierAvailabilityForm({ onSuccess, onCancel }: CarrierAvailabi
           disabled={mutation.isPending}
           className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
         >
-          {mutation.isPending ? 'Posting...' : 'Post Availability'}
+          {mutation.isPending ? t('carrierAvailability.posting') : t('carrierAvailability.postAvailability')}
         </button>
       </div>
     </form>

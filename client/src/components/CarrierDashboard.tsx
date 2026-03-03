@@ -1,12 +1,14 @@
 import { Truck, TrendingUp, DollarSign, Clock, MapPin, Star, CheckCircle, Calendar, BarChart3, ArrowUpRight, Bell, AlertTriangle, Package, Fuel, Wrench, Plus, RefreshCw, Search } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface CarrierDashboardProps {
   user: any;
 }
 
 export default function CarrierDashboard({ user }: CarrierDashboardProps) {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [stats, setStats] = useState({
     activeBookings: 0,
@@ -104,18 +106,18 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">
-              Welcome back, {user.firstName || 'Carrier'}! 👋
+              {t('carrierDashboard.welcome')}, {user.firstName || 'Carrier'}! 👋
             </h1>
-            <p className="text-slate-600 mt-1">Manage your fleet and maximize your earnings</p>
+            <p className="text-slate-600 mt-1">{t('carrierDashboard.manageFleet')}</p>
           </div>
           <div className="flex gap-3 mt-4 md:mt-0">
             <button onClick={() => navigate('/loads')} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 font-medium">
               <Search className="w-5 h-5" />
-              Find Loads
+              {t('carrierDashboard.findLoads')}
             </button>
             <button onClick={() => navigate('/vehicles')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 font-medium">
               <Plus className="w-5 h-5" />
-              Add Vehicle
+              {t('carrierDashboard.addVehicle')}
             </button>
             <button onClick={fetchDashboardData} className="px-3 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300">
               <RefreshCw className="w-5 h-5" />
@@ -136,7 +138,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
               </span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900">{stats.activeBookings}</h3>
-            <p className="text-sm text-slate-600 mt-1">Active Bookings</p>
+            <p className="text-sm text-slate-600 mt-1">{t('carrierDashboard.activeBookings')}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
@@ -150,7 +152,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
               </span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900">{stats.completedTrips}</h3>
-            <p className="text-sm text-slate-600 mt-1">Completed Trips</p>
+            <p className="text-sm text-slate-600 mt-1">{t('carrierDashboard.completedTrips')}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
@@ -164,7 +166,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
               </span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900">${stats.totalEarned.toLocaleString()}</h3>
-            <p className="text-sm text-slate-600 mt-1">Total Earned</p>
+            <p className="text-sm text-slate-600 mt-1">{t('carrierDashboard.totalEarned')}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
@@ -175,7 +177,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
               <span className="text-xs font-medium text-green-600">{stats.profitMargin}%</span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900">{stats.avgUtilization}%</h3>
-            <p className="text-sm text-slate-600 mt-1">Fleet Utilization</p>
+            <p className="text-sm text-slate-600 mt-1">{t('carrierDashboard.avgUtilization')}</p>
           </div>
         </div>
 
@@ -184,13 +186,13 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('carrierDashboard.quickActions')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button onClick={() => navigate('/loads')} className="flex flex-col items-center gap-2 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors cursor-pointer">
                   <div className="p-3 bg-green-600 rounded-lg">
                     <Package className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-slate-900">Find Loads</span>
+                  <span className="text-sm font-medium text-slate-900">{t('carrierDashboard.findLoads')}</span>
                 </button>
                 <button onClick={() => navigate('/bookings')} className="flex flex-col items-center gap-2 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer">
                   <div className="p-3 bg-blue-600 rounded-lg">
@@ -216,8 +218,8 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
             {/* Active Trips */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900">Active Trips</h2>
-                <button onClick={() => navigate('/bookings')} className="text-sm text-green-600 hover:text-green-700 font-medium">View All</button>
+                <h2 className="text-lg font-semibold text-slate-900">{t('carrierDashboard.activeTrips')}</h2>
+                <button onClick={() => navigate('/bookings')} className="text-sm text-green-600 hover:text-green-700 font-medium">{t('carrierDashboard.viewAll')}</button>
               </div>
               <div className="space-y-4">
                 {activeTrips.map((trip) => (
@@ -235,7 +237,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-slate-600">Progress</span>
+                        <span className="text-xs text-slate-600">{t('carrierDashboard.progress')}</span>
                         <span className="text-xs font-semibold text-slate-900">{trip.progress}%</span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-2">

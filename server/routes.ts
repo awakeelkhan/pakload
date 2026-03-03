@@ -743,7 +743,7 @@ export function registerRoutes(app: Express) {
         type: 'load_posted',
         title: 'New Truck Posted',
         message: `A new ${vehicleData.type} truck has been posted by carrier.`,
-        relatedId: newVehicle.id,
+        metadata: { vehicleId: newVehicle.id },
       });
       
       res.status(201).json(newVehicle);
@@ -835,7 +835,7 @@ export function registerRoutes(app: Express) {
           type: 'bid_received',
           title: 'New Quote Request',
           message: `Quote request from ${pickupLocation} to ${deliveryLocation}. ${message || ''}`,
-          relatedId: truckId,
+          metadata: { truckId },
         });
       }
       

@@ -21,22 +21,22 @@ interface Document {
 
 const DOCUMENT_TYPES = {
   shipper: [
-    { id: 'cnic_front', name: 'CNIC (Front)', required: true, description: 'Clear photo of your CNIC front side' },
-    { id: 'cnic_back', name: 'CNIC (Back)', required: true, description: 'Clear photo of your CNIC back side' },
+    { id: 'nic_copy', name: 'CNIC / National ID', required: true, description: 'Clear photo of your CNIC (front and back)' },
     { id: 'company_registration', name: 'Company Registration', required: false, description: 'SECP/SSC registration certificate' },
-    { id: 'ntn_certificate', name: 'NTN Certificate', required: false, description: 'National Tax Number certificate' },
-    { id: 'address_proof', name: 'Address Proof', required: true, description: 'Utility bill or bank statement' },
+    { id: 'tax_certificate', name: 'NTN/Tax Certificate', required: false, description: 'National Tax Number certificate' },
+    { id: 'other', name: 'Address Proof / Other', required: false, description: 'Utility bill, bank statement, or other documents' },
   ],
   carrier: [
-    { id: 'cnic_front', name: 'CNIC (Front)', required: true, description: 'Clear photo of your CNIC front side' },
-    { id: 'cnic_back', name: 'CNIC (Back)', required: true, description: 'Clear photo of your CNIC back side' },
-    { id: 'driving_license', name: 'HTV Driving License', required: true, description: 'Valid heavy transport vehicle license' },
+    { id: 'nic_copy', name: 'CNIC / National ID', required: true, description: 'Clear photo of your CNIC (front and back)' },
+    { id: 'driving_license_htv', name: 'HTV Driving License', required: true, description: 'Valid heavy transport vehicle license' },
     { id: 'company_registration', name: 'Company Registration', required: false, description: 'SECP/SSC registration certificate' },
-    { id: 'ntn_certificate', name: 'NTN Certificate', required: false, description: 'National Tax Number certificate' },
+    { id: 'tax_certificate', name: 'NTN/Tax Certificate', required: false, description: 'National Tax Number certificate' },
     { id: 'vehicle_registration', name: 'Vehicle Registration', required: true, description: 'Vehicle registration book' },
     { id: 'fitness_certificate', name: 'Fitness Certificate', required: true, description: 'Valid vehicle fitness certificate' },
-    { id: 'insurance', name: 'Insurance Certificate', required: true, description: 'Comprehensive vehicle insurance' },
+    { id: 'insurance_certificate', name: 'Insurance Certificate', required: true, description: 'Comprehensive vehicle insurance' },
     { id: 'route_permit', name: 'Route Permit', required: false, description: 'Provincial route permit if applicable' },
+    { id: 'tir_carnet', name: 'TIR Carnet', required: false, description: 'TIR Carnet for international transport' },
+    { id: 'customs_clearance', name: 'Customs Clearance', required: false, description: 'Customs clearance certificate' },
   ],
 };
 

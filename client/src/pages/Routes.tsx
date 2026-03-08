@@ -162,25 +162,25 @@ export default function Routes() {
     return Math.round(getOperatingCosts(route) * 1.35);
   };
 
-  // Calculate driver days based on distance - short routes (under 400km) don't need overnight stays
+  // Calculate driver days - minimum 1 day for any trip (driver needs food)
   const getDriverDays = (route: RouteData) => {
-    // If duration contains "hours", it's a same-day trip
+    // If duration contains "hours", it's a same-day trip - still counts as 1 day
     if (route.duration.toLowerCase().includes('hour')) {
-      return 0; // No overnight stay needed
+      return 1; // Same-day trip still needs food allowance
     }
-    // For distances under 400km that can be done in a day, no overnight needed
+    // For distances under 400km, count as 1 day
     if (route.distance < 400) {
-      return 0;
+      return 1;
     }
     // Parse the duration string (e.g., "2-3 days" -> 2)
     const daysMatch = route.duration.match(/(\d+)/);
-    return daysMatch ? Math.max(0, parseInt(daysMatch[1]) - 1) : 0; // Subtract 1 because last day doesn't need accommodation
+    return daysMatch ? Math.max(1, parseInt(daysMatch[1])) : 1; // Minimum 1 day
   };
 
-  // Calculate driver expenses (only for trips requiring overnight stays)
+  // Calculate driver expenses (food & accommodation for all trips)
   const getDriverExpenses = (route: RouteData) => {
     const days = getDriverDays(route);
-    return days * 7000; // PKR 7,000 per day for accommodation & food
+    return days * 7000; // PKR 7,000 per day for food & accommodation
   };
 
   const getStatusColor = (status: string) => {
@@ -333,7 +333,7 @@ export default function Routes() {
                         <span className="text-sm text-slate-600">Driver Cost</span>
                       </div>
                       <p className="text-2xl font-bold text-slate-900">PKR {getDriverExpenses(selectedRoute).toLocaleString()}</p>
-                      <p className="text-xs text-slate-500 mt-1">{getDriverDays(selectedRoute) === 0 ? 'Same-day trip' : `${getDriverDays(selectedRoute)} nights × PKR 7,000`}</p>
+                      <p className="text-xs text-slate-500 mt-1">{`${getDriverDays(selectedRoute)} day${getDriverDays(selectedRoute) > 1 ? 's' : ''} × PKR 7,000`}</p>
                     </div>
                   </div>
                   {/* Loadboard-Style Cost Breakdown */}
@@ -393,18 +393,16 @@ export default function Routes() {
                         <div className="bg-green-50 rounded-lg p-3 space-y-2">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="text-sm text-slate-700">Accommodation & Food</span>
+                              <span className="text-sm text-slate-700">Food & Accommodation</span>
                               <p className="text-xs text-slate-500">
-                                {getDriverDays(selectedRoute) === 0 
-                                  ? 'Same-day trip - no overnight stay needed' 
-                                  : `PKR 7,000/day × ${getDriverDays(selectedRoute)} nights`}
+                                {`PKR 7,000/day × ${getDriverDays(selectedRoute)} day${getDriverDays(selectedRoute) > 1 ? 's' : ''}`}
                               </p>
                             </div>
                             <span className="font-bold text-slate-900">PKR {getDriverExpenses(selectedRoute).toLocaleString()}</span>
                           </div>
                           <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                            {getDriverDays(selectedRoute) === 0 
-                              ? '✓ Short route - driver can return same day'
+                            {getDriverDays(selectedRoute) === 1 
+                              ? 'ℹ️ Includes meals and rest stops for the day'
                               : 'ℹ️ Includes meals, rest stops, and overnight stays'}
                           </div>
                         </div>

@@ -113,7 +113,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
     setEditLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      await fetch(`/api/loads/${editingLoad.id}`, {
+      const response = await fetch(`/api/loads/${editingLoad.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -123,15 +123,23 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
           origin: editForm.origin,
           destination: editForm.destination,
           cargoType: editForm.cargoType,
-          weight: parseFloat(editForm.weight),
+          weight: parseFloat(editForm.weight) || 0,
           price: editForm.price,
           description: editForm.description
         })
       });
-      setShowEditModal(false);
-      fetchDashboardData();
+      
+      if (response.ok) {
+        setShowEditModal(false);
+        fetchDashboardData();
+        alert('Load updated successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to update load. Please try again.');
+      }
     } catch (error) {
       console.error('Error updating load:', error);
+      alert('Failed to update load. Please try again.');
     } finally {
       setEditLoading(false);
     }

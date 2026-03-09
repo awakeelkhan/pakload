@@ -298,42 +298,6 @@ router.get('/required-documents/:role', (req, res) => {
   });
 });
 
-// Admin: Get all documents with user info
-router.get('/all', requireAuth, requireRole('admin'), async (req, res) => {
-  try {
-    const allDocs = await db.select({
-      id: userDocuments.id,
-      userId: userDocuments.userId,
-      documentType: userDocuments.documentType,
-      documentNumber: userDocuments.documentNumber,
-      documentUrl: userDocuments.documentUrl,
-      status: userDocuments.status,
-      createdAt: userDocuments.createdAt,
-      verifiedAt: userDocuments.verifiedAt,
-      verifiedBy: userDocuments.verifiedBy,
-      rejectionReason: userDocuments.rejectionReason,
-      userName: users.firstName,
-      userLastName: users.lastName,
-      userEmail: users.email,
-      userRole: users.role,
-    })
-    .from(userDocuments)
-    .leftJoin(users, eq(userDocuments.userId, users.id))
-    .orderBy(userDocuments.createdAt);
-
-    // Transform to include full user name
-    const transformedDocs = allDocs.map(doc => ({
-      ...doc,
-      userName: `${doc.userName || ''} ${doc.userLastName || ''}`.trim() || `User #${doc.userId}`,
-    }));
-
-    res.json(transformedDocs);
-  } catch (error) {
-    console.error('Error fetching all documents:', error);
-    res.status(500).json({ error: 'Failed to fetch documents' });
-  }
-});
-
 // Admin: Get pending documents for review
 router.get('/admin/pending', requireAuth, requireRole('admin'), async (req, res) => {
   try {

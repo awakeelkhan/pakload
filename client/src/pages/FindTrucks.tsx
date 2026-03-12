@@ -633,7 +633,7 @@ export default function FindTrucks() {
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
               <option value="date">{t('loads.sort.newestFirst')}</option>
-              <option value="rate">{t('common.lowestRate', 'Lowest Rate')}</option>
+              <option value="rate">{t('common.lowestRate')}</option>
               <option value="rating">{t('trucks.sort.highestRated')}</option>
             </select>
             <button
@@ -670,7 +670,7 @@ export default function FindTrucks() {
                   type="text"
                   value={filters.location}
                   onChange={(e) => setFilters({...filters, location: e.target.value})}
-                  placeholder="e.g., Kashgar"
+                  placeholder={t('trucks.filters.locationPlaceholder')}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -686,11 +686,11 @@ export default function FindTrucks() {
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">{t('trucks.filters.allTypes')}</option>
-                  <option value="20ft">20ft Container</option>
-                  <option value="40ft">40ft Container</option>
-                  <option value="flatbed">Flatbed</option>
-                  <option value="refrigerated">Refrigerated</option>
-                  <option value="lowboy">Lowboy Trailer</option>
+                  <option value="20ft">{t('trucks.filters.truckTypes.20ft')}</option>
+                  <option value="40ft">{t('trucks.filters.truckTypes.40ft')}</option>
+                  <option value="flatbed">{t('trucks.filters.truckTypes.flatbed')}</option>
+                  <option value="refrigerated">{t('trucks.filters.truckTypes.refrigerated')}</option>
+                  <option value="lowboy">{t('trucks.filters.truckTypes.lowboy')}</option>
                 </select>
               </div>
 
@@ -772,8 +772,8 @@ export default function FindTrucks() {
           {sortedTrucks.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
               <Truck size={64} className="mx-auto text-slate-400 mb-4" />
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">No trucks found</h3>
-              <p className="text-slate-500">Try adjusting your filters</p>
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">{t('trucks.filters.noTrucksFound')}</h3>
+              <p className="text-slate-500">{t('trucks.filters.tryAdjustingFilters')}</p>
             </div>
           ) : (
             sortedTrucks.map((truck) => (
@@ -811,11 +811,11 @@ export default function FindTrucks() {
                           </span>
                           <span className="flex items-center gap-1">
                             <TrendingUp className="w-4 h-4" />
-                            {truck.totalTrips} trips
+                            {truck.totalTrips} {t('trucks.card.trips')}
                           </span>
                           <span className="flex items-center gap-1 text-slate-500">
                             <Eye className="w-4 h-4" />
-                            {truck.views} views
+                            {truck.views} {t('trucks.card.views')}
                           </span>
                         </div>
                         <div className="text-sm font-semibold text-slate-900">{truck.vehicleType}</div>
@@ -829,7 +829,7 @@ export default function FindTrucks() {
                       <button
                         onClick={() => toggleSaveTruck(truck.id)}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                        title={savedTrucks.includes(truck.id) ? 'Remove from saved' : 'Save truck'}
+                        title={savedTrucks.includes(truck.id) ? t('trucks.card.removeFromSaved') : t('trucks.card.saveTruck')}
                       >
                         {savedTrucks.includes(truck.id) ? (
                           <BookmarkCheck className="w-5 h-5 text-green-600" />
@@ -844,30 +844,30 @@ export default function FindTrucks() {
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <MapPin className="w-4 h-4 text-slate-500" />
-                        <span className="text-xs text-slate-600">Location</span>
+                        <span className="text-xs text-slate-600">{t('trucks.card.location')}</span>
                       </div>
                       <div className="font-semibold text-slate-900 text-sm">{truck.currentLocation}</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="w-4 h-4 text-slate-500" />
-                        <span className="text-xs text-slate-600">Available</span>
+                        <span className="text-xs text-slate-600">{t('trucks.card.available')}</span>
                       </div>
                       <div className="font-semibold text-slate-900">{truck.availableFrom}</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <Package className="w-4 h-4 text-slate-500" />
-                        <span className="text-xs text-slate-600">Capacity</span>
+                        <span className="text-xs text-slate-600">{t('trucks.card.capacity')}</span>
                       </div>
                       <div className="font-semibold text-slate-900">{truck.capacity.weight.toLocaleString()} kg</div>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-1">
                         <Navigation className="w-4 h-4 text-slate-500" />
-                        <span className="text-xs text-slate-600">Routes</span>
+                        <span className="text-xs text-slate-600">{t('trucks.card.routes')}</span>
                       </div>
-                      <div className="font-semibold text-slate-900 text-sm">{truck.preferredRoutes.length} cities</div>
+                      <div className="font-semibold text-slate-900 text-sm">{truck.preferredRoutes.length} {t('trucks.card.cities')}</div>
                     </div>
                   </div>
 
@@ -876,9 +876,9 @@ export default function FindTrucks() {
                     className="w-full text-sm text-green-600 hover:text-green-700 font-medium flex items-center justify-center gap-2 py-2"
                   >
                     {expandedTruck === truck.id ? (
-                      <><ChevronUp className="w-4 h-4" /> Hide Details</>
+                      <><ChevronUp className="w-4 h-4" /> {t('trucks.card.hideDetails')}</>
                     ) : (
-                      <><ChevronDown className="w-4 h-4" /> Show Details</>
+                      <><ChevronDown className="w-4 h-4" /> {t('trucks.card.viewCarrierProfile')}</>
                     )}
                   </button>
 
@@ -895,7 +895,7 @@ export default function FindTrucks() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-slate-900 mb-2">Equipment Features</h4>
+                        <h4 className="font-semibold text-slate-900 mb-2">{t('trucks.card.equipmentFeatures')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {truck.equipmentFeatures.map((feature, idx) => (
                             <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">
@@ -905,7 +905,7 @@ export default function FindTrucks() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-slate-900 mb-2">Certifications</h4>
+                        <h4 className="font-semibold text-slate-900 mb-2">{t('trucks.card.certifications')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {truck.certifications.map((cert, idx) => (
                             <span key={idx} className="px-3 py-1 bg-amber-50 text-amber-700 text-sm rounded-full flex items-center gap-1">
@@ -917,33 +917,33 @@ export default function FindTrucks() {
                       </div>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <h4 className="font-semibold text-slate-900 mb-2">Contact Carrier</h4>
+                          <h4 className="font-semibold text-slate-900 mb-2">{t('trucks.card.contactCarrier')}</h4>
                           <div className="space-y-2 text-sm">
                             <p className="text-slate-600">
-                              Contact details are managed by our team. Submit a contact request and we'll connect you with this carrier.
+                              {t('trucks.card.contactInfo')}
                             </p>
                             <button
                               onClick={() => handleContactRequest(truck)}
                               className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
                             >
                               <MessageSquare className="w-4 h-4" />
-                              Request to Contact
+                              {t('trucks.card.requestToContact')}
                             </button>
                           </div>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-slate-900 mb-2">Additional Info</h4>
+                          <h4 className="font-semibold text-slate-900 mb-2">{t('trucks.card.additionalInfo')}</h4>
                           <div className="space-y-1 text-sm text-slate-600">
                             <div className="flex items-center justify-between">
-                              <span>Volume Capacity:</span>
+                              <span>{t('trucks.card.volumeCapacity')}:</span>
                               <span className="font-medium">{truck.capacity.volume} m³</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span>Total Trips:</span>
+                              <span>{t('trucks.card.totalTrips')}:</span>
                               <span className="font-medium">{truck.totalTrips}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span>Posted:</span>
+                              <span>{t('trucks.card.posted')}:</span>
                               <span className="font-medium">{truck.postedDate}</span>
                             </div>
                           </div>
@@ -955,14 +955,14 @@ export default function FindTrucks() {
                           className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center flex items-center justify-center gap-2"
                         >
                           <MessageSquare className="w-4 h-4" />
-                          Request Contact
+                          {t('trucks.card.requestContact')}
                         </button>
                         {canRequestQuote && (
                           <button 
                             onClick={() => handleRequestQuote(truck)}
                             className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                           >
-                            Request Quote
+                            {t('trucks.card.requestQuote')}
                           </button>
                         )}
                         {!isAuthenticated && (
@@ -970,7 +970,7 @@ export default function FindTrucks() {
                             onClick={() => navigate('/signin?redirect=/trucks')}
                             className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                           >
-                            Sign In to Request Quote
+                            {t('trucks.card.signInToRequest')}
                           </button>
                         )}
                       </div>
@@ -1000,7 +1000,7 @@ export default function FindTrucks() {
             <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-slate-900">Request to Contact Carrier</h2>
+                  <h2 className="text-xl font-bold text-slate-900">{t('trucks.card.contactModalTitle')}</h2>
                   <button
                     onClick={() => {
                       setShowContactModal(false);
@@ -1012,7 +1012,7 @@ export default function FindTrucks() {
                   </button>
                 </div>
                 <p className="text-sm text-slate-600 mt-1">
-                  Your request will be reviewed by our team before connecting you with the carrier.
+                  {t('trucks.card.contactModalSubtitle')}
                 </p>
               </div>
               
@@ -1023,30 +1023,30 @@ export default function FindTrucks() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t('trucks.card.subject')}</label>
                   <input
                     type="text"
                     value={contactSubject}
                     onChange={(e) => setContactSubject(e.target.value)}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    placeholder="Subject of your inquiry"
+                    placeholder={t('trucks.card.subjectPlaceholder')}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t('trucks.card.message')}</label>
                   <textarea
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
                     rows={5}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-                    placeholder="Describe your requirements, cargo details, preferred dates, etc."
+                    placeholder={t('trucks.card.messagePlaceholder')}
                   />
                 </div>
                 
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                   <p className="text-sm text-amber-800">
-                    <strong>Note:</strong> Your contact request will be reviewed by our admin team. Once approved, we will facilitate the connection between you and the carrier.
+                    <strong>{t('common.note')}:</strong> {t('trucks.card.contactNote')}
                   </p>
                 </div>
               </div>
@@ -1059,7 +1059,7 @@ export default function FindTrucks() {
                   }}
                   className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={submitContactRequest}
@@ -1069,12 +1069,12 @@ export default function FindTrucks() {
                   {submittingContact ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Submitting...
+                      {t('trucks.card.submitting')}
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      Submit Request
+                      {t('trucks.card.submitRequest')}
                     </>
                   )}
                 </button>

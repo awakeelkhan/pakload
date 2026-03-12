@@ -182,17 +182,27 @@
       "searchTrucks": "ٹرک تلاش کریں",
       "hideFilters": "فلٹرز چھپائیں",
       "showFilters": "فلٹرز دکھائیں",
-      "clearAll": "سب صاف کریں",
+      "clearAll": "تمام صاف کریں",
       "minCapacity": "کم از کم گنجائش (کلوگرام)",
       "vehicleType": "گاڑی کی قسم",
       "verifiedCarriersOnly": "صرف تصدیق شدہ کیریئرز",
-      "insuredOnly": "صرف بیمہ شدہ",
+      "insuredOnly": "صرف انشورنس شدہ",
       "gpsTrackingOnly": "صرف GPS ٹریکنگ",
       "availableFrom": "سے دستیاب",
       "advancedFilters": "مزید فلٹرز",
       "savedTrucks": "محفوظ شدہ ٹرک",
       "avgRate": "اوسط شرح",
-      "showingResults": "{{total}} میں سے {{count}} ٹرک دکھائے جا رہے ہیں"
+      "showingResults": "{{count}} / {{total}} ٹرک دکھا رہے ہیں",
+      "noTrucksFound": "کوئی ٹرک نہیں ملے",
+      "tryAdjustingFilters": "اپنے فلٹرز ایڈجسٹ کریں",
+      "locationPlaceholder": "مثال: کشغر",
+      "truckTypes": {
+        "20ft": "20 فٹ کنٹینر",
+        "40ft": "40 فٹ کنٹینر",
+        "flatbed": "فلیٹ بیڈ",
+        "refrigerated": "ریفرجریٹڈ",
+        "lowboy": "لو بوئے ٹریلر"
+      }
     },
     "sort": {
       "highestRated": "سب سے زیادہ درجہ بند",
@@ -219,7 +229,32 @@
       "requestQuote": "قیمت کی درخواست کریں",
       "borderCrossing": "بارڈر کراسنگ کا تجربہ:",
       "onTime": "وقت پر",
-      "diesel": "ڈیزل"
+      "diesel": "ڈیزل",
+      "location": "مقام",
+      "available": "دستیاب",
+      "capacity": "گنجائش",
+      "routes": "راستے",
+      "cities": "شہر",
+      "hideDetails": "تفصیلات چھپائیں",
+      "viewCarrierProfile": "کیریئر پروفائل دیکھیں",
+      "removeFromSaved": "محفوظ شدہ سے ہٹائیں",
+      "contactModalTitle": "کیریئر سے رابطہ کی درخواست",
+      "contactModalSubtitle": "آپ کی درخواست کیریئر سے رابطہ کرنے سے پہلے ہماری ٹیم جائزے گی۔",
+      "subject": "موضوع",
+      "subjectPlaceholder": "آپ کی استفساد کا موضوع",
+      "message": "پیغام",
+      "messagePlaceholder": "اپنی ضروریات، کارگو کی تفصیلات، ترجیحی تاریخ وغیرہ بیان کریں۔",
+      "submitting": "جمع کر رہا ہے...",
+      "submitRequest": "درخواست جمع کریں",
+      "equipmentFeatures": "آلات کی خصوصیات",
+      "certifications": "سرٹیفکیٹ",
+      "contactCarrier": "کیریئر سے رابطہ کریں",
+      "contactInfo": "رابطے کی تفصیلات ہمارے ٹیم کے ذریعے سے منظم کی جاتی ہیں۔ ایک رابطہ کی درخواست جمع کریں اور ہم آپ کو اس کیریئر سے جوڑیں گ۔",
+      "requestToContact": "رابطہ کی درخواست",
+      "additionalInfo": "اضافی معلومات",
+      "volumeCapacity": "حجم کی گنجائش",
+      "totalTrips": "کل سفر",
+      "posted": "پوسٹ کیا گیا"
     }
   },
   "postLoad": {
@@ -386,7 +421,7 @@
     "success": "کامیابی",
     "cancel": "منسوخ کریں",
     "save": "محفوظ کریں",
-    "delete": "حذف کریں",
+    "note": "نوٹ",
     "edit": "ترمیم کریں",
     "close": "بند کریں",
     "search": "تلاش کریں",
@@ -395,7 +430,8 @@
     "showing": "دکھا رہا ہے",
     "results": "نتائج",
     "noResults": "کوئی نتیجہ نہیں ملا",
-    "tryAgain": "دوبارہ کوشش کریں"
+    "tryAgain": "دوبارہ کوشش کریں",
+    "lowestRate": "کمترین شرح"
   },
   "auth": {
     "signIn": "سائن ان",

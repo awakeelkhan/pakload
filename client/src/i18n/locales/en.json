@@ -213,12 +213,40 @@
       "advancedFilters": "Advanced Filters",
       "savedTrucks": "Saved Trucks",
       "avgRate": "Avg Rate",
-      "showingResults": "Showing {{count}} of {{total}} trucks"
+      "showingResults": "Showing {{count}} of {{total}} trucks",
+      "noTrucksFound": "No trucks found",
+      "tryAdjustingFilters": "Try adjusting your filters",
+      "truckTypes": {
+        "20ft": "20ft Container",
+        "40ft": "40ft Container",
+        "flatbed": "Flatbed",
+        "refrigerated": "Refrigerated",
+        "lowboy": "Lowboy Trailer"
+      }
     },
     "sort": {
       "highestRated": "Highest Rated",
       "newest": "Newest"
     },
+    "common": {
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "note": "Note",
+      "edit": "Edit",
+      "close": "Close",
+      "search": "Search",
+      "filter": "Filter",
+      "sort": "Sort",
+      "showing": "Showing",
+      "results": "results",
+      "noResults": "No results found",
+      "tryAgain": "Try again",
+      "lowestRate": "Lowest Rate"
+    }
     "stats": {
       "availableTrucks": "Available Trucks",
       "inChina": "In China",
@@ -240,7 +268,35 @@
       "onTime": "on-time",
       "diesel": "Diesel",
       "views": "views",
-      "trips": "trips"
+      "trips": "trips",
+      "location": "Location",
+      "available": "Available",
+      "capacity": "Capacity",
+      "routes": "Routes",
+      "cities": "cities",
+      "hideDetails": "Hide Details",
+      "viewCarrierProfile": "View Carrier Profile",
+      "removeFromSaved": "Remove from saved",
+      "saveTruck": "Save truck",
+      "equipmentFeatures": "Equipment Features",
+      "certifications": "Certifications",
+      "contactCarrier": "Contact Carrier",
+      "contactInfo": "Contact details are managed by our team. Submit a contact request and we'll connect you with this carrier.",
+      "requestToContact": "Request to Contact",
+      "additionalInfo": "Additional Info",
+      "volumeCapacity": "Volume Capacity",
+      "totalTrips": "Total Trips",
+      "posted": "Posted",
+      "signInToRequest": "Sign In to Request Quote",
+      "contactModalTitle": "Request to Contact Carrier",
+      "contactModalSubtitle": "Your request will be reviewed by our team before connecting you with the carrier.",
+      "subject": "Subject",
+      "subjectPlaceholder": "Subject of your inquiry",
+      "message": "Message",
+      "messagePlaceholder": "Describe your requirements, cargo details, preferred dates, etc.",
+      "contactNote": "Your contact request will be reviewed by our admin team. Once approved, we will facilitate the connection between you and the carrier.",
+      "submitting": "Submitting...",
+      "submitRequest": "Submit Request"
     }
   },
   "postLoad": {
@@ -408,6 +464,7 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
+    "note": "Note",
     "edit": "Edit",
     "close": "Close",
     "search": "Search",

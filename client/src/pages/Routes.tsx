@@ -64,7 +64,7 @@ export default function Routes() {
   const [destination, setDestination] = useState('');
   const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
   const [showCalculator, setShowCalculator] = useState(true);
-  const [fuelPrice, setFuelPrice] = useState(280);
+  const [fuelPrice, setFuelPrice] = useState(290); // Updated to current market price
   const [vehicleType, setVehicleType] = useState('truck');
   const [expandedRoute, setExpandedRoute] = useState<string | null>(null);
 

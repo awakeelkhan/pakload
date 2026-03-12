@@ -81,16 +81,47 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
     }
   };
 
-  const handleEditLoad = (load: any) => {
+  const handleEditLoad = async (load: any) => {
     setEditingLoad(load);
-    setEditForm({
-      origin: load.load.split(' → ')[0] || '',
-      destination: load.load.split(' → ')[1] || '',
-      cargoType: load.cargo || '',
-      weight: load.weight?.replace(' kg', '').replace(',', '') || '',
-      price: load.amount?.toString() || '',
-      description: ''
-    });
+    // Fetch full load details to get description and other fields
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/loads/${load.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const fullLoad = await response.json();
+        setEditForm({
+          origin: fullLoad.origin || load.load.split(' → ')[0] || '',
+          destination: fullLoad.destination || load.load.split(' → ')[1] || '',
+          cargoType: fullLoad.cargoType || load.cargo || '',
+          weight: fullLoad.weight?.toString() || load.weight?.replace(' kg', '').replace(',', '') || '',
+          price: fullLoad.price?.toString() || load.amount?.toString() || '',
+          description: fullLoad.description || ''
+        });
+      } else {
+        // Fallback to partial data
+        setEditForm({
+          origin: load.load.split(' → ')[0] || '',
+          destination: load.load.split(' → ')[1] || '',
+          cargoType: load.cargo || '',
+          weight: load.weight?.replace(' kg', '').replace(',', '') || '',
+          price: load.amount?.toString() || '',
+          description: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching load details:', error);
+      // Fallback to partial data
+      setEditForm({
+        origin: load.load.split(' → ')[0] || '',
+        destination: load.load.split(' → ')[1] || '',
+        cargoType: load.cargo || '',
+        weight: load.weight?.replace(' kg', '').replace(',', '') || '',
+        price: load.amount?.toString() || '',
+        description: ''
+      });
+    }
     setShowEditModal(true);
   };
 
@@ -110,6 +141,25 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
 
   const handleSaveEdit = async () => {
     if (!editingLoad) return;
+    
+    // Validation
+    if (!editForm.origin.trim() || !editForm.destination.trim()) {
+      alert('Please fill in both origin and destination');
+      return;
+    }
+    if (!editForm.cargoType.trim()) {
+      alert('Please enter cargo type');
+      return;
+    }
+    if (!editForm.weight || parseFloat(editForm.weight) <= 0) {
+      alert('Please enter a valid weight');
+      return;
+    }
+    if (!editForm.price || parseFloat(editForm.price) <= 0) {
+      alert('Please enter a valid price');
+      return;
+    }
+    
     setEditLoading(true);
     try {
       const token = localStorage.getItem('access_token');
@@ -123,15 +173,27 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
           origin: editForm.origin,
           destination: editForm.destination,
           cargoType: editForm.cargoType,
-          weight: parseFloat(editForm.weight) || 0,
-          price: editForm.price,
+          weight: parseFloat(editForm.weight),
+          price: parseFloat(editForm.price),
           description: editForm.description
         })
       });
       
       if (response.ok) {
+        const updatedLoad = await response.json();
+        // Update the load in the local state immediately
+        setRecentLoads(prev => prev.map(load => 
+          load.id === editingLoad.id 
+            ? {
+                ...load,
+                load: `${editForm.origin} → ${editForm.destination}`,
+                cargo: editForm.cargoType,
+                weight: `${parseFloat(editForm.weight).toLocaleString()} kg`,
+                amount: parseFloat(editForm.price)
+              }
+            : load
+        ));
         setShowEditModal(false);
-        fetchDashboardData();
         alert('Load updated successfully!');
       } else {
         const errorData = await response.json();

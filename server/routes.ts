@@ -448,6 +448,23 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get shipper's own loads - MUST be before /:id to avoid route conflict
+  app.get('/api/loads/my-loads', requireAuth, async (req, res) => {
+    try {
+      const loads = await loadRepo.findAll({ shipperId: req.user!.id });
+      const flattenedLoads = (loads || []).map((item: any) => ({
+        ...(item.load || item),
+        weight: parseFloat((item.load || item)?.cargoWeight) || 0,
+        cargo: (item.load || item)?.cargoType || 'General',
+        shipper: item.shipper,
+      }));
+      res.json({ loads: flattenedLoads });
+    } catch (error) {
+      console.error('Error fetching my loads:', error);
+      res.status(500).json({ error: 'Failed to fetch loads' });
+    }
+  });
+
   app.get('/api/loads/:id', async (req, res) => {
     try {
       const load = await loadRepo.findById(parseInt(req.params.id));
@@ -480,10 +497,22 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ error: 'Cannot edit load in current status' });
       }
       
-      const loadData = {
+      const loadData: any = {
         ...req.body,
         updatedAt: new Date(),
       };
+      // Map frontend field names to DB column names
+      if (req.body.weight !== undefined && req.body.cargoWeight === undefined) {
+        loadData.cargoWeight = String(req.body.weight);
+        delete loadData.weight;
+      }
+      if (req.body.cargoType === undefined && req.body.cargo !== undefined) {
+        loadData.cargoType = req.body.cargo;
+        delete loadData.cargo;
+      }
+      if (req.body.price !== undefined) {
+        loadData.price = String(req.body.price);
+      }
       
       const updatedLoad = await loadRepo.update(loadId, loadData);
       res.json(updatedLoad);
@@ -493,16 +522,6 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Get shipper's own loads
-  app.get('/api/loads/my-loads', requireAuth, async (req, res) => {
-    try {
-      const loads = await loadRepo.findAll({ shipperId: req.user!.id });
-      res.json({ loads: loads || [] });
-    } catch (error) {
-      console.error('Error fetching my loads:', error);
-      res.status(500).json({ error: 'Failed to fetch loads' });
-    }
-  });
 
   app.delete('/api/loads/:id', optionalAuth, async (req, res) => {
     try {

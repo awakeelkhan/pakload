@@ -77,7 +77,10 @@ router.post('/image', requireAuth, upload.single('image'), (req: MulterRequest, 
     }
 
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `${baseUrl}/uploads/images/${req.file.filename}`;
+    // Use correct subfolder based on actual file type
+    const isImage = req.file.mimetype.startsWith('image/');
+    const folder = isImage ? 'images' : 'documents';
+    const fileUrl = `${baseUrl}/uploads/${folder}/${req.file.filename}`;
 
     res.json({
       success: true,

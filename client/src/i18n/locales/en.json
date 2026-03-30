@@ -228,26 +228,6 @@
       "highestRated": "Highest Rated",
       "newest": "Newest"
     },
-    "common": {
-      "loading": "Loading...",
-      "error": "Error",
-      "success": "Success",
-      "cancel": "Cancel",
-      "save": "Save",
-      "delete": "Delete",
-      "note": "Note",
-      "edit": "Edit",
-      "close": "Close",
-      "search": "Search",
-      "filter": "Filter",
-      "sort": "Sort",
-      "showing": "Showing",
-      "results": "results",
-      "noResults": "No results found",
-      "tryAgain": "Try again",
-      "lowestRate": "Lowest Rate"
-    },
-    "stats": {
     "stats": {
       "availableTrucks": "Available Trucks",
       "inChina": "In China",

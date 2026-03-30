@@ -45,8 +45,11 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       const statsRes = await fetch('/api/stats');
       const statsData = await statsRes.json();
       
-      // Fetch loads
-      const loadsRes = await fetch('/api/loads');
+      // Fetch only this shipper's own loads
+      const token = localStorage.getItem('access_token');
+      const loadsRes = await fetch('/api/loads/my-loads', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const loadsData = await loadsRes.json();
       // Handle paginated response
       const loadsArray = loadsData.loads || loadsData || [];

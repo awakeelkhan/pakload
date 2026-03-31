@@ -155,6 +155,7 @@ export default function KYC() {
       // Upload documents to server
       const token = localStorage.getItem('access_token');
       
+      let failedDocs: string[] = [];
       for (const doc of documents) {
         if (doc.file) {
           // First upload the file
@@ -171,7 +172,7 @@ export default function KYC() {
             const uploadData = await uploadResponse.json();
             
             // Then create the document record
-            await fetch('/api/documents/upload', {
+            const docResponse = await fetch('/api/documents/upload', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -182,8 +183,19 @@ export default function KYC() {
                 documentUrl: uploadData.url,
               }),
             });
+            if (!docResponse.ok) {
+              console.error(`Failed to save document record for ${doc.type}`);
+              failedDocs.push(doc.type);
+            }
+          } else {
+            console.error(`Failed to upload file for ${doc.type}`);
+            failedDocs.push(doc.type);
           }
         }
+      }
+      if (failedDocs.length > 0) {
+        alert(`Some documents failed to upload: ${failedDocs.join(', ')}. Please try again.`);
+        return;
       }
       
       // Update all pending documents to show they're under review

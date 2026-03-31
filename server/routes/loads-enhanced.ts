@@ -288,8 +288,10 @@ router.put('/:id', requireAuth, async (req, res) => {
     
     const {
       origin, destination, pickupDate, deliveryDate,
-      cargoType, cargoWeight, description, price, status,
+      cargoType, cargoWeight, weight, description, price, status,
     } = req.body;
+    // Accept either cargoWeight (API) or weight (frontend normalized field)
+    const resolvedCargoWeight = cargoWeight || weight;
     
     const [updatedLoad] = await db.update(loads)
       .set({
@@ -298,7 +300,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         pickupDate: pickupDate ? new Date(pickupDate) : existingLoad.pickupDate,
         deliveryDate: deliveryDate ? new Date(deliveryDate) : existingLoad.deliveryDate,
         cargoType: cargoType || existingLoad.cargoType,
-        cargoWeight: cargoWeight ? String(cargoWeight) : existingLoad.cargoWeight,
+        cargoWeight: resolvedCargoWeight ? String(resolvedCargoWeight) : existingLoad.cargoWeight,
         description: description !== undefined ? description : existingLoad.description,
         price: price ? String(price) : existingLoad.price,
         status: status || existingLoad.status,

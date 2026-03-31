@@ -66,8 +66,8 @@ export default function Profile() {
       
       // Map local state keys to API document types
       const docTypeMap: Record<string, string> = {
-        'nic': 'cnic_front',
-        'license': 'driving_license',
+        'nic': 'nic_copy',
+        'license': 'driving_license_htv',
         'companyReg': 'company_registration',
         'vehicleReg': 'vehicle_registration',
       };

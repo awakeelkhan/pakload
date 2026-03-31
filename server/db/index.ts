@@ -25,8 +25,7 @@ pool.on('connect', () => {
 });
 
 pool.on('error', (err) => {
-  console.error('❌ Unexpected database error:', err);
-  process.exit(-1);
+  console.error('❌ Unexpected database pool error (non-fatal):', err.message);
 });
 
 // Create Drizzle ORM instance

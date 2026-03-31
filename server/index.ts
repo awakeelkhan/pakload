@@ -67,6 +67,8 @@ const allowedOrigins = [
   'http://localhost:5000',
   'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com',
   'http://ec2-13-50-123-3.eu-north-1.compute.amazonaws.com:5000',
+  'https://loadspak.com',
+  'http://loadspak.com',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 

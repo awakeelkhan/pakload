@@ -454,7 +454,8 @@
     "showing": "Showing",
     "results": "results",
     "noResults": "No results found",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "lowestRate": "Lowest Rate"
   },
   "validation": {
     "emailRequired": "Email is required",

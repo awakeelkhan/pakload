@@ -28,8 +28,8 @@ export default function MyRequests() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    if (user) fetchRequests();
+  }, [user]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -38,9 +38,11 @@ export default function MyRequests() {
       const token = localStorage.getItem('access_token');
       
       // Try to fetch real data from all request types
+      const userId = user?.id;
+      const roleParam = user?.role === 'carrier' ? `carrierId=${userId}` : `shipperId=${userId}`;
       const [bookingsRes, bidsRes, goodsRequestsRes, marketRequestsRes, loadsRes, contactRequestsRes] = await Promise.all([
-        fetch('/api/bookings', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
-        fetch('/api/bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch(`/api/bookings?${roleParam}`, { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
+        fetch('/api/my-bids', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/goods-requests/my/requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/market-requests/my-requests', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
         fetch('/api/loads/my-loads', { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => null),
@@ -74,7 +76,8 @@ export default function MyRequests() {
       }
 
       if (bookingsRes?.ok) {
-        const bookings = await bookingsRes.json();
+        const bookingsData = await bookingsRes.json();
+        const bookings = bookingsData.bookings || bookingsData || [];
         const bookingRequests = (bookings || []).map((b: any) => ({
           id: b.id + 10000,
           type: 'booking' as const,

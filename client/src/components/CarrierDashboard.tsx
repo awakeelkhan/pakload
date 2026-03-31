@@ -36,7 +36,7 @@ export default function CarrierDashboard({ user }: CarrierDashboardProps) {
       const statsData = await statsRes.json();
       
       // Fetch available loads
-      const loadsRes = await fetch('/api/loads?status=available');
+      const loadsRes = await fetch('/api/loads?status=posted');
       const loadsData = await loadsRes.json();
       // Handle paginated response
       const loadsArray = loadsData.loads || loadsData || [];

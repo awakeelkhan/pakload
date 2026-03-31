@@ -1,0 +1,24 @@
+name: Deploy to EC2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 13.50.123.3
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 120s
+          script: |
+            cd /home/ec2-user/pakload
+            git pull origin main
+            npm run build:server
+            npm run build:client
+            pm2 restart pakload
+            pm2 save
+            echo "Deployment complete"

@@ -256,6 +256,9 @@
       "hideDetails": "تفصيلات پټول",
       "viewCarrierProfile": "د کیرير پروفايل وګورئ",
       "removeFromSaved": "له خوندي شوي څخه لرې کړئ",
+      "saveTruck": "ټرک خوندي کړئ",
+      "signInToRequest": "د کوټ غوښتنې لپاره ننوتل",
+      "contactNote": "ستاسو د اړیک غوښتنه به زموږ د ادارې ټیم لخوا بررسنه شي. د تایید وروسته، موږ به ستاسو او کیریر تر منځ اړیک برابر کړو.",
       "contactModalTitle": "د کیریر سره اړیک غوښتنه",
       "contactModalSubtitle": "ستاسو اړیک د کیریر سره د تړو کولو دمخه زموږ د ټیم لخوا بررسنه کوو.",
       "subject": "موضوع",
@@ -451,14 +454,15 @@
     "results": "پایلې",
     "noResults": "هیڅ پایله ونه موندل شوه",
     "tryAgain": "بیا هڅه وکړئ",
+    "lowestRate": "ټول لږ نرخ",
+    "delete": "ړنګول",
     "view": "کتل",
     "submit": "سپارل",
     "back": "شاته",
     "next": "بل",
     "previous": "مخکینی",
     "yes": "هو",
-    "no": "نه",
-    "lowestRate": "ټول لږ نرخ"
+    "no": "نه"
   },
   "validation": {
     "emailRequired": "بریښنالیک اړین دی",

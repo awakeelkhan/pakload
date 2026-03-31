@@ -1692,6 +1692,17 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Delete all read notifications - MUST be before /:id to avoid route conflict
+  app.delete('/api/notifications/read', requireAuth, async (req, res) => {
+    try {
+      const count = await notificationRepo.deleteAllRead(req.user!.id);
+      res.json({ message: `Deleted ${count} read notifications`, count });
+    } catch (error) {
+      console.error('Error deleting read notifications:', error);
+      res.status(500).json({ error: 'Failed to delete read notifications' });
+    }
+  });
+
   // Delete a notification
   app.delete('/api/notifications/:id', requireAuth, async (req, res) => {
     try {
@@ -1711,17 +1722,6 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error deleting notification:', error);
       res.status(500).json({ error: 'Failed to delete notification' });
-    }
-  });
-
-  // Delete all read notifications
-  app.delete('/api/notifications/read', requireAuth, async (req, res) => {
-    try {
-      const count = await notificationRepo.deleteAllRead(req.user!.id);
-      res.json({ message: `Deleted ${count} read notifications`, count });
-    } catch (error) {
-      console.error('Error deleting read notifications:', error);
-      res.status(500).json({ error: 'Failed to delete read notifications' });
     }
   });
 

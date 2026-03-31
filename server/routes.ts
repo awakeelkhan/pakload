@@ -502,7 +502,7 @@ export function registerRoutes(app: Express) {
         updatedAt: new Date(),
       };
       // Map frontend field names to DB column names
-      if (req.body.weight !== undefined && req.body.cargoWeight === undefined) {
+      if (req.body.weight !== undefined) {
         loadData.cargoWeight = String(req.body.weight);
         delete loadData.weight;
       }

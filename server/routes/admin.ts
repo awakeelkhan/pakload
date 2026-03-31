@@ -1520,4 +1520,75 @@ router.patch('/bids/:id/reject', async (req, res) => {
   }
 });
 
+// Analytics endpoint
+router.get('/analytics', async (req, res) => {
+  try {
+    const { db } = await import('../db/index.js');
+    const { users, loads, bookings } = await import('../db/schema.js');
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [allUsers, allLoads, allBookings] = await Promise.all([
+      db.select().from(users),
+      db.select().from(loads),
+      db.select().from(bookings),
+    ]);
+
+    const newUsersThisMonth = allUsers.filter(u => new Date(u.createdAt) >= startOfMonth).length;
+    const activeLoads = allLoads.filter(l => ['posted', 'in_transit'].includes(l.status)).length;
+    const completedLoads = allLoads.filter(l => l.status === 'delivered').length;
+    const totalRevenue = allLoads.reduce((sum, l) => sum + parseFloat(l.price || '0'), 0);
+    const monthlyRevenue = allLoads
+      .filter(l => new Date(l.createdAt) >= startOfMonth)
+      .reduce((sum, l) => sum + parseFloat(l.price || '0'), 0);
+    const avgLoadValue = allLoads.length > 0 ? totalRevenue / allLoads.length : 0;
+
+    // Top routes
+    const routeCounts: Record<string, number> = {};
+    allLoads.forEach(l => {
+      if (l.origin && l.destination) {
+        const key = `${l.origin} → ${l.destination}`;
+        routeCounts[key] = (routeCounts[key] || 0) + 1;
+      }
+    });
+    const topRoutes = Object.entries(routeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([route, count]) => ({ route, count }));
+
+    // Loads by status
+    const statusCounts: Record<string, number> = {};
+    allLoads.forEach(l => { statusCounts[l.status] = (statusCounts[l.status] || 0) + 1; });
+    const loadsByStatus = Object.entries(statusCounts).map(([status, count]) => ({ status, count }));
+
+    // User growth (last 6 months)
+    const userGrowth = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+      return {
+        month: d.toLocaleString('default', { month: 'short', year: '2-digit' }),
+        users: allUsers.filter(u => new Date(u.createdAt) >= d && new Date(u.createdAt) < next).length,
+      };
+    });
+
+    res.json({
+      totalUsers: allUsers.length,
+      newUsersThisMonth,
+      totalLoads: allLoads.length,
+      activeLoads,
+      completedLoads,
+      totalRevenue,
+      monthlyRevenue,
+      avgLoadValue,
+      topRoutes,
+      userGrowth,
+      loadsByStatus,
+    });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
 export default router;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Package, MapPin, Calendar, DollarSign, Clock, CheckCircle, XCircle, 
   AlertCircle, User, Truck, MessageSquare, Star, Phone, Mail, 
@@ -45,25 +46,25 @@ export default function MyBids() {
   const [loading, setLoading] = useState(true);
   const [expandedBid, setExpandedBid] = useState<number | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all');
+  const { user } = useAuth();
   const [processingBid, setProcessingBid] = useState<number | null>(null);
   const [showBilty, setShowBilty] = useState<Bid | null>(null);
 
   useEffect(() => {
-    fetchBids();
-  }, []);
+    if (user) fetchBids();
+  }, [user]);
 
   const fetchBids = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/bookings', {
+      const response = await fetch('/api/my-bids', {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
         },
       });
       const data = await response.json();
-      // Handle paginated response
-      const bidsArray = data.bookings || data || [];
+      const bidsArray = Array.isArray(data) ? data : (data.bookings || data || []);
       setBids(Array.isArray(bidsArray) ? bidsArray : []);
     } catch (error) {
       console.error('Error fetching bids:', error);

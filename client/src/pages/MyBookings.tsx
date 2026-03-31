@@ -42,7 +42,11 @@ export default function MyBookings() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/bookings');
+      const token = localStorage.getItem('access_token');
+      const roleParam = user?.role === 'carrier' ? `carrierId=${user.id}` : `shipperId=${user?.id}`;
+      const response = await fetch(`/api/bookings?${roleParam}`, {
+        headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+      });
       const data = await response.json();
       
       // Transform the data for display

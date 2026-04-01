@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { 
   HelpCircle, Book, Package, Truck, Users, Shield, 
@@ -15,52 +16,20 @@ type Section = 'getting-started' | 'shipper' | 'carrier' | 'admin' | 'faq';
 export default function HelpCenter() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<Section>('getting-started');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const sections = [
-    { id: 'getting-started', label: 'Getting Started', icon: Play, color: 'green' },
-    { id: 'shipper', label: 'For Shippers', icon: Package, color: 'blue' },
-    { id: 'carrier', label: 'For Carriers', icon: Truck, color: 'purple' },
-    { id: 'admin', label: 'For Admins', icon: Shield, color: 'red' },
-    { id: 'faq', label: 'FAQ', icon: HelpCircle, color: 'amber' },
+    { id: 'getting-started', label: t('helpCenter.sections.gettingStarted'), icon: Play, color: 'green' },
+    { id: 'shipper', label: t('helpCenter.sections.forShippers'), icon: Package, color: 'blue' },
+    { id: 'carrier', label: t('helpCenter.sections.forCarriers'), icon: Truck, color: 'purple' },
+    { id: 'admin', label: t('helpCenter.sections.forAdmins'), icon: Shield, color: 'red' },
+    { id: 'faq', label: t('helpCenter.sections.faq'), icon: HelpCircle, color: 'amber' },
   ];
 
-  const faqs = [
-    {
-      question: "How do I create an account?",
-      answer: "Click 'Sign Up' on the homepage, choose your role (Shipper or Carrier), fill in your details, and verify your email. You'll be ready to use the platform immediately."
-    },
-    {
-      question: "How do I post a load?",
-      answer: "After logging in as a Shipper, click 'Post Load' in the navigation. Fill out the 6-step form with origin, destination, cargo details, schedule, and pricing. Submit to make your load visible to carriers."
-    },
-    {
-      question: "How do I find available loads?",
-      answer: "As a Carrier, go to 'Find Loads' page. Use filters to narrow down by origin, destination, cargo type, or date. Click on any load to see details and submit a quote."
-    },
-    {
-      question: "How do I track my shipment?",
-      answer: "Use the 'Track Shipment' feature in the navigation. Enter your tracking number to see real-time status, location, and estimated delivery time."
-    },
-    {
-      question: "How do I add my vehicles?",
-      answer: "Carriers can add vehicles from Dashboard > My Vehicles. Click 'Add Vehicle', enter details like type, registration, capacity, and current location."
-    },
-    {
-      question: "How do I submit a quote/bid?",
-      answer: "When viewing a load, click 'Submit Quote'. Enter your proposed price and any notes. The shipper will review and accept or negotiate."
-    },
-    {
-      question: "How do I change my password?",
-      answer: "Go to Profile > Click 'Change Password'. Enter your current password and new password twice to confirm."
-    },
-    {
-      question: "What payment methods are accepted?",
-      answer: "We support bank transfers, mobile wallets (JazzCash, Easypaisa), and credit/debit cards. Payment terms are agreed between shipper and carrier."
-    },
-  ];
+  const faqs = (t('helpCenter.faq.questions', { returnObjects: true }) as Array<{question: string; answer: string}>) || [];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -68,19 +37,19 @@ export default function HelpCenter() {
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-2 text-green-100 text-sm mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-white">Home</button>
+            <button onClick={() => navigate('/')} className="hover:text-white">{t('helpCenter.home')}</button>
             <ChevronRight className="w-4 h-4" />
-            <span>Help Center</span>
+            <span>{t('helpCenter.breadcrumb')}</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">How can we help you?</h1>
-          <p className="text-green-100 text-lg mb-6">Find guides, tutorials, and answers to common questions</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{t('helpCenter.title')}</h1>
+          <p className="text-green-100 text-lg mb-6">{t('helpCenter.subtitle')}</p>
           
           {/* Search */}
           <div className="relative max-w-2xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search for help articles..."
+              placeholder={t('helpCenter.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-4 focus:ring-green-300 focus:outline-none"
@@ -439,7 +408,7 @@ export default function HelpCenter() {
             {/* FAQ */}
             {activeSection === 'faq' && (
               <div className="bg-white rounded-xl border border-slate-200 p-8">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-6">{t('helpCenter.faq.title')}</h2>
                 
                 <div className="space-y-4">
                   {faqs.map((faq, index) => (
@@ -466,9 +435,9 @@ export default function HelpCenter() {
 
                 {/* Still Need Help */}
                 <div className="mt-8 p-6 bg-green-50 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-green-800 mb-2">Still have questions?</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">{t('helpCenter.stillNeedHelp')}</h3>
                   <p className="text-sm text-green-700 mb-4">
-                    Our support team is here to help you 24/7.
+                    {t('helpCenter.supportDesc')}
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <a 
@@ -476,14 +445,14 @@ export default function HelpCenter() {
                       className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
                       <Mail className="w-4 h-4" />
-                      Email Support
+                      {t('helpCenter.emailSupport')}
                     </a>
                     <a 
                       href="tel:+923001234567"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-white text-green-700 border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
                     >
                       <Phone className="w-4 h-4" />
-                      Call Us
+                      {t('helpCenter.phoneSupport')}
                     </a>
                   </div>
                 </div>

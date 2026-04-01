@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Package, MapPin, Truck, DollarSign, Send, AlertCircle, Loader2, 
   ChevronRight, ChevronLeft, Calendar, Clock, User, Phone, Box, Scale,
@@ -58,6 +59,7 @@ const CURRENCY_OPTIONS = [
 ];
 
 export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -279,24 +281,24 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
         <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <Clock className="h-10 w-10 text-amber-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Load Submitted for Approval!</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('loadForm.success.title')}</h2>
         <p className="text-gray-600 mb-2">
-          Tracking Number: <span className="font-mono font-bold text-green-600">{createdLoad.trackingNumber}</span>
+          {t('loadForm.success.trackingNumber')}: <span className="font-mono font-bold text-green-600">{createdLoad.trackingNumber}</span>
         </p>
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
           <p className="text-amber-800 text-sm">
-            <strong>Pending Admin Approval:</strong> Your load will be visible to carriers once approved by our admin team. This usually takes 1-2 hours during business hours.
+            <strong>{t('loadForm.success.pendingApproval')}:</strong> {t('loadForm.success.pendingApprovalDesc')}
           </p>
         </div>
         <p className="text-gray-500 mb-8">
-          You will be notified once your load is approved.
+          {t('loadForm.success.notified')}
         </p>
         <div className="flex justify-center gap-4">
           <button
             onClick={() => window.location.href = '/loads'}
             className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
           >
-            View My Loads
+            {t('loadForm.success.viewLoads')}
           </button>
           <button
             onClick={() => {
@@ -317,7 +319,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             }}
             className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
           >
-            Post Another Load
+            {t('loadForm.success.postAnother')}
           </button>
         </div>
       </div>
@@ -329,10 +331,10 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-8 overflow-x-auto pb-2">
         {[
-          { num: 1, label: 'Pickup', icon: MapPin },
-          { num: 2, label: 'Delivery', icon: Truck },
-          { num: 3, label: 'Cargo', icon: Package },
-          { num: 4, label: 'Price & Media', icon: DollarSign },
+          { num: 1, label: t('loadForm.steps.pickup'), icon: MapPin },
+          { num: 2, label: t('loadForm.steps.delivery'), icon: Truck },
+          { num: 3, label: t('loadForm.steps.cargo'), icon: Package },
+          { num: 4, label: t('loadForm.steps.priceMedia'), icon: DollarSign },
         ].map((s, idx) => (
           <div key={s.num} className="flex items-center">
             <button
@@ -372,28 +374,28 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <MapPin className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Pickup Location</h2>
-              <p className="text-sm text-gray-500">Where should the carrier pick up the load?</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('loadForm.pickup.title')}</h2>
+              <p className="text-sm text-gray-500">{t('loadForm.pickup.subtitle')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Origin City <span className="text-red-500">*</span>
+                {t('loadForm.pickup.originCity')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.originCity}
                 onChange={(e) => handleChange('originCity', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="">Select city</option>
-                <optgroup label="Pakistan">
+                <option value="">{t('loadForm.pickup.selectCity')}</option>
+                <optgroup label={t('loadForm.pakistan')}>
                   {PAKISTAN_CITIES.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
                 </optgroup>
-                <optgroup label="China (CPEC)">
+                <optgroup label={t('loadForm.chinaCPEC')}>
                   {CHINA_CITIES.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
@@ -403,7 +405,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address / Area
+                {t('loadForm.pickup.addressArea')}
               </label>
               <input
                 type="text"
@@ -417,7 +419,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="h-4 w-4 inline mr-1" />
-                Pin Pickup Location on Map
+                {t('loadForm.pickup.pinLocation')}
               </label>
               <LocationPicker
                 label="Pickup Location"
@@ -434,7 +436,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="h-4 w-4 inline mr-1" />
-                Pickup Date <span className="text-red-500">*</span>
+                {t('loadForm.pickup.pickupDate')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -448,28 +450,28 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Clock className="h-4 w-4 inline mr-1" />
-                Time Window
+                {t('loadForm.pickup.timeWindow')}
               </label>
               <select
                 value={formData.pickupTimeWindow}
                 onChange={(e) => handleChange('pickupTimeWindow', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="">Flexible</option>
-                <option value="morning">Morning (6AM - 12PM)</option>
-                <option value="afternoon">Afternoon (12PM - 6PM)</option>
-                <option value="evening">Evening (6PM - 10PM)</option>
+                <option value="">{t('loadForm.pickup.flexible')}</option>
+                <option value="morning">{t('loadForm.pickup.morning')}</option>
+                <option value="afternoon">{t('loadForm.pickup.afternoon')}</option>
+                <option value="evening">{t('loadForm.pickup.evening')}</option>
               </select>
             </div>
           </div>
 
           <div className="border-t pt-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Pickup Contact (Optional)</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">{t('loadForm.pickup.contactOptional')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <User className="h-4 w-4 inline mr-1" />
-                  Contact Name
+                  {t('loadForm.pickup.contactName')}
                 </label>
                 <input
                   type="text"
@@ -482,7 +484,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Phone className="h-4 w-4 inline mr-1" />
-                  Phone Number
+                  {t('loadForm.pickup.phoneNumber')}
                 </label>
                 <input
                   type="tel"
@@ -505,28 +507,28 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <Truck className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Delivery Location</h2>
-              <p className="text-sm text-gray-500">Where should the load be delivered?</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('loadForm.delivery.title')}</h2>
+              <p className="text-sm text-gray-500">{t('loadForm.delivery.subtitle')}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Destination City <span className="text-red-500">*</span>
+                {t('loadForm.delivery.destinationCity')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.destinationCity}
                 onChange={(e) => handleChange('destinationCity', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="">Select city</option>
-                <optgroup label="Pakistan">
+                <option value="">{t('loadForm.delivery.selectCity')}</option>
+                <optgroup label={t('loadForm.pakistan')}>
                   {PAKISTAN_CITIES.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
                 </optgroup>
-                <optgroup label="China (CPEC)">
+                <optgroup label={t('loadForm.chinaCPEC')}>
                   {CHINA_CITIES.map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
@@ -536,7 +538,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address / Area
+                {t('loadForm.delivery.addressArea')}
               </label>
               <input
                 type="text"
@@ -550,7 +552,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="h-4 w-4 inline mr-1" />
-                Pin Delivery Location on Map
+                {t('loadForm.delivery.pinLocation')}
               </label>
               <LocationPicker
                 label="Delivery Location"
@@ -568,7 +570,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="h-4 w-4 inline mr-1" />
-                Delivery Date <span className="text-red-500">*</span>
+                {t('loadForm.delivery.deliveryDate')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -582,17 +584,17 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Clock className="h-4 w-4 inline mr-1" />
-                Time Window
+                {t('loadForm.delivery.timeWindow')}
               </label>
               <select
                 value={formData.deliveryTimeWindow}
                 onChange={(e) => handleChange('deliveryTimeWindow', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="">Flexible</option>
-                <option value="morning">Morning (6AM - 12PM)</option>
-                <option value="afternoon">Afternoon (12PM - 6PM)</option>
-                <option value="evening">Evening (6PM - 10PM)</option>
+                <option value="">{t('loadForm.pickup.flexible')}</option>
+                <option value="morning">{t('loadForm.pickup.morning')}</option>
+                <option value="afternoon">{t('loadForm.pickup.afternoon')}</option>
+                <option value="evening">{t('loadForm.pickup.evening')}</option>
               </select>
             </div>
           </div>
@@ -600,18 +602,18 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           {formData.pickupDate && formData.deliveryDate && (
             <div className="p-4 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Transit Time:</strong> {Math.ceil((new Date(formData.deliveryDate).getTime() - new Date(formData.pickupDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                <strong>{t('loadForm.delivery.transitTime')}:</strong> {Math.ceil((new Date(formData.deliveryDate).getTime() - new Date(formData.pickupDate).getTime()) / (1000 * 60 * 60 * 24))} {t('loadForm.delivery.days')}
               </p>
             </div>
           )}
 
           <div className="border-t pt-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-4">Delivery Contact (Optional)</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">{t('loadForm.delivery.contactOptional')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <User className="h-4 w-4 inline mr-1" />
-                  Receiver Name
+                  {t('loadForm.delivery.receiverName')}
                 </label>
                 <input
                   type="text"
@@ -624,7 +626,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Phone className="h-4 w-4 inline mr-1" />
-                  Phone Number
+                  {t('loadForm.delivery.phoneNumber')}
                 </label>
                 <input
                   type="tel"
@@ -647,8 +649,8 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <Package className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Cargo Details</h2>
-              <p className="text-sm text-gray-500">Describe your cargo and select equipment</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('loadForm.cargo.title')}</h2>
+              <p className="text-sm text-gray-500">{t('loadForm.cargo.subtitle')}</p>
             </div>
           </div>
 
@@ -656,14 +658,14 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Package className="h-4 w-4 inline mr-1" />
-                Cargo Type <span className="text-red-500">*</span>
+                {t('loadForm.cargo.cargoType')} <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.cargoType}
                 onChange={(e) => handleChange('cargoType', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
-                <option value="">Select cargo type</option>
+                <option value="">{t('loadForm.cargo.selectCargoType')}</option>
                 {CARGO_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -673,7 +675,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Scale className="h-4 w-4 inline mr-1" />
-                Weight <span className="text-red-500">*</span>
+                {t('loadForm.cargo.weight')} <span className="text-red-500">*</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -699,12 +701,12 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <FileText className="h-4 w-4 inline mr-1" />
-              Cargo Description
+              {t('loadForm.cargo.cargoDescription')}
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Describe your cargo (packaging, handling instructions, etc.)"
+              placeholder={t('loadForm.cargo.descPlaceholder')}
               rows={3}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
@@ -713,8 +715,8 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           {/* Equipment Type Cards */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              <Box className="h-4 w-4 inline mr-1" />
-              Equipment Type <span className="text-red-500">*</span>
+                <Box className="h-4 w-4 inline mr-1" />
+              {t('loadForm.cargo.equipmentType')} <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {EQUIPMENT_TYPES.map(eq => (
@@ -747,8 +749,8 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               <DollarSign className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Pricing & Media</h2>
-              <p className="text-sm text-gray-500">Set your rate and upload images/documents</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('loadForm.pricing.title')}</h2>
+              <p className="text-sm text-gray-500">{t('loadForm.pricing.subtitle')}</p>
             </div>
           </div>
 
@@ -756,7 +758,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div className="bg-gray-50 p-6 rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <DollarSign className="h-4 w-4 inline mr-1" />
-              Your Rate <span className="text-red-500">*</span>
+              {t('loadForm.pricing.yourRate')} <span className="text-red-500">*</span>
             </label>
             <div className="flex gap-2">
               <select
@@ -785,35 +787,35 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
             {formData.price && parseFloat(formData.price) > 0 && (
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-blue-700 font-medium">Currency Conversion</span>
-                  <span className="text-xs text-blue-500">Rate: 1 USD = 278 PKR</span>
+                  <span className="text-blue-700 font-medium">{t('loadForm.pricing.currencyConversion')}</span>
+                  <span className="text-xs text-blue-500">{t('loadForm.pricing.rate')}: 1 USD = 278 PKR</span>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-4">
                   <div className="bg-white p-2 rounded border border-blue-100">
-                    <p className="text-xs text-gray-500">PKR (Pakistani Rupee)</p>
+                    <p className="text-xs text-gray-500">{t('loadForm.pricing.pkr')}</p>
                     <p className="text-lg font-bold text-gray-900">Rs {parseFloat(formData.price).toLocaleString()}</p>
                   </div>
                   <div className="bg-white p-2 rounded border border-blue-100">
-                    <p className="text-xs text-gray-500">USD (US Dollar)</p>
+                    <p className="text-xs text-gray-500">{t('loadForm.pricing.usd')}</p>
                     <p className="text-lg font-bold text-green-600">${(parseFloat(formData.price) / 278).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                   </div>
                 </div>
               </div>
             )}
             <p className="text-xs text-gray-500 mt-2">
-              This is the total amount you're willing to pay for this shipment
+              {t('loadForm.pricing.totalNote')}
             </p>
           </div>
 
           {/* Special Requirements */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Special Requirements
+              {t('loadForm.pricing.specialRequirements')}
             </label>
             <textarea
               value={formData.specialRequirements}
               onChange={(e) => handleChange('specialRequirements', e.target.value)}
-              placeholder="Any special handling, temperature requirements, hazmat, etc."
+              placeholder={t('loadForm.pricing.specialRequirementsPlaceholder')}
               rows={2}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
@@ -823,9 +825,9 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
           <div className="border-t pt-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <Camera className="h-4 w-4" />
-              Product Images (Optional)
+              {t('loadForm.pricing.productImages')}
             </h3>
-            <p className="text-xs text-gray-500 mb-4">Upload photos of your cargo to help carriers understand what they'll be transporting</p>
+            <p className="text-xs text-gray-500 mb-4">{t('loadForm.pricing.imagesDesc')}</p>
             
             <input
               ref={imageInputRef}
@@ -857,20 +859,20 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                   className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-green-500 hover:text-green-500 transition-colors"
                 >
                   <Image className="h-6 w-6 mb-1" />
-                  <span className="text-xs">Add Photo</span>
+                  <span className="text-xs">{t('loadForm.pricing.addPhoto')}</span>
                 </button>
               )}
             </div>
-            <p className="text-xs text-gray-400 mt-2">Max 5 images, 5MB each (JPG, PNG)</p>
+            <p className="text-xs text-gray-400 mt-2">{t('loadForm.pricing.maxImages')}</p>
           </div>
 
           {/* Document Upload */}
           <div className="border-t pt-6">
             <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Documents (Optional)
+              {t('loadForm.pricing.documents')}
             </h3>
-            <p className="text-xs text-gray-500 mb-4">Upload invoices, packing lists, or other relevant documents</p>
+            <p className="text-xs text-gray-500 mb-4">{t('loadForm.pricing.documentsDesc')}</p>
             
             <input
               ref={docInputRef}
@@ -908,11 +910,11 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                   className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center gap-2 text-gray-400 hover:border-green-500 hover:text-green-500 transition-colors"
                 >
                   <Upload className="h-5 w-5" />
-                  <span>Upload Document</span>
+                  <span>{t('loadForm.pricing.uploadDocument')}</span>
                 </button>
               )}
             </div>
-            <p className="text-xs text-gray-400 mt-2">Max 5 documents, 10MB each (PDF, DOC, XLS)</p>
+            <p className="text-xs text-gray-400 mt-2">{t('loadForm.pricing.maxDocuments')}</p>
           </div>
 
           {/* Terms & Conditions */}
@@ -927,18 +929,17 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
                 />
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    I accept the Terms & Conditions <span className="text-red-500">*</span>
+                    {t('loadForm.pricing.termsTitle')} <span className="text-red-500">*</span>
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
-                    By posting this load, I agree to the{' '}
+                    {t('loadForm.pricing.termsDesc')}{' '}
                     <a href="/terms" target="_blank" className="text-green-600 hover:underline font-medium">
-                      Terms of Service
+                      {t('loadForm.pricing.termsOfService')}
                     </a>{' '}
-                    and{' '}
+                    {t('loadForm.pricing.termsAnd')}{' '}
                     <a href="/privacy" target="_blank" className="text-green-600 hover:underline font-medium">
-                      Privacy Policy
+                      {t('loadForm.pricing.privacyPolicy')}
                     </a>
-                    . I confirm that all information provided is accurate.
                   </p>
                 </div>
               </label>
@@ -957,7 +958,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back
+              {t('loadForm.nav.back')}
             </button>
           ) : onCancel ? (
             <button
@@ -965,7 +966,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               onClick={onCancel}
               className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
             >
-              Cancel
+              {t('loadForm.nav.cancel')}
             </button>
           ) : <div />}
         </div>
@@ -977,7 +978,7 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               onClick={handleNext}
               className="flex items-center gap-2 px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium shadow-sm"
             >
-              Continue
+              {t('loadForm.nav.continue')}
               <ChevronRight className="h-4 w-4" />
             </button>
           ) : (
@@ -990,12 +991,12 @@ export function LoadPostingForm({ onSuccess, onCancel }: LoadPostingFormProps) {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Posting...
+                  {t('loadForm.nav.posting')}
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4" />
-                  Post Load
+                  {t('loadForm.nav.postLoad')}
                 </>
               )}
             </button>

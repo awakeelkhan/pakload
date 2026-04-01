@@ -212,10 +212,10 @@ export default function PostLoad() {
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <Package className="w-5 h-5 text-green-600" />
                 </div>
-                Post a New Load
+                {t('postLoad.title')}
               </h1>
               <p className="text-slate-600 mt-2">
-                Fill in the details below. Carriers will be able to view and bid on your load.
+                {t('postLoad.subtitle')}
               </p>
             </div>
             
@@ -250,10 +250,10 @@ export default function PostLoad() {
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                   <MapPin className="w-5 h-5 text-green-600" />
                 </div>
-                Post Truck Availability
+                {t('postLoad.selection.postAvailability')}
               </h1>
               <p className="text-slate-600 mt-2">
-                Let shippers know your truck is available. They can contact you for loads.
+                {t('postLoad.selection.postAvailabilityDesc')}
               </p>
             </div>
             
@@ -288,10 +288,10 @@ export default function PostLoad() {
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <ShoppingBag className="w-5 h-5 text-blue-600" />
                 </div>
-                Submit a Market Request
+                {t('postLoad.selection.transportRequest')}
               </h1>
               <p className="text-slate-600 mt-2">
-                Tell us what you need and our team will find the best carriers for you.
+                {t('postLoad.selection.transportRequestDesc')}
               </p>
             </div>
             

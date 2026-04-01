@@ -95,12 +95,12 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       if (response.ok) {
         const fullLoad = await response.json();
         setEditForm({
-          origin: fullLoad.origin || load.load.split(' → ')[0] || '',
-          destination: fullLoad.destination || load.load.split(' → ')[1] || '',
-          cargoType: fullLoad.cargoType || load.cargo || '',
-          weight: fullLoad.weight?.toString() || load.weight?.replace(' kg', '').replace(',', '') || '',
-          price: fullLoad.price?.toString() || load.amount?.toString() || '',
-          description: fullLoad.description || ''
+          origin: fullLoad.load?.origin || fullLoad.origin || load.load.split(' → ')[0] || '',
+          destination: fullLoad.load?.destination || fullLoad.destination || load.load.split(' → ')[1]?.trim() || '',
+          cargoType: fullLoad.load?.cargoType || fullLoad.cargoType || load.cargo || '',
+          weight: (fullLoad.load?.cargoWeight || fullLoad.load?.weight || fullLoad.weight)?.toString() || load.weight?.replace(' kg', '').replace(',', '') || '',
+          price: (fullLoad.load?.price || fullLoad.price)?.toString() || (load.amount > 0 ? load.amount.toString() : ''),
+          description: fullLoad.load?.description || fullLoad.description || ''
         });
       } else {
         // Fallback to partial data
@@ -158,7 +158,7 @@ export default function ShipperDashboard({ user }: ShipperDashboardProps) {
       alert('Please enter a valid weight');
       return;
     }
-    if (!editForm.price || parseFloat(editForm.price) <= 0) {
+    if (editForm.price !== '' && (isNaN(parseFloat(editForm.price)) || parseFloat(editForm.price) < 0)) {
       alert('Please enter a valid price');
       return;
     }

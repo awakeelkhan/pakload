@@ -852,5 +852,159 @@
     "next": "Next",
     "submitting": "Submitting...",
     "submitRequest": "Submit Request"
+  },
+  "loadForm": {
+    "steps": {
+      "pickup": "Pickup",
+      "delivery": "Delivery",
+      "cargo": "Cargo",
+      "priceMedia": "Price & Media"
+    },
+    "pickup": {
+      "title": "Pickup Location",
+      "subtitle": "Where should the carrier pick up the load?",
+      "originCity": "Origin City",
+      "selectCity": "Select city",
+      "addressArea": "Address / Area",
+      "pinLocation": "Pin Pickup Location on Map",
+      "pickupDate": "Pickup Date",
+      "timeWindow": "Time Window",
+      "flexible": "Flexible",
+      "morning": "Morning (6AM - 12PM)",
+      "afternoon": "Afternoon (12PM - 6PM)",
+      "evening": "Evening (6PM - 10PM)",
+      "contactOptional": "Pickup Contact (Optional)",
+      "contactName": "Contact Name",
+      "phoneNumber": "Phone Number"
+    },
+    "delivery": {
+      "title": "Delivery Location",
+      "subtitle": "Where should the load be delivered?",
+      "destinationCity": "Destination City",
+      "selectCity": "Select city",
+      "addressArea": "Address / Area",
+      "pinLocation": "Pin Delivery Location on Map",
+      "deliveryDate": "Delivery Date",
+      "timeWindow": "Time Window",
+      "transitTime": "Transit Time",
+      "days": "days",
+      "contactOptional": "Delivery Contact (Optional)",
+      "receiverName": "Receiver Name",
+      "phoneNumber": "Phone Number"
+    },
+    "cargo": {
+      "title": "Cargo Details",
+      "subtitle": "Describe your cargo and select equipment",
+      "cargoType": "Cargo Type",
+      "selectCargoType": "Select cargo type",
+      "weight": "Weight",
+      "cargoDescription": "Cargo Description",
+      "descPlaceholder": "Describe your cargo (packaging, handling instructions, etc.)",
+      "equipmentType": "Equipment Type"
+    },
+    "pricing": {
+      "title": "Pricing & Media",
+      "subtitle": "Set your rate and upload images/documents",
+      "yourRate": "Your Rate",
+      "currencyConversion": "Currency Conversion",
+      "rate": "Rate",
+      "pkr": "PKR (Pakistani Rupee)",
+      "usd": "USD (US Dollar)",
+      "totalNote": "This is the total amount you're willing to pay for this shipment",
+      "specialRequirements": "Special Requirements",
+      "specialRequirementsPlaceholder": "Any special handling, temperature requirements, hazmat, etc.",
+      "productImages": "Product Images (Optional)",
+      "imagesDesc": "Upload photos of your cargo to help carriers understand what they'll be transporting",
+      "addPhoto": "Add Photo",
+      "maxImages": "Max 5 images, 5MB each (JPG, PNG)",
+      "documents": "Documents (Optional)",
+      "documentsDesc": "Upload invoices, packing lists, or other relevant documents",
+      "uploadDocument": "Upload Document",
+      "maxDocuments": "Max 5 documents, 10MB each (PDF, DOC, XLS)",
+      "termsTitle": "I accept the Terms & Conditions",
+      "termsDesc": "By posting this load, I agree to the",
+      "termsAnd": "and",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "success": {
+      "title": "Load Submitted for Approval!",
+      "trackingNumber": "Tracking Number",
+      "pendingApproval": "Pending Admin Approval",
+      "pendingApprovalDesc": "Your load will be visible to carriers once approved by our admin team. This usually takes 1-2 hours during business hours.",
+      "notified": "You will be notified once your load is approved.",
+      "viewLoads": "View My Loads",
+      "postAnother": "Post Another Load"
+    },
+    "nav": {
+      "back": "Back",
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "posting": "Posting...",
+      "postLoad": "Post Load"
+    },
+    "pakistan": "Pakistan",
+    "chinaCPEC": "China (CPEC)"
+  },
+  "helpCenter": {
+    "title": "How can we help you?",
+    "subtitle": "Find guides, tutorials, and answers to common questions",
+    "searchPlaceholder": "Search help articles...",
+    "home": "Home",
+    "breadcrumb": "Help Center",
+    "sections": {
+      "gettingStarted": "Getting Started",
+      "forShippers": "For Shippers",
+      "forCarriers": "For Carriers",
+      "forAdmins": "For Admins",
+      "faq": "FAQ"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questions": [
+        {
+          "question": "How do I create an account?",
+          "answer": "Click 'Sign Up' on the homepage, choose your role (Shipper or Carrier), fill in your details, and verify your email. You'll be ready to use the platform immediately."
+        },
+        {
+          "question": "How do I post a load?",
+          "answer": "After logging in as a Shipper, click 'Post Load' in the navigation. Fill out the 6-step form with origin, destination, cargo details, schedule, and pricing. Submit to make your load visible to carriers."
+        },
+        {
+          "question": "How do I find available loads?",
+          "answer": "As a Carrier, go to 'Find Loads' page. Use filters to narrow down by origin, destination, cargo type, or date. Click on any load to see details and submit a quote."
+        },
+        {
+          "question": "How do I track my shipment?",
+          "answer": "Use the 'Track Shipment' feature in the navigation. Enter your tracking number to see real-time status, location, and estimated delivery time."
+        },
+        {
+          "question": "How do I add my vehicles?",
+          "answer": "Carriers can add vehicles from Dashboard > My Vehicles. Click 'Add Vehicle', enter details like type, registration, capacity, and current location."
+        },
+        {
+          "question": "How do I submit a quote/bid?",
+          "answer": "When viewing a load, click 'Submit Quote'. Enter your proposed price and any notes. The shipper will review and accept or negotiate."
+        },
+        {
+          "question": "How do I change my password?",
+          "answer": "Go to Profile > Click 'Change Password'. Enter your current password and new password twice to confirm."
+        },
+        {
+          "question": "What payment methods are accepted?",
+          "answer": "We support bank transfers, mobile wallets (JazzCash, Easypaisa), and credit/debit cards. Payment terms are agreed between shipper and carrier."
+        }
+      ]
+    },
+    "contactSupport": "Contact Support",
+    "phoneSupport": "Phone Support",
+    "emailSupport": "Email Support",
+    "liveChat": "Live Chat",
+    "available24h": "Available 24/7",
+    "responseTime": "Response Time",
+    "responseTimeValue": "Within 2 hours",
+    "viewAllArticles": "View All Articles",
+    "stillNeedHelp": "Still need help?",
+    "supportDesc": "Our support team is available 24/7 to help you"
   }
 }

@@ -870,5 +870,159 @@
       "usd": "USD - 美元",
       "cny": "CNY - 人民币"
     }
+  },
+  "loadForm": {
+    "steps": {
+      "pickup": "取货",
+      "delivery": "送货",
+      "cargo": "货物",
+      "priceMedia": "定价与媒体"
+    },
+    "pickup": {
+      "title": "取货地点",
+      "subtitle": "承运商应在哪里取货？",
+      "originCity": "始发城市",
+      "selectCity": "选择城市",
+      "addressArea": "地址/区域",
+      "pinLocation": "在地图上标记取货位置",
+      "pickupDate": "取货日期",
+      "timeWindow": "时间窗口",
+      "flexible": "灵活",
+      "morning": "上午（6时-12时）",
+      "afternoon": "下午（12时-18时）",
+      "evening": "晚上（18时-22时）",
+      "contactOptional": "取货联系人（可选）",
+      "contactName": "联系人姓名",
+      "phoneNumber": "电话号码"
+    },
+    "delivery": {
+      "title": "送货地点",
+      "subtitle": "货物应送至哪里？",
+      "destinationCity": "目的地城市",
+      "selectCity": "选择城市",
+      "addressArea": "地址/区域",
+      "pinLocation": "在地图上标记送货位置",
+      "deliveryDate": "送货日期",
+      "timeWindow": "时间窗口",
+      "transitTime": "运输时间",
+      "days": "天",
+      "contactOptional": "收货联系人（可选）",
+      "receiverName": "收货人姓名",
+      "phoneNumber": "电话号码"
+    },
+    "cargo": {
+      "title": "货物详情",
+      "subtitle": "描述您的货物并选择设备",
+      "cargoType": "货物类型",
+      "selectCargoType": "选择货物类型",
+      "weight": "重量",
+      "cargoDescription": "货物描述",
+      "descPlaceholder": "描述您的货物（包装、搬运说明等）",
+      "equipmentType": "设备类型"
+    },
+    "pricing": {
+      "title": "定价与媒体",
+      "subtitle": "设置价格并上传图片/文件",
+      "yourRate": "您的报价",
+      "currencyConversion": "货币换算",
+      "rate": "汇率",
+      "pkr": "巴基斯坦卢比（PKR）",
+      "usd": "美元（USD）",
+      "totalNote": "这是您愿意为此次货运支付的总金额",
+      "specialRequirements": "特殊要求",
+      "specialRequirementsPlaceholder": "任何特殊搬运、温度要求、危险品等",
+      "productImages": "产品图片（可选）",
+      "imagesDesc": "上传货物照片以帮助承运商了解运输内容",
+      "addPhoto": "添加照片",
+      "maxImages": "最多5张图片，每张5MB（JPG、PNG）",
+      "documents": "文件（可选）",
+      "documentsDesc": "上传发票、装箱单或其他相关文件",
+      "uploadDocument": "上传文件",
+      "maxDocuments": "最多5份文件，每份10MB（PDF、DOC、XLS）",
+      "termsTitle": "我接受条款和条件",
+      "termsDesc": "发布此货物，即表示我同意",
+      "termsAnd": "和",
+      "termsOfService": "服务条款",
+      "privacyPolicy": "隐私政策"
+    },
+    "success": {
+      "title": "货物已提交待审核！",
+      "trackingNumber": "追踪号码",
+      "pendingApproval": "待管理员审核",
+      "pendingApprovalDesc": "货物获批后将对承运商可见。工作时间内通常需要1-2小时。",
+      "notified": "货物获批后您将收到通知。",
+      "viewLoads": "查看我的货物",
+      "postAnother": "再次发布货物"
+    },
+    "nav": {
+      "back": "返回",
+      "cancel": "取消",
+      "continue": "继续",
+      "posting": "发布中...",
+      "postLoad": "发布货物"
+    },
+    "pakistan": "巴基斯坦",
+    "chinaCPEC": "中国（中巴经济走廊）"
+  },
+  "helpCenter": {
+    "title": "我们如何帮助您？",
+    "subtitle": "查找指南、教程和常见问题解答",
+    "searchPlaceholder": "搜索帮助文章...",
+    "home": "首页",
+    "breadcrumb": "帮助中心",
+    "sections": {
+      "gettingStarted": "入门指南",
+      "forShippers": "货主指南",
+      "forCarriers": "承运商指南",
+      "forAdmins": "管理员指南",
+      "faq": "常见问题"
+    },
+    "faq": {
+      "title": "常见问题解答",
+      "questions": [
+        {
+          "question": "如何创建账户？",
+          "answer": "点击首页的【注册】，选择您的角色（货主或承运商），填写详细信息，并验证您的电子邮件。您将立即可以使用该平台。"
+        },
+        {
+          "question": "如何发布货源？",
+          "answer": "以货主身份登录后，点击导航栏中的【发布货源】。填写包含起点、终点、货物详情、时间表和定价的表单。提交后，您的货源将对承运商可见。"
+        },
+        {
+          "question": "如何查找可用货源？",
+          "answer": "作为承运商，转到【查找货源】页面。使用过滤器按起点、终点、货物类型或日期缩小范围。点击任何货源以查看详情并提交报价。"
+        },
+        {
+          "question": "如何追踪货物？",
+          "answer": "使用导航栏中的【追踪货物】功能。输入您的追踪号码以查看实时状态、位置和预计交付时间。"
+        },
+        {
+          "question": "如何添加车辆？",
+          "answer": "承运商可以从控制面板 > 我的车辆添加车辆。点击【添加车辆】，输入类型、车牌、载重和当前位置等详细信息。"
+        },
+        {
+          "question": "如何提交报价？",
+          "answer": "查看货源时，点击【提交报价】。输入您的建议价格和任何备注。货主将审核并接受或协商。"
+        },
+        {
+          "question": "如何更改密码？",
+          "answer": "转到个人资料 > 点击【更改密码】。输入您的当前密码和两次新密码以确认。"
+        },
+        {
+          "question": "接受哪些付款方式？",
+          "answer": "我们支持银行转账、移动钱包（JazzCash、Easypaisa）和信用卡/借记卡。付款条款由货主和承运商协商确定。"
+        }
+      ]
+    },
+    "contactSupport": "联系支持",
+    "phoneSupport": "电话支持",
+    "emailSupport": "电子邮件支持",
+    "liveChat": "在线客服",
+    "available24h": "全天候可用",
+    "responseTime": "响应时间",
+    "responseTimeValue": "2小时内",
+    "viewAllArticles": "查看所有文章",
+    "stillNeedHelp": "还需要帮助吗？",
+    "supportDesc": "我们的支持团队全天候为您提供帮助"
   }
 }

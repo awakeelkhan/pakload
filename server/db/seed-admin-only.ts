@@ -8,11 +8,11 @@ async function seedAdminData() {
     // Create routes
     console.log('📍 Creating routes...');
     await db.insert(routes).values([
-      { from: 'Kashgar', to: 'Islamabad', distance: 1200, estimatedDays: '10-12', borderCrossing: 'Khunjerab Pass', routePopularity: 'High', activeTrucks: 45, activeLoads: 67, avgPrice: '4500' },
-      { from: 'Urumqi', to: 'Lahore', distance: 1500, estimatedDays: '12-14', borderCrossing: 'Khunjerab Pass', routePopularity: 'High', activeTrucks: 38, activeLoads: 52, avgPrice: '5200' },
-      { from: 'Kashgar', to: 'Karachi', distance: 1800, estimatedDays: '14-16', borderCrossing: 'Khunjerab Pass', routePopularity: 'Medium', activeTrucks: 28, activeLoads: 41, avgPrice: '6500' },
-      { from: 'Tashkurgan', to: 'Gilgit', distance: 350, estimatedDays: '4-6', borderCrossing: 'Khunjerab Pass', routePopularity: 'Medium', activeTrucks: 15, activeLoads: 22, avgPrice: '1500' },
-      { from: 'Hotan', to: 'Peshawar', distance: 1100, estimatedDays: '8-10', borderCrossing: 'Khunjerab Pass', routePopularity: 'Low', activeTrucks: 12, activeLoads: 18, avgPrice: '3800' },
+      { from: 'Kashgar', to: 'Islamabad', distance: 1200, estimatedDays: '10-12', borderCrossing: 'Khunjerab Pass', routePopularity: 'High', activeTrucks: 45, activeLoads: 67, avgPrice: '308000' },
+      { from: 'Urumqi', to: 'Lahore', distance: 1500, estimatedDays: '12-14', borderCrossing: 'Khunjerab Pass', routePopularity: 'High', activeTrucks: 38, activeLoads: 52, avgPrice: '380000' },
+      { from: 'Kashgar', to: 'Karachi', distance: 1800, estimatedDays: '14-16', borderCrossing: 'Khunjerab Pass', routePopularity: 'Medium', activeTrucks: 28, activeLoads: 41, avgPrice: '452000' },
+      { from: 'Tashkurgan', to: 'Gilgit', distance: 350, estimatedDays: '4-6', borderCrossing: 'Khunjerab Pass', routePopularity: 'Medium', activeTrucks: 15, activeLoads: 22, avgPrice: '102000' },
+      { from: 'Hotan', to: 'Peshawar', distance: 1100, estimatedDays: '8-10', borderCrossing: 'Khunjerab Pass', routePopularity: 'Low', activeTrucks: 12, activeLoads: 18, avgPrice: '271000' },
     ]).onConflictDoNothing();
     console.log('✅ Routes created');
 
@@ -59,11 +59,11 @@ async function seedAdminData() {
     // Create route pricing
     console.log('🛣️ Creating route pricing...');
     await db.insert(routePricing).values([
-      { routeId: 1, basePrice: '4500.00', surgeMultiplier: '1.00', status: 'published' },
-      { routeId: 2, basePrice: '5200.00', surgeMultiplier: '1.00', status: 'published' },
-      { routeId: 3, basePrice: '6500.00', surgeMultiplier: '1.20', status: 'published' },
-      { routeId: 4, basePrice: '1500.00', surgeMultiplier: '1.00', status: 'published' },
-      { routeId: 5, basePrice: '3800.00', surgeMultiplier: '1.00', status: 'published' },
+      { routeId: 1, basePrice: '308000.00', surgeMultiplier: '1.00', status: 'published' },
+      { routeId: 2, basePrice: '380000.00', surgeMultiplier: '1.00', status: 'published' },
+      { routeId: 3, basePrice: '452000.00', surgeMultiplier: '1.00', status: 'published' },
+      { routeId: 4, basePrice: '102000.00', surgeMultiplier: '1.00', status: 'published' },
+      { routeId: 5, basePrice: '271000.00', surgeMultiplier: '1.00', status: 'published' },
     ]).onConflictDoNothing();
     console.log('✅ Route pricing created');
 

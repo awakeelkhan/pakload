@@ -155,7 +155,7 @@ export default function RoutePricing() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Route</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Base Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Base Price (PKR)</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Surge Multiplier</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -174,7 +174,7 @@ export default function RoutePricing() {
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-900">{rp.origin} → {rp.destination}</div>
                       </td>
-                      <td className="px-6 py-4 text-gray-900 font-medium">${rp.basePrice}</td>
+                      <td className="px-6 py-4 text-gray-900 font-medium">PKR {parseFloat(rp.basePrice).toLocaleString()}</td>
                       <td className="px-6 py-4 text-gray-900">{rp.surgeMultiplier}x</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${
@@ -243,7 +243,7 @@ export default function RoutePricing() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Base Price ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Base Price (PKR)</label>
                   <input
                     type="number"
                     value={formData.basePrice}

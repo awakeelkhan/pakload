@@ -1,0 +1,14 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#16a34a"/>
+  
+  <!-- Simplified truck for favicon size -->
+  <path d="M5 21 L5 13 C5 12 6 11 7 11 L18 11 C19 11 20 12 20 13 L20 21 Z" fill="white"/>
+  <path d="M20 15 L20 21 L25 21 L25 18 C25 16.5 24 15 22.5 15 Z" fill="white"/>
+  <circle cx="9.5" cy="22" r="2.5" fill="#1f2937"/>
+  <circle cx="22" cy="22" r="2.5" fill="#1f2937"/>
+  
+  <!-- Location dot -->
+  <circle cx="26" cy="9" r="4" fill="white"/>
+  <circle cx="26" cy="9" r="2" fill="#16a34a"/>
+</svg>
